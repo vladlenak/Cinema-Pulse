@@ -11,3 +11,6 @@ Cinema Pulse is a user-friendly Android application designed for discovering and
 - Architecture: Clean Architecture, MVI, Single Activity.
 - Multithreading: Coroutines.
 - Dependency injection: Hilt.
+
+## How to use
+You need to add the API_KEY from themoviedb.org to the gradle.properties file as apikey=YOUR_API_KEY.
