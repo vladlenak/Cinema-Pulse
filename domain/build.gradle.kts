@@ -38,6 +38,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
 
+    // Gson
     implementation (libs.converter.gson)
 
     testImplementation(libs.junit)

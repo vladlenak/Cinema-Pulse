@@ -1,8 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-    alias(libs.plugins.compose.compiler)
     alias(libs.plugins.google.dagger.hilt.android)
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.jetbrains.kotlin.plugin.serialization)
     alias(libs.plugins.jetbrains.kotlin.kapt)
 }
 
@@ -69,12 +70,20 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.retrofit)
-    implementation(libs.converter.gson)
+
+    // Navigation
+    implementation(libs.navigation.compose)
+    implementation(libs.kotlinx.serialization.json)
+    // Coil
     implementation(libs.coil.compose)
+    // Hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
+    // Retrofit
+    implementation(libs.retrofit)
+    // Gson
+    implementation(libs.converter.gson)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

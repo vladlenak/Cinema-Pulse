@@ -40,7 +40,9 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
 
+    // Retrofit
     implementation (libs.retrofit)
+    // Gson
     implementation (libs.converter.gson)
 
     testImplementation(libs.junit)
