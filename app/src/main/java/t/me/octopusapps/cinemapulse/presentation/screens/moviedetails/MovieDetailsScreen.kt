@@ -32,12 +32,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import t.me.octopusapps.cinemapulse.BuildConfig
+import t.me.octopusapps.cinemapulse.presentation.config.ImageConstants
 import t.me.octopusapps.cinemapulse.presentation.models.MovieUiModel
-import t.me.octopusapps.domain.constants.ApiConstant
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MovieDetailsScreen(
+internal fun MovieDetailsScreen(
     movieId: Int,
     viewModel: MovieDetailsViewModel = hiltViewModel()
 ) {
@@ -93,7 +93,7 @@ fun MovieDetailsScreen(
                     ) {
                         Image(
                             painter = rememberAsyncImagePainter(
-                                model = "${ApiConstant.IMAGE_BASE_URL}${state.movie.posterPath}"
+                                model = "${ImageConstants.IMAGE_BASE_URL}${state.movie.posterPath}"
                             ),
                             contentDescription = "${state.movie.title} poster",
                             modifier = Modifier
@@ -130,7 +130,7 @@ fun MovieDetailsScreen(
 }
 
 @Composable
-fun MovieAdditionalInfo(movie: MovieUiModel) {
+private fun MovieAdditionalInfo(movie: MovieUiModel) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween

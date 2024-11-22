@@ -9,7 +9,7 @@ import t.me.octopusapps.cinemapulse.presentation.navigation.MovieApp
 import t.me.octopusapps.cinemapulse.presentation.theme.CinemaPulseTheme
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+internal class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

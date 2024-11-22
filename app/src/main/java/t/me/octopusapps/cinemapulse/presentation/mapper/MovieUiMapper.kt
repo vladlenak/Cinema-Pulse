@@ -2,10 +2,10 @@ package t.me.octopusapps.cinemapulse.presentation.mapper
 
 import t.me.octopusapps.cinemapulse.presentation.models.MovieUiList
 import t.me.octopusapps.cinemapulse.presentation.models.MovieUiModel
-import t.me.octopusapps.domain.model.Movie
-import t.me.octopusapps.domain.model.MovieList
+import t.me.octopusapps.domain.models.Movie
+import t.me.octopusapps.domain.models.MovieList
 
-fun Movie.mapToMovieUiModel() =
+internal fun Movie.mapToMovieUiModel() =
     MovieUiModel(
         id = this.id,
         title = this.title,
@@ -23,7 +23,7 @@ fun Movie.mapToMovieUiModel() =
         video = this.video
     )
 
-fun MovieList.mapToMovieUiList() =
+internal fun MovieList.mapToMovieUiList() =
     MovieUiList(
         page = this.page,
         results = this.results.map { it.mapToMovieUiModel() }

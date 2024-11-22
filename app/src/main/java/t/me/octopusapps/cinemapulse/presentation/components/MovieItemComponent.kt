@@ -23,7 +23,7 @@ import coil.compose.rememberAsyncImagePainter
 import t.me.octopusapps.cinemapulse.presentation.models.MovieUiModel
 
 @Composable
-fun MovieItemComponent(movie: MovieUiModel, onClick: (MovieUiModel) -> Unit) {
+internal fun MovieItemComponent(movie: MovieUiModel, onClick: (MovieUiModel) -> Unit) {
     Card(
         modifier = Modifier
             .padding(8.dp)

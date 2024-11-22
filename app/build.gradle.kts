@@ -4,12 +4,12 @@ plugins {
     alias(libs.plugins.google.dagger.hilt.android)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.jetbrains.kotlin.plugin.serialization)
-    alias(libs.plugins.jetbrains.kotlin.kapt)
+    alias(libs.plugins.google.devtools.ksp)
 }
 
 android {
     namespace = "t.me.octopusapps.cinemapulse"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "t.me.octopusapps.cinemapulse"
@@ -55,12 +55,14 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    kotlin {
+        explicitApi()
+    }
 }
 
 dependencies {
 
     implementation(project(":data"))
-    implementation(project(":domain"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -78,7 +80,9 @@ dependencies {
     implementation(libs.coil.compose)
     // Hilt
     implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
+    implementation(project(":domain"))
+    implementation(project(":domain"))
+    ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
     // Retrofit
     implementation(libs.retrofit)

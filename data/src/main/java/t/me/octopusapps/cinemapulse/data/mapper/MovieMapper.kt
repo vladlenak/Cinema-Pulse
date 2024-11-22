@@ -2,10 +2,10 @@ package t.me.octopusapps.cinemapulse.data.mapper
 
 import t.me.octopusapps.cinemapulse.data.models.MovieDetails
 import t.me.octopusapps.cinemapulse.data.models.MovieResponse
-import t.me.octopusapps.domain.model.Movie
-import t.me.octopusapps.domain.model.MovieList
+import t.me.octopusapps.domain.models.Movie
+import t.me.octopusapps.domain.models.MovieList
 
-fun MovieDetails.mapToMovie() =
+internal fun MovieDetails.mapToMovie() =
     Movie(
         id = this.id,
         title = this.title,
@@ -23,7 +23,7 @@ fun MovieDetails.mapToMovie() =
         video = this.video
     )
 
-fun MovieResponse.mapToMovieList() =
+internal fun MovieResponse.mapToMovieList() =
     MovieList(
         page = this.page,
         results = this.results.map { it.mapToMovie() }

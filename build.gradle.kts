@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.plugin.serialization) apply false
     // Hilt
     alias(libs.plugins.google.dagger.hilt.android) apply false
-    // Kapt
-    alias(libs.plugins.jetbrains.kotlin.kapt) apply false
+    // KSP
+    alias(libs.plugins.google.devtools.ksp) apply false
+    alias(libs.plugins.jetbrains.kotlin.jvm) apply false
 }

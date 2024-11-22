@@ -11,7 +11,7 @@ import t.me.octopusapps.domain.usecases.SearchMoviesUseCase
 import javax.inject.Inject
 
 @HiltViewModel
-class MovieSearchViewModel @Inject constructor(
+internal class MovieSearchViewModel @Inject constructor(
     private val searchMoviesUseCase: SearchMoviesUseCase
 ) : ViewModel() {
 

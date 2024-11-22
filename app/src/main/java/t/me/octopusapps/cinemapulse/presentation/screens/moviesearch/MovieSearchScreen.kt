@@ -31,7 +31,7 @@ import t.me.octopusapps.cinemapulse.presentation.components.MovieItemComponent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MovieSearchScreen(
+internal fun MovieSearchScreen(
     onMovieClick: (Int) -> Unit,
     viewModel: MovieSearchViewModel = hiltViewModel()
 ) {

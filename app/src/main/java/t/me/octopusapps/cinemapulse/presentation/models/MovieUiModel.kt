@@ -1,6 +1,6 @@
 package t.me.octopusapps.cinemapulse.presentation.models
 
-data class MovieUiModel(
+internal data class MovieUiModel(
     val id: Int,
     val title: String,
     val overview: String,
@@ -15,9 +15,4 @@ data class MovieUiModel(
     val originalLanguage: String,
     val originalTitle: String,
     val video: Boolean
-)
-
-data class MovieUiList(
-    val page: Int,
-    val results: List<MovieUiModel>
 )

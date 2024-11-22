@@ -11,7 +11,7 @@ import t.me.octopusapps.domain.usecases.SearchMoviesUseCase
 
 @Module
 @InstallIn(ViewModelComponent::class)
-object DomainModule {
+internal object DomainModule {
 
     @Provides
     fun provideSearchMoviesUseCase(repository: MovieRepository) =

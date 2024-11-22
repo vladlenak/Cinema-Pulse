@@ -6,7 +6,7 @@ import retrofit2.http.Query
 import t.me.octopusapps.cinemapulse.data.models.MovieDetails
 import t.me.octopusapps.cinemapulse.data.models.MovieResponse
 
-interface MovieApi {
+internal interface MovieApi {
     @GET("movie/popular")
     suspend fun getPopularMovies(
         @Query("api_key") apiKey: String,

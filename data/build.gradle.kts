@@ -1,11 +1,13 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.google.dagger.hilt.android)
+    alias(libs.plugins.google.devtools.ksp)
 }
 
 android {
     namespace = "t.me.octopusapps.cinemapulse"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 25
@@ -30,15 +32,21 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+    kotlin {
+        explicitApi()
+    }
 }
 
 dependencies {
 
-    implementation(project(":domain"))
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+
+    // Hilt
+    implementation(libs.hilt.android)
+    implementation(project(":domain"))
+    ksp(libs.hilt.compiler)
 
     // Retrofit
     implementation (libs.retrofit)

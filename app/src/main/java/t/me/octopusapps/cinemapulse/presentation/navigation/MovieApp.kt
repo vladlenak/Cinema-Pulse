@@ -10,7 +10,7 @@ import t.me.octopusapps.cinemapulse.presentation.screens.movielist.MovieListScre
 import t.me.octopusapps.cinemapulse.presentation.screens.moviesearch.MovieSearchScreen
 
 @Composable
-fun MovieApp() {
+internal fun MovieApp() {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = MovieList) {

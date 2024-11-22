@@ -1,6 +1,6 @@
-package t.me.octopusapps.domain.model
+package t.me.octopusapps.domain.models
 
-data class Movie(
+public data class Movie(
     val id: Int,
     val title: String,
     val overview: String,
@@ -15,9 +15,4 @@ data class Movie(
     val originalLanguage: String,
     val originalTitle: String,
     val video: Boolean
-)
-
-data class MovieList(
-    val page: Int,
-    val results: List<Movie>
 )

@@ -11,7 +11,7 @@ import t.me.octopusapps.domain.usecases.GetPopularMoviesUseCase
 import javax.inject.Inject
 
 @HiltViewModel
-class MovieListViewModel @Inject constructor(
+internal class MovieListViewModel @Inject constructor(
     private val getPopularMoviesUseCase: GetPopularMoviesUseCase
 ) : ViewModel() {
 
