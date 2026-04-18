@@ -14,7 +14,11 @@ plugins {
 
 android {
     namespace = "t.me.octopusapps.cinemapulse"
-    compileSdk = 35
+    compileSdk {
+        version = release(36) {
+            minorApiLevel = 1
+        }
+    }
 
     defaultConfig {
         minSdk = 25
