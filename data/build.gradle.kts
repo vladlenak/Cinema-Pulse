@@ -2,9 +2,6 @@ plugins {
     // --- Android ---
     alias(libs.plugins.android.library)
 
-    // --- Kotlin ---
-    alias(libs.plugins.jetbrains.kotlin.android)
-
     // --- DI ---
     alias(libs.plugins.google.dagger.hilt.android)
 
@@ -43,12 +40,12 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
-    // --- API discipline ---
     kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
+
+        // --- API discipline ---
         explicitApi()
     }
 }

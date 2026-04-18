@@ -1,7 +1,7 @@
 [versions]
 # Core
-agp = "8.13.2"
-kotlin = "2.0.20"
+agp = "9.1.1"
+kotlin = "2.3.20"
 
 # AndroidX
 coreKtx = "1.15.0"
@@ -21,7 +21,7 @@ junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 
 # DI
-hiltAndroid = "2.52"
+hiltAndroid = "2.59.2"
 hiltNavigationCompose = "1.2.0"
 
 # Networking
@@ -38,7 +38,7 @@ navigationCompose = "2.8.4"
 coilCompose = "2.7.0"
 
 # KSP
-ksp = "2.0.20-1.0.25"
+ksp = "2.3.2"
 
 # Plugins
 serializationPlugin = "2.1.0-Beta1"
