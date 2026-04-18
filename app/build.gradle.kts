@@ -1,9 +1,16 @@
 plugins {
+    // --- Android ---
     alias(libs.plugins.android.application)
+
+    // --- Kotlin ---
     alias(libs.plugins.jetbrains.kotlin.android)
-    alias(libs.plugins.google.dagger.hilt.android)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.jetbrains.kotlin.plugin.serialization)
+
+    // --- DI ---
+    alias(libs.plugins.google.dagger.hilt.android)
+
+    // --- Codegen ---
     alias(libs.plugins.google.devtools.ksp)
 }
 
@@ -15,13 +22,16 @@ android {
         applicationId = "t.me.octopusapps.cinemapulse"
         minSdk = 25
         targetSdk = 35
+
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
         vectorDrawables {
             useSupportLibrary = true
         }
+
         val apiKey = property("apikey")?.toString()
             ?: error("Add apikey into gradle.properties")
         buildConfigField("String", "API_KEY", "\"${apiKey}\"")
@@ -36,20 +46,24 @@ android {
             )
         }
     }
+
+    // --- Java / Kotlin ---
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+
     kotlinOptions {
         jvmTarget = "17"
     }
+
+    // --- Features ---
     buildFeatures {
         compose = true
         buildConfig = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
-    }
+
+    // --- Packaging ---
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -58,39 +72,51 @@ android {
 }
 
 dependencies {
-
+    // --- Modules ---
+    implementation(project(":domain"))
     implementation(project(":data"))
 
+    // --- Core Android ---
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
+
+    // --- Compose ---
     implementation(platform(libs.androidx.compose.bom))
+
+    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
-    // Navigation
+    // --- Navigation ---
     implementation(libs.navigation.compose)
+
+    // --- Serialization ---
     implementation(libs.kotlinx.serialization.json)
-    // Coil
+
+    // --- Image Loading ---
     implementation(libs.coil.compose)
-    // Hilt
+
+    // --- DI (Hilt) ---
     implementation(libs.hilt.android)
-    implementation(project(":domain"))
-    implementation(project(":domain"))
-    ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
-    // Retrofit
+    ksp(libs.hilt.compiler)
+
+    // --- Networking ---
     implementation(libs.retrofit)
-    // Gson
     implementation(libs.converter.gson)
 
+    // --- Unit tests ---
     testImplementation(libs.junit)
+
+    // --- Android tests ---
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+
+    // --- Debug ---
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
