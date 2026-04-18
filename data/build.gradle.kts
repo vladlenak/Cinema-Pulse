@@ -1,7 +1,14 @@
 plugins {
+    // --- Android ---
     alias(libs.plugins.android.library)
+
+    // --- Kotlin ---
     alias(libs.plugins.jetbrains.kotlin.android)
+
+    // --- DI ---
     alias(libs.plugins.google.dagger.hilt.android)
+
+    // --- Codegen ---
     alias(libs.plugins.google.devtools.ksp)
 }
 
@@ -25,35 +32,44 @@ android {
             )
         }
     }
+
+    // --- Java / Kotlin ---
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+
     kotlinOptions {
         jvmTarget = "17"
     }
+
+    // --- API discipline ---
     kotlin {
         explicitApi()
     }
 }
 
 dependencies {
+    // --- Modules ---
+    implementation(project(":domain"))
 
+    // --- Core ---
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
 
-    // Hilt
+    // --- DI (Hilt) ---
     implementation(libs.hilt.android)
-    implementation(project(":domain"))
     ksp(libs.hilt.compiler)
 
-    // Retrofit
-    implementation (libs.retrofit)
-    // Gson
-    implementation (libs.converter.gson)
+    // --- Networking ---
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
 
+    // --- Testing ---
     testImplementation(libs.junit)
+
+    // --- Android testing ---
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }
