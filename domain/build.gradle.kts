@@ -1,5 +1,8 @@
 plugins {
+    // --- Java ---
     id("java-library")
+
+    // --- Kotlin ---
     alias(libs.plugins.jetbrains.kotlin.jvm)
 }
 
@@ -9,8 +12,11 @@ java {
 }
 
 kotlin {
+    // --- Compiler ---
     compilerOptions {
         jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
     }
+
+    // --- API discipline ---
     explicitApi()
 }
