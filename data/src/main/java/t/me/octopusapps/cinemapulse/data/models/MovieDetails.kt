@@ -9,8 +9,8 @@ internal data class MovieDetails(
     @SerializedName("backdrop_path")
     val backdropPath: String? = null,
 
-    @SerializedName("genre_ids")
-    val genreIds: List<Int> = emptyList(),
+    @SerializedName("genres")
+    val genres: List<Genre>? = emptyList(),
 
     @SerializedName("id")
     val id: Int,
@@ -44,4 +44,9 @@ internal data class MovieDetails(
 
     @SerializedName("vote_count")
     val voteCount: Int
+)
+
+internal data class Genre(
+    @SerializedName("id") val id: Int,
+    @SerializedName("name") val name: String
 )
