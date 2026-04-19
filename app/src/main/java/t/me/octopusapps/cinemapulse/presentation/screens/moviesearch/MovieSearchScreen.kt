@@ -9,8 +9,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -32,6 +36,7 @@ import t.me.octopusapps.cinemapulse.presentation.components.MovieItemComponent
 @Composable
 internal fun MovieSearchScreen(
     onMovieClick: (Int) -> Unit,
+    onBackClick: () -> Unit,
     viewModel: MovieSearchViewModel = hiltViewModel()
 ) {
 
@@ -40,7 +45,17 @@ internal fun MovieSearchScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Search Movies") })
+            TopAppBar(
+                title = { Text("Search Movies") },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                }
+            )
         }
     ) { innerPadding ->
         Column(

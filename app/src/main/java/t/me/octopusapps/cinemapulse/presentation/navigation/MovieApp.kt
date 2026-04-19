@@ -28,7 +28,8 @@ internal fun MovieApp() {
             MovieSearchScreen(
                 onMovieClick = { movieId ->
                     navController.navigate(MovieDetails(movieId = movieId))
-                }
+                },
+                onBackClick = { navController.popBackStack() }
             )
         }
         composable<MovieDetails> { backStackEntry ->
