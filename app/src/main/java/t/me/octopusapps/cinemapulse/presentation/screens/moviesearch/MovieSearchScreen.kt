@@ -53,9 +53,7 @@ internal fun MovieSearchScreen(
                 value = query,
                 onValueChange = { newQuery ->
                     query = newQuery
-                    if (query.isNotEmpty()) {
-                        viewModel.searchMovies(query)
-                    }
+                    viewModel.onQueryChanged(newQuery)
                 },
                 label = { Text("Search") },
                 modifier = Modifier.fillMaxWidth()
@@ -77,10 +75,20 @@ internal fun MovieSearchScreen(
                 }
 
                 is MovieSearchUiState.Success -> {
-                    LazyColumn {
-                        items(state.movies) { movie ->
-                            MovieItemComponent(movie) {
-                                onMovieClick(movie.id)
+                    if (state.movies.isEmpty() && query.isNotBlank()) {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            Text(
+                                text = "No results for \"$query\"",
+                                modifier = Modifier.align(Alignment.Center),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    } else {
+                        LazyColumn {
+                            items(state.movies) { movie ->
+                                MovieItemComponent(movie) {
+                                    onMovieClick(movie.id)
+                                }
                             }
                         }
                     }
