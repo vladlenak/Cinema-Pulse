@@ -19,11 +19,11 @@ internal class MovieSearchViewModel @Inject constructor(
         MutableStateFlow(MovieSearchUiState.Success(movies = emptyList()))
     val uiState = _uiState.asStateFlow()
 
-    fun searchMovies(query: String, apiKey: String) = viewModelScope.launch {
+    fun searchMovies(query: String) = viewModelScope.launch {
         _uiState.value = MovieSearchUiState.Loading
 
         try {
-            val movies = searchMoviesUseCase(query, apiKey).mapToMovieUiList().results
+            val movies = searchMoviesUseCase(query).mapToMovieUiList().results
             _uiState.value = MovieSearchUiState.Success(movies)
         } catch (e: Exception) {
             _uiState.value = MovieSearchUiState.Error(e.message ?: "Unknown Error")

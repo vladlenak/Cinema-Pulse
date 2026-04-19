@@ -31,7 +31,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
-import t.me.octopusapps.cinemapulse.BuildConfig
 import t.me.octopusapps.cinemapulse.presentation.config.ImageConstants
 import t.me.octopusapps.cinemapulse.presentation.models.MovieUiModel
 
@@ -44,7 +43,7 @@ internal fun MovieDetailsScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(movieId) {
-        viewModel.fetchMovieDetails(movieId, BuildConfig.TMDB_API_KEY)
+        viewModel.fetchMovieDetails(movieId)
     }
 
     Scaffold(

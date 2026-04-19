@@ -22,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import t.me.octopusapps.cinemapulse.BuildConfig
 import t.me.octopusapps.cinemapulse.presentation.components.MovieItemComponent
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,7 +34,7 @@ internal fun MovieListScreen(
     val uiState = viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.fetchPopularMovies(BuildConfig.TMDB_API_KEY)
+        viewModel.fetchPopularMovies()
     }
 
     Scaffold(

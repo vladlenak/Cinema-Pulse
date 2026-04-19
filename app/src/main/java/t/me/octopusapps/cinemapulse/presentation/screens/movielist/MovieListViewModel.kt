@@ -19,10 +19,10 @@ internal class MovieListViewModel @Inject constructor(
         MutableStateFlow(MovieListUiState.Loading)
     val uiState = _uiState.asStateFlow()
 
-    fun fetchPopularMovies(apiKey: String) {
+    fun fetchPopularMovies() {
         viewModelScope.launch {
             try {
-                val movies = getPopularMoviesUseCase(apiKey).mapToMovieUiList().results
+                val movies = getPopularMoviesUseCase().mapToMovieUiList().results
                 _uiState.value = MovieListUiState.Success(movies)
             } catch (e: Exception) {
                 _uiState.value = MovieListUiState.Error(e.message ?: "Unknown Error")

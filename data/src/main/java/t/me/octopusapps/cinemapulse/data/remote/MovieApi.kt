@@ -9,19 +9,16 @@ import t.me.octopusapps.cinemapulse.data.models.MovieResponse
 internal interface MovieApi {
     @GET("movie/popular")
     suspend fun getPopularMovies(
-        @Query("api_key") apiKey: String,
         @Query("language") language: String = "en-US"
     ): MovieResponse
 
     @GET("movie/{movie_id}")
     suspend fun getMovieDetails(
         @Path("movie_id") movieId: Int,
-        @Query("api_key") apiKey: String
     ): MovieDetails
 
     @GET("search/movie")
     suspend fun searchMovies(
-        @Query("api_key") apiKey: String,
         @Query("query") query: String
     ): MovieResponse
 }

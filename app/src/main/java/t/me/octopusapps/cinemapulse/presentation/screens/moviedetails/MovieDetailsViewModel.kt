@@ -19,12 +19,12 @@ internal class MovieDetailsViewModel @Inject constructor(
         MutableStateFlow(MovieDetailsUiState.Loading)
     val uiState: StateFlow<MovieDetailsUiState> = _uiState
 
-    fun fetchMovieDetails(movieId: Int, apiKey: String) {
+    fun fetchMovieDetails(movieId: Int) {
         viewModelScope.launch {
             _uiState.value = MovieDetailsUiState.Loading
             try {
                 val movieDetails =
-                    getMovieDetailsUseCase.invoke(movieId, apiKey).mapToMovieUiModel()
+                    getMovieDetailsUseCase.invoke(movieId).mapToMovieUiModel()
                 _uiState.value = MovieDetailsUiState.Success(movieDetails)
             } catch (e: Exception) {
                 _uiState.value =

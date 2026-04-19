@@ -1,5 +1,3 @@
-import java.util.Properties
-
 plugins {
     // --- Android ---
     alias(libs.plugins.android.application)
@@ -13,11 +11,6 @@ plugins {
 
     // --- Codegen ---
     alias(libs.plugins.google.devtools.ksp)
-}
-
-val localProperties = Properties().apply {
-    val file = rootProject.file("local.properties")
-    if (file.exists()) load(file.inputStream())
 }
 
 android {
@@ -41,12 +34,6 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-
-        buildConfigField(
-            "String",
-            "TMDB_API_KEY",
-            "\"${localProperties["apikey"] ?: ""}\""
-        )
     }
 
     buildTypes {
@@ -68,7 +55,6 @@ android {
     // --- Features ---
     buildFeatures {
         compose = true
-        buildConfig = true
     }
 
     // --- Packaging ---

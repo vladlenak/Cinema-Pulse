@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     // --- Android ---
     alias(libs.plugins.android.library)
@@ -7,6 +9,11 @@ plugins {
 
     // --- Codegen ---
     alias(libs.plugins.google.devtools.ksp)
+}
+
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) load(file.inputStream())
 }
 
 android {
@@ -22,6 +29,12 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+
+        buildConfigField(
+            "String",
+            "TMDB_API_KEY",
+            "\"${localProperties["apikey"] ?: ""}\""
+        )
     }
 
     buildTypes {
@@ -47,6 +60,11 @@ android {
 
         // --- API discipline ---
         explicitApi()
+    }
+
+    // --- Features ---
+    buildFeatures {
+        buildConfig = true
     }
 }
 
