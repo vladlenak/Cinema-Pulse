@@ -44,7 +44,7 @@ internal fun MovieDetailsScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(movieId) {
-        viewModel.fetchMovieDetails(movieId, BuildConfig.API_KEY)
+        viewModel.fetchMovieDetails(movieId, BuildConfig.TMDB_API_KEY)
     }
 
     Scaffold(

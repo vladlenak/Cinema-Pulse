@@ -55,7 +55,7 @@ internal fun MovieSearchScreen(
                 onValueChange = { newQuery ->
                     query = newQuery
                     if (query.isNotEmpty()) {
-                        viewModel.searchMovies(query, BuildConfig.API_KEY)
+                        viewModel.searchMovies(query, BuildConfig.TMDB_API_KEY)
                     }
                 },
                 label = { Text("Search") },

@@ -35,7 +35,7 @@ internal fun MovieListScreen(
     val uiState = viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.fetchPopularMovies(BuildConfig.API_KEY)
+        viewModel.fetchPopularMovies(BuildConfig.TMDB_API_KEY)
     }
 
     Scaffold(

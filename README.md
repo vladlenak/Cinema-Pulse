@@ -13,4 +13,8 @@ Cinema Pulse is a user-friendly Android application designed for discovering and
 - Dependency injection: Hilt.
 
 ## How to use
-You need to add the API_KEY from themoviedb.org to the gradle.properties file as apikey=YOUR_API_KEY.
+1. Get your API key from The Movie Database:  
+   https://www.themoviedb.org/settings/api
+
+2. Add the API key to your `local.properties` file (this file is not committed to VCS):
+   apikey=YOUR_TMDB_API_KEY_HERE
