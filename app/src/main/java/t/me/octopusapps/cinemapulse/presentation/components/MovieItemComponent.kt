@@ -38,7 +38,8 @@ internal fun MovieItemComponent(movie: MovieUiModel, onClick: (MovieUiModel) -> 
             ) {
                 Image(
                     painter = rememberAsyncImagePainter(
-                        "https://image.tmdb.org/t/p/w500${movie.backdropPath}"
+                        model = movie.backdropPath
+                            ?.let { "https://image.tmdb.org/t/p/w500$it" }
                     ),
                     contentDescription = movie.title,
                     contentScale = ContentScale.Crop,

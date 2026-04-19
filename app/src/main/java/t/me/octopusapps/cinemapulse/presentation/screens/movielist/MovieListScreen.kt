@@ -68,10 +68,25 @@ internal fun MovieListScreen(
             }
 
             is MovieListUiState.Success -> {
-                LazyColumn(modifier = Modifier.padding(innerPadding)) {
-                    items(state.movies) { movie ->
-                        MovieItemComponent(movie) {
-                            onMovieClick(movie.id)
+                if (state.movies.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No movies found",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                } else {
+                    LazyColumn(modifier = Modifier.padding(innerPadding)) {
+                        items(state.movies) { movie ->
+                            MovieItemComponent(movie) {
+                                onMovieClick(movie.id)
+                            }
                         }
                     }
                 }
