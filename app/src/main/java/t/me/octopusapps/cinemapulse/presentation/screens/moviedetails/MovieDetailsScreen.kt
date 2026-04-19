@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import t.me.octopusapps.cinemapulse.presentation.config.ImageConstants
+import t.me.octopusapps.cinemapulse.presentation.config.toGenreNames
 import t.me.octopusapps.cinemapulse.presentation.models.MovieUiModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -156,10 +157,13 @@ internal fun MovieDetailsScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     state.movie.genreIds?.let { genreIds ->
-                        Text(
-                            text = "Genres: ${genreIds.joinToString(", ")}",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                        val genres = genreIds.toGenreNames()
+                        if (genres.isNotEmpty()) {
+                            Text(
+                                text = "Genres: $genres",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
                     }
                 }
             }
