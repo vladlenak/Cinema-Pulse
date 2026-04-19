@@ -55,7 +55,14 @@ internal fun MovieDetailsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Movie Details") },
+                title = {
+                    Text(
+                        text = when (val state = uiState) {
+                            is MovieDetailsUiState.Success -> state.movie.title
+                            else -> "Movie Details"
+                        }
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
