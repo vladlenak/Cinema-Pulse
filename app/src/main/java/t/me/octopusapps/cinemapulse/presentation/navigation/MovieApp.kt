@@ -33,7 +33,10 @@ internal fun MovieApp() {
         }
         composable<MovieDetails> { backStackEntry ->
             val movieId = backStackEntry.toRoute<MovieDetails>()
-            MovieDetailsScreen(movieId.movieId)
+            MovieDetailsScreen(
+                movieId = movieId.movieId,
+                onBackClick = { navController.popBackStack() }
+            )
         }
     }
 }
