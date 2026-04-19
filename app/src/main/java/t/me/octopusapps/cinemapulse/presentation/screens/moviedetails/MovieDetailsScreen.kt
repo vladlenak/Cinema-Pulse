@@ -179,17 +179,6 @@ private fun MovieAdditionalInfo(movie: MovieUiModel) {
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "Popularity",
-                style = MaterialTheme.typography.labelLarge
-            )
-            Text(
-                text = movie.popularity.toString(),
-                style = MaterialTheme.typography.bodyLarge
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
                 text = "Language",
                 style = MaterialTheme.typography.labelLarge
             )
