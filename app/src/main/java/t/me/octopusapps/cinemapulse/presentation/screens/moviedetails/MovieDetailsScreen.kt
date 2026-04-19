@@ -108,7 +108,8 @@ internal fun MovieDetailsScreen(
                     ) {
                         Image(
                             painter = rememberAsyncImagePainter(
-                                model = "${ImageConstants.IMAGE_BASE_URL}${state.movie.posterPath}"
+                                model = state.movie.posterPath
+                                    ?.let { "${ImageConstants.IMAGE_BASE_URL}$it" }
                             ),
                             contentDescription = "${state.movie.title} poster",
                             modifier = Modifier
