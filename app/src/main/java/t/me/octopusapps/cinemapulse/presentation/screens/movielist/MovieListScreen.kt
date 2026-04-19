@@ -1,12 +1,15 @@
 package t.me.octopusapps.cinemapulse.presentation.screens.movielist
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -75,11 +78,30 @@ internal fun MovieListScreen(
             }
 
             is MovieListUiState.Error -> {
-                Text(
-                    text = "Error: ${state.message}",
-                    modifier = Modifier.padding(innerPadding),
-                    color = MaterialTheme.colorScheme.error
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text(
+                            text = "Something went wrong",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = state.message,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Button(onClick = { viewModel.fetchPopularMovies() }) {
+                            Text("Try again")
+                        }
+                    }
+                }
             }
         }
     }
