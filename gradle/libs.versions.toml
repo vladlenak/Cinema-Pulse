@@ -34,7 +34,7 @@ converterGson = "3.0.0"
 serializationKotlin = "1.11.0"
 
 # Navigation
-navigationCompose = "2.9.7"
+navigationCompose = "2.9.8"
 
 # Image loading
 coilCompose = "2.7.0"
