@@ -26,5 +26,6 @@ internal fun MovieDetails.mapToMovie() =
 internal fun MovieResponse.mapToMovieList() =
     MovieList(
         page = this.page,
-        results = this.results.map { it.mapToMovie() }
+        results = this.results.map { it.mapToMovie() },
+        totalPages = this.totalPages
     )

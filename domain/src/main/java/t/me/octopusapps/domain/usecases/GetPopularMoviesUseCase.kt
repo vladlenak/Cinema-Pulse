@@ -4,6 +4,6 @@ import t.me.octopusapps.domain.models.MovieList
 import t.me.octopusapps.domain.repositories.MovieRepository
 
 public class GetPopularMoviesUseCase(private val repository: MovieRepository) {
-    public suspend operator fun invoke(): MovieList =
-        repository.getPopularMovies()
+    public suspend operator fun invoke(page: Int): MovieList =
+        repository.getPopularMovies(page)
 }

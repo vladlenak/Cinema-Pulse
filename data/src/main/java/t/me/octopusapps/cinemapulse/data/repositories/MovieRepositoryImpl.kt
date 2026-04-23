@@ -9,8 +9,8 @@ import t.me.octopusapps.domain.repositories.MovieRepository
 
 internal class MovieRepositoryImpl(private val api: MovieApi) : MovieRepository {
 
-    override suspend fun getPopularMovies(): MovieList {
-        return api.getPopularMovies().mapToMovieList()
+    override suspend fun getPopularMovies(page: Int): MovieList {
+        return api.getPopularMovies(page = page).mapToMovieList()
     }
 
     override suspend fun getMovieDetails(movieId: Int): Movie {
@@ -20,5 +20,4 @@ internal class MovieRepositoryImpl(private val api: MovieApi) : MovieRepository 
     override suspend fun searchMovies(query: String): MovieList {
         return api.searchMovies(query).mapToMovieList()
     }
-
 }

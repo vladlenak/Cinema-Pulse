@@ -26,5 +26,6 @@ internal fun Movie.mapToMovieUiModel() =
 internal fun MovieList.mapToMovieUiList() =
     MovieUiList(
         page = this.page,
-        results = this.results.map { it.mapToMovieUiModel() }
+        results = this.results.map { it.mapToMovieUiModel() },
+        totalPages = this.totalPages
     )

@@ -9,7 +9,8 @@ import t.me.octopusapps.cinemapulse.data.models.MovieResponse
 internal interface MovieApi {
     @GET("movie/popular")
     suspend fun getPopularMovies(
-        @Query("language") language: String = "en-US"
+        @Query("language") language: String = "en-US",
+        @Query("page") page: Int = 1
     ): MovieResponse
 
     @GET("movie/{movie_id}")

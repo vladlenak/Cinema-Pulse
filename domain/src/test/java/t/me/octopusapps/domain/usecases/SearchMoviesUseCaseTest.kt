@@ -16,7 +16,7 @@ class SearchMoviesUseCaseTest {
 
     @Test
     fun `invoke returns results for given query`() = runTest {
-        val expected = MovieList(page = 1, results = emptyList())
+        val expected = MovieList(page = 1, results = emptyList(), totalPages = 1)
         coEvery { repository.searchMovies("Inception") } returns expected
 
         val result = useCase("Inception")
@@ -28,7 +28,8 @@ class SearchMoviesUseCaseTest {
     fun `invoke passes correct query to repository`() = runTest {
         coEvery { repository.searchMovies(any()) } returns MovieList(
             page = 1,
-            results = emptyList()
+            results = emptyList(),
+            totalPages = 1
         )
 
         useCase("Batman")
@@ -38,7 +39,7 @@ class SearchMoviesUseCaseTest {
 
     @Test
     fun `invoke returns empty results for unknown query`() = runTest {
-        val empty = MovieList(page = 1, results = emptyList())
+        val empty = MovieList(page = 1, results = emptyList(), totalPages = 1)
         coEvery { repository.searchMovies("xyzxyzxyz") } returns empty
 
         val result = useCase("xyzxyzxyz")
