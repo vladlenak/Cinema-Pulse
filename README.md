@@ -1,22 +1,53 @@
 # Cinema Pulse
-Cinema Pulse is a user-friendly Android application designed for discovering and exploring current movies.
 
-## Key Features:
-- **Current Movie Ratings:**
-  A list of the most popular films, updated in real-time. Each film displays brief information such as title, poster, rating, and release year.
-- **Search Functionality:**
-  Quickly find movies by keywords such as title, actors, or directors.
+![CI](https://github.com/vladlenak/Cinema-Pulse/actions/workflows/ci.yml/badge.svg)
 
-## Stack
-- **Language:** Kotlin.
-- **UI:** Compose, Navigation, StateFlow.
-- **Architecture:** Clean Architecture, MVI, Single Activity.
-- **Multithreading:** Coroutines.
-- **Dependency injection:** Hilt.
+An Android app for discovering and exploring movies, powered by [The Movie Database (TMDB)](https://www.themoviedb.org/).
 
-## How to use
-1. Get your API key from The Movie Database:  
-   https://www.themoviedb.org/settings/api
+## Features
 
-2. Add the API key to your `local.properties` file (this file is not committed to VCS):
+- **Popular Movies** — browse the most popular films with poster, rating, and release year
+- **Movie Details** — full info: overview, genres, rating, vote count, release date, language
+- **Search** — find movies by title with debounced live search
+- **Error handling** — retry button on all error states
+- **Offline-aware** — network timeouts with clear error messages
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Language | Kotlin |
+| UI | Jetpack Compose, Material3 |
+| Architecture | Clean Architecture, MVI, Single Activity |
+| Navigation | Jetpack Navigation Compose |
+| DI | Hilt |
+| Async | Coroutines, StateFlow |
+| Networking | Retrofit, OkHttp |
+| Image Loading | Coil |
+| Testing | JUnit4, MockK, Coroutines Test |
+| CI/CD | GitHub Actions |
+
+## Architecture
+
+```
+app/          → UI: screens, components, ViewModels, navigation
+data/         → API, mappers, repository implementation
+domain/       → use cases, repository interface, models
+```
+
+## Getting Started
+
+1. Get a free API key from [TMDB](https://www.themoviedb.org/settings/api)
+
+2. Add it to your `local.properties` (this file is not committed to git):
+   ```
    apikey=YOUR_TMDB_API_KEY_HERE
+   ```
+
+3. Build and run the project in Android Studio
+
+## Running Tests
+
+```bash
+./gradlew :domain:test
+```
