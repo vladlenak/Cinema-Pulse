@@ -31,6 +31,6 @@ jobs:
       - name: Run lint
         run: ./gradlew lint
       - name: Run unit tests
-        run: ./gradlew :domain:test
+        run: ./gradlew :domain:test :app:test
       - name: Build debug APK
         run: ./gradlew assembleDebug
