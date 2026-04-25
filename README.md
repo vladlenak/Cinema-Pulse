@@ -56,6 +56,9 @@ domain/       → use cases, repository interface, models
 # App layer (ViewModels)
 ./gradlew :app:test
 
+# Data layer (mappers, repository)
+./gradlew :data:test
+
 # All tests
-./gradlew :domain:test :app:test
+./gradlew :domain:test :app:test :data:test
 ```
