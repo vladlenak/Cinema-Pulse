@@ -87,6 +87,8 @@ dependencies {
 
     // --- Testing ---
     testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     // --- Android testing ---
     androidTestImplementation(libs.androidx.junit)
