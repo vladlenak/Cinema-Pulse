@@ -85,6 +85,11 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.okhttp.logging)
 
+    // --- Local storage (Room) ---
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+
     // --- Testing ---
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
