@@ -6,11 +6,12 @@ An Android app for discovering and exploring movies, powered by [The Movie Datab
 
 ## Features
 
-- **Popular Movies** — browse the most popular films with poster, rating, and release year
-- **Movie Details** — full info: overview, genres, rating, vote count, release date, language
+- **Popular Movies** — infinite scroll with automatic pagination
+- **Movie Details** — full info: poster, overview, genres, rating, vote count, release date, language
 - **Search** — find movies by title with debounced live search
 - **Error handling** — retry button on all error states
-- **Offline-aware** — network timeouts with clear error messages
+- **Network timeouts** — clear error messages instead of infinite loading
+- **Cinema theme** — custom dark/light color scheme with gold accent
 
 ## Tech Stack
 
@@ -49,5 +50,12 @@ domain/       → use cases, repository interface, models
 ## Running Tests
 
 ```bash
+# Domain layer (use cases)
 ./gradlew :domain:test
+
+# App layer (ViewModels)
+./gradlew :app:test
+
+# All tests
+./gradlew :domain:test :app:test
 ```
