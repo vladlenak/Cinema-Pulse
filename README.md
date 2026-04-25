@@ -9,6 +9,7 @@ An Android app for discovering and exploring movies, powered by [The Movie Datab
 - **Popular Movies** — infinite scroll with automatic pagination
 - **Movie Details** — full info: poster, overview, genres, rating, vote count, release date, language
 - **Search** — find movies by title with debounced live search
+- **Offline support** — cached movies available without internet connection
 - **Error handling** — retry button on all error states
 - **Network timeouts** — clear error messages instead of infinite loading
 - **Cinema theme** — custom dark/light color scheme with gold accent
@@ -24,6 +25,7 @@ An Android app for discovering and exploring movies, powered by [The Movie Datab
 | DI | Hilt |
 | Async | Coroutines, StateFlow |
 | Networking | Retrofit, OkHttp |
+| Local storage | Room |
 | Image Loading | Coil |
 | Testing | JUnit4, MockK, Coroutines Test |
 | CI/CD | GitHub Actions |
@@ -32,7 +34,7 @@ An Android app for discovering and exploring movies, powered by [The Movie Datab
 
 ```
 app/          → UI: screens, components, ViewModels, navigation
-data/         → API, mappers, repository implementation
+data/         → API, Room database, mappers, repository implementation
 domain/       → use cases, repository interface, models
 ```
 
