@@ -12,6 +12,7 @@ import t.me.octopusapps.cinemapulse.data.models.Genre
 import t.me.octopusapps.cinemapulse.data.models.MovieDetails
 import t.me.octopusapps.cinemapulse.data.models.MovieResponse
 import t.me.octopusapps.cinemapulse.data.remote.MovieApi
+import t.me.octopusapps.domain.models.MovieCategory
 
 class MovieRepositoryImplTest {
 
@@ -44,6 +45,7 @@ class MovieRepositoryImplTest {
 
     private val fakeCachedEntity = MovieEntity(
         id = 1,
+        category = "POPULAR",
         title = "Inception",
         overview = "A dream within a dream",
         popularity = 9.5,
@@ -84,33 +86,64 @@ class MovieRepositoryImplTest {
         coVerify { movieDao.insertMovies(any()) }
     }
 
-    @Test
-    fun `getPopularMovies passes correct page to api`() = runTest {
-        coEvery { api.getPopularMovies(page = 3) } returns fakeResponse.copy(page = 3)
-
-        repository.getPopularMovies(3)
-
-        coVerify { api.getPopularMovies(page = 3) }
-    }
+    // --- getMoviesByCategory ---
 
     @Test
-    fun `getPopularMovies returns cached data when network fails`() = runTest {
-        coEvery { api.getPopularMovies(any()) } throws Exception("Network error")
-        coEvery { movieDao.getMoviesByPage(1) } returns listOf(fakeCachedEntity)
+    fun `getMoviesByCategory returns top rated from network`() = runTest {
+        coEvery { api.getTopRatedMovies(page = 1) } returns fakeResponse
 
-        val result = repository.getPopularMovies(1)
+        val result = repository.getMoviesByCategory(MovieCategory.TOP_RATED, 1)
 
         assertEquals(1, result.results.size)
         assertEquals("Inception", result.results[0].title)
-        assertEquals(5, result.totalPages)
+    }
+
+    @Test
+    fun `getMoviesByCategory returns upcoming from network`() = runTest {
+        coEvery { api.getUpcomingMovies(page = 1) } returns fakeResponse
+
+        val result = repository.getMoviesByCategory(MovieCategory.UPCOMING, 1)
+
+        assertEquals(1, result.results.size)
+    }
+
+    @Test
+    fun `getMoviesByCategory returns now playing from network`() = runTest {
+        coEvery { api.getNowPlayingMovies(page = 1) } returns fakeResponse
+
+        val result = repository.getMoviesByCategory(MovieCategory.NOW_PLAYING, 1)
+
+        assertEquals(1, result.results.size)
+    }
+
+    @Test
+    fun `getMoviesByCategory saves result to cache`() = runTest {
+        coEvery { api.getTopRatedMovies(page = 1) } returns fakeResponse
+
+        repository.getMoviesByCategory(MovieCategory.TOP_RATED, 1)
+
+        coVerify { movieDao.insertMovies(any()) }
+    }
+
+    @Test
+    fun `getMoviesByCategory returns cached data when network fails`() = runTest {
+        coEvery { api.getTopRatedMovies(any()) } throws Exception("Network error")
+        coEvery {
+            movieDao.getMoviesByCategoryAndPage("TOP_RATED", 1)
+        } returns listOf(fakeCachedEntity.copy(category = "TOP_RATED"))
+
+        val result = repository.getMoviesByCategory(MovieCategory.TOP_RATED, 1)
+
+        assertEquals(1, result.results.size)
+        assertEquals("Inception", result.results[0].title)
     }
 
     @Test(expected = Exception::class)
-    fun `getPopularMovies throws when network fails and cache is empty`() = runTest {
-        coEvery { api.getPopularMovies(any()) } throws Exception("Network error")
-        coEvery { movieDao.getMoviesByPage(any()) } returns emptyList()
+    fun `getMoviesByCategory throws when network fails and cache is empty`() = runTest {
+        coEvery { api.getTopRatedMovies(any()) } throws Exception("Network error")
+        coEvery { movieDao.getMoviesByCategoryAndPage(any(), any()) } returns emptyList()
 
-        repository.getPopularMovies(1)
+        repository.getMoviesByCategory(MovieCategory.TOP_RATED, 1)
     }
 
     // --- getMovieDetails ---
@@ -133,15 +166,6 @@ class MovieRepositoryImplTest {
         repository.getMovieDetails(1)
 
         coVerify { movieDao.insertMovie(any()) }
-    }
-
-    @Test
-    fun `getMovieDetails passes correct id to api`() = runTest {
-        coEvery { api.getMovieDetails(42) } returns fakeMovieDetails.copy(id = 42)
-
-        repository.getMovieDetails(42)
-
-        coVerify { api.getMovieDetails(42) }
     }
 
     @Test

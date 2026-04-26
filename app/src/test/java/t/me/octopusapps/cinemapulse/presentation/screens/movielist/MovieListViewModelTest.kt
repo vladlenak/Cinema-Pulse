@@ -18,14 +18,15 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import t.me.octopusapps.domain.models.Movie
+import t.me.octopusapps.domain.models.MovieCategory
 import t.me.octopusapps.domain.models.MovieList
-import t.me.octopusapps.domain.usecases.GetPopularMoviesUseCase
+import t.me.octopusapps.domain.usecases.GetMoviesByCategoryUseCase
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MovieListViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
-    private val useCase: GetPopularMoviesUseCase = mockk()
+    private val useCase: GetMoviesByCategoryUseCase = mockk()
     private lateinit var viewModel: MovieListViewModel
 
     private fun fakeMovieList(page: Int, totalPages: Int = 5) = MovieList(
@@ -54,7 +55,7 @@ class MovieListViewModelTest {
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
-        coEvery { useCase(any()) } returns fakeMovieList(1)
+        coEvery { useCase(any(), any()) } returns fakeMovieList(1)
         viewModel = MovieListViewModel(useCase)
     }
 
@@ -67,6 +68,11 @@ class MovieListViewModelTest {
     fun `initial state is loading`() {
         assertTrue(viewModel.uiState.value.isInitialLoading)
         assertTrue(viewModel.uiState.value.movies.isEmpty())
+    }
+
+    @Test
+    fun `initial selected category is popular`() {
+        assertEquals(MovieCategory.POPULAR, viewModel.uiState.value.selectedCategory)
     }
 
     @Test
@@ -84,18 +90,17 @@ class MovieListViewModelTest {
     fun `loadNextPage appends movies to existing list`() = runTest {
         advanceUntilIdle()
 
-        coEvery { useCase(2) } returns fakeMovieList(2)
+        coEvery { useCase(any(), 2) } returns fakeMovieList(2)
         viewModel.loadNextPage()
         advanceUntilIdle()
 
-        val state = viewModel.uiState.value
-        assertEquals(2, state.movies.size)
-        assertEquals(2, state.currentPage)
+        assertEquals(2, viewModel.uiState.value.movies.size)
+        assertEquals(2, viewModel.uiState.value.currentPage)
     }
 
     @Test
     fun `loadNextPage does nothing when already on last page`() = runTest {
-        coEvery { useCase(1) } returns fakeMovieList(page = 1, totalPages = 1)
+        coEvery { useCase(any(), 1) } returns fakeMovieList(page = 1, totalPages = 1)
         val vm = MovieListViewModel(useCase)
         advanceUntilIdle()
 
@@ -107,8 +112,33 @@ class MovieListViewModelTest {
     }
 
     @Test
+    fun `onCategorySelected resets state and loads new category`() = runTest {
+        advanceUntilIdle()
+
+        coEvery { useCase(MovieCategory.TOP_RATED, 1) } returns fakeMovieList(1)
+        viewModel.onCategorySelected(MovieCategory.TOP_RATED)
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(MovieCategory.TOP_RATED, state.selectedCategory)
+        assertEquals(1, state.movies.size)
+        assertEquals(1, state.currentPage)
+    }
+
+    @Test
+    fun `onCategorySelected does nothing when same category selected`() = runTest {
+        advanceUntilIdle()
+        val moviesBefore = viewModel.uiState.value.movies
+
+        viewModel.onCategorySelected(MovieCategory.POPULAR)
+        advanceUntilIdle()
+
+        assertEquals(moviesBefore, viewModel.uiState.value.movies)
+    }
+
+    @Test
     fun `shows error when use case throws`() = runTest {
-        coEvery { useCase(any()) } throws Exception("Network error")
+        coEvery { useCase(any(), any()) } throws Exception("Network error")
         viewModel = MovieListViewModel(useCase)
         advanceUntilIdle()
 
@@ -120,22 +150,21 @@ class MovieListViewModelTest {
 
     @Test
     fun `retry clears error and reloads`() = runTest {
-        coEvery { useCase(any()) } throws Exception("Network error")
+        coEvery { useCase(any(), any()) } throws Exception("Network error")
         viewModel = MovieListViewModel(useCase)
         advanceUntilIdle()
 
-        coEvery { useCase(any()) } returns fakeMovieList(1)
+        coEvery { useCase(any(), any()) } returns fakeMovieList(1)
         viewModel.retry()
         advanceUntilIdle()
 
-        val state = viewModel.uiState.value
-        assertNull(state.error)
-        assertEquals(1, state.movies.size)
+        assertNull(viewModel.uiState.value.error)
+        assertEquals(1, viewModel.uiState.value.movies.size)
     }
 
     @Test
     fun `canLoadMore is false when on last page`() = runTest {
-        coEvery { useCase(1) } returns fakeMovieList(page = 1, totalPages = 1)
+        coEvery { useCase(any(), 1) } returns fakeMovieList(page = 1, totalPages = 1)
         val vm = MovieListViewModel(useCase)
         advanceUntilIdle()
 
@@ -144,7 +173,6 @@ class MovieListViewModelTest {
 
     @Test
     fun `canLoadMore is true when more pages available`() = runTest {
-        coEvery { useCase(1) } returns fakeMovieList(page = 1, totalPages = 5)
         advanceUntilIdle()
 
         assertTrue(viewModel.uiState.value.canLoadMore)
