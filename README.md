@@ -6,7 +6,8 @@ An Android app for discovering and exploring movies, powered by [The Movie Datab
 
 ## Features
 
-- **Popular Movies** — infinite scroll with automatic pagination
+- **Movie Categories** — browse Popular, Top Rated, Upcoming and Now Playing with tab navigation
+- **Infinite Scroll** — automatic pagination for all categories
 - **Movie Details** — full info: poster, overview, genres, rating, vote count, release date, language
 - **Search** — find movies by title with debounced live search
 - **Offline support** — cached movies available without internet connection
