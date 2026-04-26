@@ -8,7 +8,7 @@ import t.me.octopusapps.cinemapulse.data.local.entities.MovieEntity
 
 @Database(
     entities = [MovieEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

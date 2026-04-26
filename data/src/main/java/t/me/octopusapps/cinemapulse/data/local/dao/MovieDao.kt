@@ -15,12 +15,15 @@ internal interface MovieDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMovie(movie: MovieEntity)
 
-    @Query("SELECT * FROM popular_movies WHERE page = :page ORDER BY id ASC")
-    suspend fun getMoviesByPage(page: Int): List<MovieEntity>
+    @Query("SELECT * FROM movies WHERE category = :category AND page = :page ORDER BY rowId ASC")
+    suspend fun getMoviesByCategoryAndPage(category: String, page: Int): List<MovieEntity>
 
-    @Query("SELECT * FROM popular_movies WHERE id = :id LIMIT 1")
+    @Query("SELECT * FROM movies WHERE id = :id LIMIT 1")
     suspend fun getMovieById(id: Int): MovieEntity?
 
-    @Query("DELETE FROM popular_movies")
+    @Query("DELETE FROM movies WHERE category = :category")
+    suspend fun clearByCategory(category: String)
+
+    @Query("DELETE FROM movies")
     suspend fun clearAll()
 }

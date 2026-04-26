@@ -3,9 +3,11 @@ package t.me.octopusapps.cinemapulse.data.local.entities
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "popular_movies")
+@Entity(tableName = "movies")
 internal data class MovieEntity(
-    @PrimaryKey val id: Int,
+    @PrimaryKey(autoGenerate = true) val rowId: Int = 0,
+    val id: Int,
+    val category: String,
     val title: String,
     val overview: String,
     val popularity: Double,
@@ -14,12 +16,12 @@ internal data class MovieEntity(
     val voteCount: Int,
     val posterPath: String?,
     val backdropPath: String?,
-    val genreIds: String?,         // stored as "28,878" — converted via Converters
+    val genreIds: String?,
     val adult: Boolean,
     val originalLanguage: String,
     val originalTitle: String,
     val video: Boolean,
-    val page: Int,                 // which pagination page this movie belongs to
-    val totalPages: Int,           // total pages at time of caching
+    val page: Int,
+    val totalPages: Int,
     val cachedAt: Long = System.currentTimeMillis()
 )

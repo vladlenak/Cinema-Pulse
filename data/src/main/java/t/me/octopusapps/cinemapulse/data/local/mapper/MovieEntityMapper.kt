@@ -2,10 +2,12 @@ package t.me.octopusapps.cinemapulse.data.local.mapper
 
 import t.me.octopusapps.cinemapulse.data.local.entities.MovieEntity
 import t.me.octopusapps.domain.models.Movie
+import t.me.octopusapps.domain.models.MovieCategory
 
-internal fun Movie.toEntity(page: Int, totalPages: Int): MovieEntity =
+internal fun Movie.toEntity(category: MovieCategory, page: Int, totalPages: Int): MovieEntity =
     MovieEntity(
         id = id,
+        category = category.name,
         title = title,
         overview = overview,
         popularity = popularity,

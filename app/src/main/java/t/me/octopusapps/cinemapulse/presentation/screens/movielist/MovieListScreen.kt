@@ -17,7 +17,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -31,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import t.me.octopusapps.cinemapulse.presentation.components.MovieItemComponent
+import t.me.octopusapps.domain.models.MovieCategory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,8 +44,8 @@ internal fun MovieListScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
+    val categories = MovieCategory.entries
 
-    // Trigger load when user is near the bottom (3 items before end)
     val shouldLoadMore by remember {
         derivedStateOf {
             val lastVisible = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
@@ -60,88 +63,97 @@ internal fun MovieListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Popular Movies") },
+                title = { Text("Cinema Pulse") },
                 actions = {
                     IconButton(onClick = onSearchClick) {
-                        Icon(Icons.Default.Search, contentDescription = "Search Movies")
+                        Icon(Icons.Default.Search, contentDescription = "Search")
                     }
                 }
             )
         }
     ) { innerPadding ->
-        when {
-            uiState.isInitialLoading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
+        Column(modifier = Modifier.padding(innerPadding)) {
+
+            PrimaryScrollableTabRow(
+                selectedTabIndex = categories.indexOf(uiState.selectedCategory),
+                edgePadding = 16.dp
+            ) {
+                categories.forEach { category ->
+                    Tab(
+                        selected = uiState.selectedCategory == category,
+                        onClick = { viewModel.onCategorySelected(category) },
+                        text = { Text(category.label) }
+                    )
                 }
             }
 
-            uiState.error != null && uiState.movies.isEmpty() -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+            when {
+                uiState.isInitialLoading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = "Something went wrong",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Text(
-                            text = uiState.error!!,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Button(onClick = { viewModel.retry() }) {
-                            Text("Try again")
-                        }
+                        CircularProgressIndicator()
                     }
                 }
-            }
 
-            else -> {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.padding(innerPadding)
-                ) {
-                    items(uiState.movies) { movie ->
-                        MovieItemComponent(movie) {
-                            onMovieClick(movie.id)
-                        }
-                    }
-
-                    if (uiState.isLoadingMore) {
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator()
+                uiState.error != null && uiState.movies.isEmpty() -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text(
+                                text = "Something went wrong",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            Text(
+                                text = uiState.error!!,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Button(onClick = { viewModel.retry() }) {
+                                Text("Try again")
                             }
                         }
                     }
+                }
 
-                    if (uiState.error != null && uiState.movies.isNotEmpty()) {
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Button(onClick = { viewModel.retry() }) {
-                                    Text("Retry")
+                else -> {
+                    LazyColumn(state = listState) {
+                        items(uiState.movies) { movie ->
+                            MovieItemComponent(movie) {
+                                onMovieClick(movie.id)
+                            }
+                        }
+
+                        if (uiState.isLoadingMore) {
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
+                            }
+                        }
+
+                        if (uiState.error != null && uiState.movies.isNotEmpty()) {
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Button(onClick = { viewModel.retry() }) {
+                                        Text("Retry")
+                                    }
                                 }
                             }
                         }

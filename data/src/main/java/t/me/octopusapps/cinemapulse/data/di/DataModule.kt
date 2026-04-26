@@ -33,7 +33,9 @@ internal object DataModule {
             context,
             CinemaPulseDatabase::class.java,
             "cinema_pulse.db"
-        ).build()
+        )
+            .fallbackToDestructiveMigration(false)
+            .build()
 
     @Provides
     @Singleton

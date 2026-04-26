@@ -6,6 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import t.me.octopusapps.domain.repositories.MovieRepository
 import t.me.octopusapps.domain.usecases.GetMovieDetailsUseCase
+import t.me.octopusapps.domain.usecases.GetMoviesByCategoryUseCase
 import t.me.octopusapps.domain.usecases.GetPopularMoviesUseCase
 import t.me.octopusapps.domain.usecases.SearchMoviesUseCase
 
@@ -25,4 +26,7 @@ internal object DomainModule {
     fun provideGetPopularMoviesUseCase(repository: MovieRepository) =
         GetPopularMoviesUseCase(repository)
 
+    @Provides
+    fun provideGetMoviesByCategoryUseCase(repository: MovieRepository) =
+        GetMoviesByCategoryUseCase(repository)
 }
