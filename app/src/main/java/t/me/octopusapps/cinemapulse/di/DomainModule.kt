@@ -7,7 +7,6 @@ import dagger.hilt.android.components.ViewModelComponent
 import t.me.octopusapps.domain.repositories.MovieRepository
 import t.me.octopusapps.domain.usecases.GetMovieDetailsUseCase
 import t.me.octopusapps.domain.usecases.GetMoviesByCategoryUseCase
-import t.me.octopusapps.domain.usecases.GetPopularMoviesUseCase
 import t.me.octopusapps.domain.usecases.SearchMoviesUseCase
 
 @Module
@@ -21,10 +20,6 @@ internal object DomainModule {
     @Provides
     fun provideGetMovieDetailsUseCase(repository: MovieRepository) =
         GetMovieDetailsUseCase(repository)
-
-    @Provides
-    fun provideGetPopularMoviesUseCase(repository: MovieRepository) =
-        GetPopularMoviesUseCase(repository)
 
     @Provides
     fun provideGetMoviesByCategoryUseCase(repository: MovieRepository) =
