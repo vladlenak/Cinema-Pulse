@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -40,7 +41,8 @@ import t.me.octopusapps.domain.models.MovieCategory
 internal fun MovieListScreen(
     viewModel: MovieListViewModel = hiltViewModel(),
     onMovieClick: (Int) -> Unit,
-    onSearchClick: () -> Unit
+    onSearchClick: () -> Unit,
+    onFavoritesClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
@@ -65,6 +67,9 @@ internal fun MovieListScreen(
             TopAppBar(
                 title = { Text("Cinema Pulse") },
                 actions = {
+                    IconButton(onClick = onFavoritesClick) {
+                        Icon(Icons.Default.Favorite, contentDescription = "Favorites")
+                    }
                     IconButton(onClick = onSearchClick) {
                         Icon(Icons.Default.Search, contentDescription = "Search")
                     }

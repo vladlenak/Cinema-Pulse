@@ -5,6 +5,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import t.me.octopusapps.cinemapulse.presentation.screens.favorites.FavoriteMoviesScreen
 import t.me.octopusapps.cinemapulse.presentation.screens.moviedetails.MovieDetailsScreen
 import t.me.octopusapps.cinemapulse.presentation.screens.movielist.MovieListScreen
 import t.me.octopusapps.cinemapulse.presentation.screens.moviesearch.MovieSearchScreen
@@ -21,11 +22,22 @@ internal fun MovieApp() {
                 },
                 onSearchClick = {
                     navController.navigate(MovieSearch)
+                },
+                onFavoritesClick = {
+                    navController.navigate(FavoriteMovies)
                 }
             )
         }
         composable<MovieSearch> {
             MovieSearchScreen(
+                onMovieClick = { movieId ->
+                    navController.navigate(MovieDetails(movieId = movieId))
+                },
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+        composable<FavoriteMovies> {
+            FavoriteMoviesScreen(
                 onMovieClick = { movieId ->
                     navController.navigate(MovieDetails(movieId = movieId))
                 },

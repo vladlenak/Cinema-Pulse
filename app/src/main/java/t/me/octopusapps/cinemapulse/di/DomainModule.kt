@@ -5,9 +5,12 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import t.me.octopusapps.domain.repositories.MovieRepository
+import t.me.octopusapps.domain.usecases.GetFavoriteMoviesUseCase
 import t.me.octopusapps.domain.usecases.GetMovieDetailsUseCase
 import t.me.octopusapps.domain.usecases.GetMoviesByCategoryUseCase
+import t.me.octopusapps.domain.usecases.IsMovieFavoriteUseCase
 import t.me.octopusapps.domain.usecases.SearchMoviesUseCase
+import t.me.octopusapps.domain.usecases.SetMovieFavoriteUseCase
 
 @Module
 @InstallIn(ViewModelComponent::class)
@@ -24,4 +27,16 @@ internal object DomainModule {
     @Provides
     fun provideGetMoviesByCategoryUseCase(repository: MovieRepository) =
         GetMoviesByCategoryUseCase(repository)
+
+    @Provides
+    fun provideGetFavoriteMoviesUseCase(repository: MovieRepository) =
+        GetFavoriteMoviesUseCase(repository)
+
+    @Provides
+    fun provideIsMovieFavoriteUseCase(repository: MovieRepository) =
+        IsMovieFavoriteUseCase(repository)
+
+    @Provides
+    fun provideSetMovieFavoriteUseCase(repository: MovieRepository) =
+        SetMovieFavoriteUseCase(repository)
 }

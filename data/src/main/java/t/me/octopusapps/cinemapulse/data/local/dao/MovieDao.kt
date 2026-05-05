@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import t.me.octopusapps.cinemapulse.data.local.entities.FavoriteMovieEntity
 import t.me.octopusapps.cinemapulse.data.local.entities.MovieEntity
 
 @Dao
@@ -20,6 +21,18 @@ internal interface MovieDao {
 
     @Query("SELECT * FROM movies WHERE id = :id LIMIT 1")
     suspend fun getMovieById(id: Int): MovieEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertFavoriteMovie(movie: FavoriteMovieEntity)
+
+    @Query("SELECT * FROM favorite_movies ORDER BY addedAt DESC")
+    suspend fun getFavoriteMovies(): List<FavoriteMovieEntity>
+
+    @Query("SELECT EXISTS(SELECT 1 FROM favorite_movies WHERE id = :movieId)")
+    suspend fun isMovieFavorite(movieId: Int): Boolean
+
+    @Query("DELETE FROM favorite_movies WHERE id = :movieId")
+    suspend fun deleteFavoriteMovie(movieId: Int)
 
     @Query("DELETE FROM movies WHERE category = :category")
     suspend fun clearByCategory(category: String)

@@ -4,11 +4,12 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import t.me.octopusapps.cinemapulse.data.local.dao.MovieDao
+import t.me.octopusapps.cinemapulse.data.local.entities.FavoriteMovieEntity
 import t.me.octopusapps.cinemapulse.data.local.entities.MovieEntity
 
 @Database(
-    entities = [MovieEntity::class],
-    version = 2,
+    entities = [MovieEntity::class, FavoriteMovieEntity::class],
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

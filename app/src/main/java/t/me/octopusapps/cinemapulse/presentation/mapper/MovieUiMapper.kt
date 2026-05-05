@@ -29,3 +29,21 @@ internal fun MovieList.mapToMovieUiList() =
         results = this.results.map { it.mapToMovieUiModel() },
         totalPages = this.totalPages
     )
+
+internal fun MovieUiModel.mapToDomain() =
+    Movie(
+        id = this.id,
+        title = this.title,
+        overview = this.overview,
+        popularity = this.popularity,
+        releaseDate = this.releaseDate,
+        voteAverage = this.voteAverage,
+        voteCount = this.voteCount,
+        posterPath = this.posterPath,
+        backdropPath = this.backdropPath,
+        genreIds = this.genreIds,
+        adult = this.adult,
+        originalLanguage = this.originalLanguage,
+        originalTitle = this.originalTitle,
+        video = this.video
+    )

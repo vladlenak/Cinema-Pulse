@@ -3,6 +3,7 @@ package t.me.octopusapps.cinemapulse.data.repositories
 import t.me.octopusapps.cinemapulse.data.local.dao.MovieDao
 import t.me.octopusapps.cinemapulse.data.local.mapper.toDomain
 import t.me.octopusapps.cinemapulse.data.local.mapper.toEntity
+import t.me.octopusapps.cinemapulse.data.local.mapper.toFavoriteEntity
 import t.me.octopusapps.cinemapulse.data.mapper.mapToMovie
 import t.me.octopusapps.cinemapulse.data.mapper.mapToMovieList
 import t.me.octopusapps.cinemapulse.data.remote.MovieApi
@@ -60,4 +61,18 @@ internal class MovieRepositoryImpl(
 
     override suspend fun searchMovies(query: String): MovieList =
         api.searchMovies(query).mapToMovieList()
+
+    override suspend fun getFavoriteMovies(): List<Movie> =
+        movieDao.getFavoriteMovies().map { it.toDomain() }
+
+    override suspend fun isMovieFavorite(movieId: Int): Boolean =
+        movieDao.isMovieFavorite(movieId)
+
+    override suspend fun addFavoriteMovie(movie: Movie) {
+        movieDao.insertFavoriteMovie(movie.toFavoriteEntity())
+    }
+
+    override suspend fun removeFavoriteMovie(movieId: Int) {
+        movieDao.deleteFavoriteMovie(movieId)
+    }
 }

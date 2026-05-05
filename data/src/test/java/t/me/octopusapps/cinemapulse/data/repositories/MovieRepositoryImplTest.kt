@@ -6,12 +6,14 @@ import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import t.me.octopusapps.cinemapulse.data.local.entities.FavoriteMovieEntity
 import t.me.octopusapps.cinemapulse.data.local.dao.MovieDao
 import t.me.octopusapps.cinemapulse.data.local.entities.MovieEntity
 import t.me.octopusapps.cinemapulse.data.models.Genre
 import t.me.octopusapps.cinemapulse.data.models.MovieDetails
 import t.me.octopusapps.cinemapulse.data.models.MovieResponse
 import t.me.octopusapps.cinemapulse.data.remote.MovieApi
+import t.me.octopusapps.domain.models.Movie
 import t.me.octopusapps.domain.models.MovieCategory
 
 class MovieRepositoryImplTest {
@@ -61,6 +63,40 @@ class MovieRepositoryImplTest {
         video = false,
         page = 1,
         totalPages = 5
+    )
+
+    private val fakeMovie = Movie(
+        id = 1,
+        title = "Inception",
+        overview = "A dream within a dream",
+        popularity = 9.5,
+        releaseDate = "2010-07-16",
+        voteAverage = 8.8,
+        voteCount = 30000,
+        posterPath = "/poster.jpg",
+        backdropPath = null,
+        genreIds = listOf(28),
+        adult = false,
+        originalLanguage = "en",
+        originalTitle = "Inception",
+        video = false
+    )
+
+    private val fakeFavoriteEntity = FavoriteMovieEntity(
+        id = 1,
+        title = "Inception",
+        overview = "A dream within a dream",
+        popularity = 9.5,
+        releaseDate = "2010-07-16",
+        voteAverage = 8.8,
+        voteCount = 30000,
+        posterPath = "/poster.jpg",
+        backdropPath = null,
+        genreIds = "28",
+        adult = false,
+        originalLanguage = "en",
+        originalTitle = "Inception",
+        video = false
     )
 
     // --- getPopularMovies ---
@@ -213,5 +249,47 @@ class MovieRepositoryImplTest {
         coEvery { api.searchMovies(any()) } throws Exception("Network error")
 
         repository.searchMovies("Inception")
+    }
+
+    // --- favorites ---
+
+    @Test
+    fun `getFavoriteMovies returns mapped favorite movies`() = runTest {
+        coEvery { movieDao.getFavoriteMovies() } returns listOf(fakeFavoriteEntity)
+
+        val result = repository.getFavoriteMovies()
+
+        assertEquals(1, result.size)
+        assertEquals("Inception", result[0].title)
+        assertEquals(listOf(28), result[0].genreIds)
+    }
+
+    @Test
+    fun `isMovieFavorite returns favorite state from dao`() = runTest {
+        coEvery { movieDao.isMovieFavorite(1) } returns true
+
+        val result = repository.isMovieFavorite(1)
+
+        assertEquals(true, result)
+    }
+
+    @Test
+    fun `addFavoriteMovie saves favorite movie`() = runTest {
+        repository.addFavoriteMovie(fakeMovie)
+
+        coVerify {
+            movieDao.insertFavoriteMovie(
+                match {
+                    it.id == 1 && it.title == "Inception" && it.genreIds == "28"
+                }
+            )
+        }
+    }
+
+    @Test
+    fun `removeFavoriteMovie deletes favorite movie`() = runTest {
+        repository.removeFavoriteMovie(1)
+
+        coVerify { movieDao.deleteFavoriteMovie(1) }
     }
 }

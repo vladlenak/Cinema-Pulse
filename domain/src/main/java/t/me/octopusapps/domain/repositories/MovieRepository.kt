@@ -9,4 +9,8 @@ public interface MovieRepository {
     public suspend fun getMoviesByCategory(category: MovieCategory, page: Int): MovieList
     public suspend fun getMovieDetails(movieId: Int): Movie
     public suspend fun searchMovies(query: String): MovieList
+    public suspend fun getFavoriteMovies(): List<Movie>
+    public suspend fun isMovieFavorite(movieId: Int): Boolean
+    public suspend fun addFavoriteMovie(movie: Movie)
+    public suspend fun removeFavoriteMovie(movieId: Int)
 }

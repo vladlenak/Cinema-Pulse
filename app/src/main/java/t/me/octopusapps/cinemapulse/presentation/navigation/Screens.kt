@@ -10,3 +10,6 @@ internal data class MovieDetails(val movieId: Int)
 
 @Serializable
 internal object MovieSearch
+
+@Serializable
+internal object FavoriteMovies
