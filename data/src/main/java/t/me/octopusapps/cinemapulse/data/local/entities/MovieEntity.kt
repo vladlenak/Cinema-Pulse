@@ -1,9 +1,15 @@
 package t.me.octopusapps.cinemapulse.data.local.entities
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "movies")
+@Entity(
+    tableName = "movies",
+    indices = [
+        Index(value = ["category", "page", "id"], unique = true)
+    ]
+)
 internal data class MovieEntity(
     @PrimaryKey(autoGenerate = true) val rowId: Int = 0,
     val id: Int,

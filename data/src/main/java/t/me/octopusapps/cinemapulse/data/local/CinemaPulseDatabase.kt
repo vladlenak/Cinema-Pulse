@@ -10,7 +10,7 @@ import t.me.octopusapps.cinemapulse.data.local.entities.WatchedMovieEntity
 
 @Database(
     entities = [MovieEntity::class, FavoriteMovieEntity::class, WatchedMovieEntity::class],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

@@ -35,7 +35,7 @@ internal object DataModule {
             CinemaPulseDatabase::class.java,
             "cinema_pulse.db"
         )
-            .addMigrations(MIGRATION_2_3, MIGRATION_3_4)
+            .addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
             .fallbackToDestructiveMigration(false)
             .build()
 
@@ -125,6 +125,25 @@ internal object DataModule {
                 `watchedAt` INTEGER NOT NULL,
                 PRIMARY KEY(`id`)
             )
+            """.trimIndent()
+        )
+    }
+
+    private val MIGRATION_4_5 = Migration(4, 5) { database ->
+        database.execSQL(
+            """
+            DELETE FROM `movies`
+            WHERE `rowId` NOT IN (
+                SELECT MAX(`rowId`)
+                FROM `movies`
+                GROUP BY `category`, `page`, `id`
+            )
+            """.trimIndent()
+        )
+        database.execSQL(
+            """
+            CREATE UNIQUE INDEX IF NOT EXISTS `index_movies_category_page_id`
+            ON `movies` (`category`, `page`, `id`)
             """.trimIndent()
         )
     }
