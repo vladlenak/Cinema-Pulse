@@ -3,6 +3,7 @@ package t.me.octopusapps.cinemapulse.presentation.screens.moviesearch
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -115,6 +116,27 @@ class MovieSearchViewModelTest {
         advanceTimeBy(401L)
         advanceUntilIdle()
 
+        coVerify(exactly = 1) { useCase("Batman") }
+    }
+
+    @Test
+    fun `new query cancels stale in-flight search`() = runTest {
+        val staleResult = CompletableDeferred<MovieList>()
+        coEvery { useCase("Inception") } coAnswers { staleResult.await() }
+        coEvery { useCase("Batman") } returns fakeMovieList("Batman")
+
+        viewModel.onQueryChanged("Inception")
+        advanceTimeBy(401L)
+
+        viewModel.onQueryChanged("Batman")
+        advanceTimeBy(401L)
+        staleResult.complete(fakeMovieList("Inception"))
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue(state is MovieSearchUiState.Success)
+        assertEquals("Batman", (state as MovieSearchUiState.Success).movies.single().title)
+        coVerify(exactly = 1) { useCase("Inception") }
         coVerify(exactly = 1) { useCase("Batman") }
     }
 
