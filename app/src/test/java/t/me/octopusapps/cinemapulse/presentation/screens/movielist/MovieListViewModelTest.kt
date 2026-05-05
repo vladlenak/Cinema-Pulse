@@ -1,12 +1,15 @@
 package t.me.octopusapps.cinemapulse.presentation.screens.movielist
 
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
@@ -94,6 +97,36 @@ class MovieListViewModelTest {
         viewModel.loadNextPage()
         advanceUntilIdle()
 
+        assertEquals(2, viewModel.uiState.value.movies.size)
+        assertEquals(2, viewModel.uiState.value.currentPage)
+    }
+
+    @Test
+    fun `loadNextPage does not start duplicate request while first page is loading`() = runTest {
+        val pendingResult = CompletableDeferred<MovieList>()
+        val localUseCase: GetMoviesByCategoryUseCase = mockk()
+        coEvery { localUseCase(any(), any()) } coAnswers { pendingResult.await() }
+        val localViewModel = MovieListViewModel(localUseCase)
+
+        runCurrent()
+        localViewModel.loadNextPage()
+        pendingResult.complete(fakeMovieList(1))
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { localUseCase(MovieCategory.POPULAR, 1) }
+        assertEquals(1, localViewModel.uiState.value.movies.size)
+    }
+
+    @Test
+    fun `loadNextPage does not start duplicate request while next page is loading`() = runTest {
+        advanceUntilIdle()
+
+        coEvery { useCase(any(), 2) } returns fakeMovieList(2)
+        viewModel.loadNextPage()
+        viewModel.loadNextPage()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { useCase(MovieCategory.POPULAR, 2) }
         assertEquals(2, viewModel.uiState.value.movies.size)
         assertEquals(2, viewModel.uiState.value.currentPage)
     }
