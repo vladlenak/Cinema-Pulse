@@ -2,7 +2,6 @@ package t.me.octopusapps.cinemapulse.data.di
 
 import android.content.Context
 import androidx.room.Room
-import androidx.room.migration.Migration
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,6 +14,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import t.me.octopusapps.cinemapulse.data.BuildConfig
 import t.me.octopusapps.cinemapulse.data.config.ApiConstants
 import t.me.octopusapps.cinemapulse.data.local.CinemaPulseDatabase
+import t.me.octopusapps.cinemapulse.data.local.CinemaPulseMigrations
 import t.me.octopusapps.cinemapulse.data.local.dao.MovieDao
 import t.me.octopusapps.cinemapulse.data.remote.AuthInterceptor
 import t.me.octopusapps.cinemapulse.data.remote.MovieApi
@@ -35,7 +35,7 @@ internal object DataModule {
             CinemaPulseDatabase::class.java,
             "cinema_pulse.db"
         )
-            .addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+            .addMigrations(*CinemaPulseMigrations.ALL)
             .fallbackToDestructiveMigration(false)
             .build()
 
@@ -78,73 +78,4 @@ internal object DataModule {
     @Singleton
     fun provideMovieRepository(api: MovieApi, movieDao: MovieDao): MovieRepository =
         MovieRepositoryImpl(api, movieDao)
-
-    private val MIGRATION_2_3 = Migration(2, 3) { database ->
-        database.execSQL(
-            """
-            CREATE TABLE IF NOT EXISTS `favorite_movies` (
-                `id` INTEGER NOT NULL,
-                `title` TEXT NOT NULL,
-                `overview` TEXT NOT NULL,
-                `popularity` REAL NOT NULL,
-                `releaseDate` TEXT NOT NULL,
-                `voteAverage` REAL NOT NULL,
-                `voteCount` INTEGER NOT NULL,
-                `posterPath` TEXT,
-                `backdropPath` TEXT,
-                `genreIds` TEXT,
-                `adult` INTEGER NOT NULL,
-                `originalLanguage` TEXT NOT NULL,
-                `originalTitle` TEXT NOT NULL,
-                `video` INTEGER NOT NULL,
-                `addedAt` INTEGER NOT NULL,
-                PRIMARY KEY(`id`)
-            )
-            """.trimIndent()
-        )
-    }
-
-    private val MIGRATION_3_4 = Migration(3, 4) { database ->
-        database.execSQL(
-            """
-            CREATE TABLE IF NOT EXISTS `watched_movies` (
-                `id` INTEGER NOT NULL,
-                `title` TEXT NOT NULL,
-                `overview` TEXT NOT NULL,
-                `popularity` REAL NOT NULL,
-                `releaseDate` TEXT NOT NULL,
-                `voteAverage` REAL NOT NULL,
-                `voteCount` INTEGER NOT NULL,
-                `posterPath` TEXT,
-                `backdropPath` TEXT,
-                `genreIds` TEXT,
-                `adult` INTEGER NOT NULL,
-                `originalLanguage` TEXT NOT NULL,
-                `originalTitle` TEXT NOT NULL,
-                `video` INTEGER NOT NULL,
-                `watchedAt` INTEGER NOT NULL,
-                PRIMARY KEY(`id`)
-            )
-            """.trimIndent()
-        )
-    }
-
-    private val MIGRATION_4_5 = Migration(4, 5) { database ->
-        database.execSQL(
-            """
-            DELETE FROM `movies`
-            WHERE `rowId` NOT IN (
-                SELECT MAX(`rowId`)
-                FROM `movies`
-                GROUP BY `category`, `page`, `id`
-            )
-            """.trimIndent()
-        )
-        database.execSQL(
-            """
-            CREATE UNIQUE INDEX IF NOT EXISTS `index_movies_category_page_id`
-            ON `movies` (`category`, `page`, `id`)
-            """.trimIndent()
-        )
-    }
 }
