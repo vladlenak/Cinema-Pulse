@@ -13,3 +13,6 @@ internal object MovieSearch
 
 @Serializable
 internal object FavoriteMovies
+
+@Serializable
+internal object WatchedMovies

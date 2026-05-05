@@ -19,7 +19,9 @@ import org.junit.Test
 import t.me.octopusapps.domain.models.Movie
 import t.me.octopusapps.domain.usecases.GetMovieDetailsUseCase
 import t.me.octopusapps.domain.usecases.IsMovieFavoriteUseCase
+import t.me.octopusapps.domain.usecases.IsMovieWatchedUseCase
 import t.me.octopusapps.domain.usecases.SetMovieFavoriteUseCase
+import t.me.octopusapps.domain.usecases.SetMovieWatchedUseCase
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MovieDetailsViewModelTest {
@@ -28,6 +30,8 @@ class MovieDetailsViewModelTest {
     private val getMovieDetailsUseCase: GetMovieDetailsUseCase = mockk()
     private val isMovieFavoriteUseCase: IsMovieFavoriteUseCase = mockk()
     private val setMovieFavoriteUseCase: SetMovieFavoriteUseCase = mockk(relaxed = true)
+    private val isMovieWatchedUseCase: IsMovieWatchedUseCase = mockk()
+    private val setMovieWatchedUseCase: SetMovieWatchedUseCase = mockk(relaxed = true)
 
     private lateinit var viewModel: MovieDetailsViewModel
 
@@ -54,7 +58,9 @@ class MovieDetailsViewModelTest {
         viewModel = MovieDetailsViewModel(
             getMovieDetailsUseCase,
             isMovieFavoriteUseCase,
-            setMovieFavoriteUseCase
+            setMovieFavoriteUseCase,
+            isMovieWatchedUseCase,
+            setMovieWatchedUseCase
         )
     }
 
@@ -72,6 +78,7 @@ class MovieDetailsViewModelTest {
     fun `fetchMovieDetails loads movie and favorite state`() = runTest {
         coEvery { getMovieDetailsUseCase(1) } returns fakeMovie
         coEvery { isMovieFavoriteUseCase(1) } returns true
+        coEvery { isMovieWatchedUseCase(1) } returns false
 
         viewModel.fetchMovieDetails(1)
         advanceUntilIdle()
@@ -82,6 +89,25 @@ class MovieDetailsViewModelTest {
         assertEquals("Inception", state.movie.title)
         assertTrue(state.isFavorite)
         assertFalse(state.isFavoriteUpdating)
+        assertFalse(state.isWatched)
+        assertFalse(state.isWatchedUpdating)
+    }
+
+    @Test
+    fun `fetchMovieDetails loads watched state`() = runTest {
+        coEvery { getMovieDetailsUseCase(1) } returns fakeMovie
+        coEvery { isMovieFavoriteUseCase(1) } returns false
+        coEvery { isMovieWatchedUseCase(1) } returns true
+
+        viewModel.fetchMovieDetails(1)
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue(state is MovieDetailsUiState.Success)
+        state as MovieDetailsUiState.Success
+        assertFalse(state.isFavorite)
+        assertTrue(state.isWatched)
+        assertFalse(state.isWatchedUpdating)
     }
 
     @Test
@@ -95,12 +121,14 @@ class MovieDetailsViewModelTest {
         assertTrue(state is MovieDetailsUiState.Error)
         assertEquals("Not found", (state as MovieDetailsUiState.Error).message)
         coVerify(exactly = 0) { isMovieFavoriteUseCase(any()) }
+        coVerify(exactly = 0) { isMovieWatchedUseCase(any()) }
     }
 
     @Test
     fun `onFavoriteClick adds movie to favorites`() = runTest {
         coEvery { getMovieDetailsUseCase(1) } returns fakeMovie
         coEvery { isMovieFavoriteUseCase(1) } returns false
+        coEvery { isMovieWatchedUseCase(1) } returns false
 
         viewModel.fetchMovieDetails(1)
         advanceUntilIdle()
@@ -122,6 +150,7 @@ class MovieDetailsViewModelTest {
     fun `onFavoriteClick removes movie from favorites`() = runTest {
         coEvery { getMovieDetailsUseCase(1) } returns fakeMovie
         coEvery { isMovieFavoriteUseCase(1) } returns true
+        coEvery { isMovieWatchedUseCase(1) } returns false
 
         viewModel.fetchMovieDetails(1)
         advanceUntilIdle()
@@ -143,6 +172,7 @@ class MovieDetailsViewModelTest {
     fun `onFavoriteClick restores previous state when favorite update fails`() = runTest {
         coEvery { getMovieDetailsUseCase(1) } returns fakeMovie
         coEvery { isMovieFavoriteUseCase(1) } returns false
+        coEvery { isMovieWatchedUseCase(1) } returns false
         coEvery { setMovieFavoriteUseCase(any(), true) } throws Exception("Storage error")
 
         viewModel.fetchMovieDetails(1)
@@ -156,10 +186,79 @@ class MovieDetailsViewModelTest {
     }
 
     @Test
+    fun `onWatchedClick adds movie to watched`() = runTest {
+        coEvery { getMovieDetailsUseCase(1) } returns fakeMovie
+        coEvery { isMovieFavoriteUseCase(1) } returns false
+        coEvery { isMovieWatchedUseCase(1) } returns false
+
+        viewModel.fetchMovieDetails(1)
+        advanceUntilIdle()
+        viewModel.onWatchedClick()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as MovieDetailsUiState.Success
+        assertTrue(state.isWatched)
+        assertFalse(state.isWatchedUpdating)
+        coVerify {
+            setMovieWatchedUseCase(
+                match { it.id == fakeMovie.id && it.title == fakeMovie.title },
+                true
+            )
+        }
+    }
+
+    @Test
+    fun `onWatchedClick removes movie from watched`() = runTest {
+        coEvery { getMovieDetailsUseCase(1) } returns fakeMovie
+        coEvery { isMovieFavoriteUseCase(1) } returns false
+        coEvery { isMovieWatchedUseCase(1) } returns true
+
+        viewModel.fetchMovieDetails(1)
+        advanceUntilIdle()
+        viewModel.onWatchedClick()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as MovieDetailsUiState.Success
+        assertFalse(state.isWatched)
+        assertFalse(state.isWatchedUpdating)
+        coVerify {
+            setMovieWatchedUseCase(
+                match { it.id == fakeMovie.id && it.title == fakeMovie.title },
+                false
+            )
+        }
+    }
+
+    @Test
+    fun `onWatchedClick restores previous state when watched update fails`() = runTest {
+        coEvery { getMovieDetailsUseCase(1) } returns fakeMovie
+        coEvery { isMovieFavoriteUseCase(1) } returns false
+        coEvery { isMovieWatchedUseCase(1) } returns false
+        coEvery { setMovieWatchedUseCase(any(), true) } throws Exception("Storage error")
+
+        viewModel.fetchMovieDetails(1)
+        advanceUntilIdle()
+        viewModel.onWatchedClick()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as MovieDetailsUiState.Success
+        assertFalse(state.isWatched)
+        assertFalse(state.isWatchedUpdating)
+    }
+
+    @Test
     fun `onFavoriteClick does nothing before movie is loaded`() = runTest {
         viewModel.onFavoriteClick()
         advanceUntilIdle()
 
         coVerify(exactly = 0) { setMovieFavoriteUseCase(any(), any()) }
+    }
+
+    @Test
+    fun `onWatchedClick does nothing before movie is loaded`() = runTest {
+        viewModel.onWatchedClick()
+        advanceUntilIdle()
+
+        coVerify(exactly = 0) { setMovieWatchedUseCase(any(), any()) }
     }
 }

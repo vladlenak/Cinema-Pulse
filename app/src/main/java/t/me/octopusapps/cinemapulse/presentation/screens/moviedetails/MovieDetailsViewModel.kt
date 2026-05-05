@@ -10,14 +10,18 @@ import t.me.octopusapps.cinemapulse.presentation.mapper.mapToDomain
 import t.me.octopusapps.cinemapulse.presentation.mapper.mapToMovieUiModel
 import t.me.octopusapps.domain.usecases.GetMovieDetailsUseCase
 import t.me.octopusapps.domain.usecases.IsMovieFavoriteUseCase
+import t.me.octopusapps.domain.usecases.IsMovieWatchedUseCase
 import t.me.octopusapps.domain.usecases.SetMovieFavoriteUseCase
+import t.me.octopusapps.domain.usecases.SetMovieWatchedUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 internal class MovieDetailsViewModel @Inject constructor(
     private val getMovieDetailsUseCase: GetMovieDetailsUseCase,
     private val isMovieFavoriteUseCase: IsMovieFavoriteUseCase,
-    private val setMovieFavoriteUseCase: SetMovieFavoriteUseCase
+    private val setMovieFavoriteUseCase: SetMovieFavoriteUseCase,
+    private val isMovieWatchedUseCase: IsMovieWatchedUseCase,
+    private val setMovieWatchedUseCase: SetMovieWatchedUseCase
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<MovieDetailsUiState> =
@@ -31,7 +35,12 @@ internal class MovieDetailsViewModel @Inject constructor(
                 val movieDetails =
                     getMovieDetailsUseCase.invoke(movieId).mapToMovieUiModel()
                 val isFavorite = isMovieFavoriteUseCase(movieId)
-                _uiState.value = MovieDetailsUiState.Success(movieDetails, isFavorite)
+                val isWatched = isMovieWatchedUseCase(movieId)
+                _uiState.value = MovieDetailsUiState.Success(
+                    movie = movieDetails,
+                    isFavorite = isFavorite,
+                    isWatched = isWatched
+                )
             } catch (e: Exception) {
                 _uiState.value =
                     MovieDetailsUiState.Error(e.message ?: "An unexpected error occurred")
@@ -54,6 +63,25 @@ internal class MovieDetailsViewModel @Inject constructor(
                 )
             } catch (_: Exception) {
                 _uiState.value = state.copy(isFavoriteUpdating = false)
+            }
+        }
+    }
+
+    fun onWatchedClick() {
+        val state = _uiState.value as? MovieDetailsUiState.Success ?: return
+        if (state.isWatchedUpdating) return
+
+        val newWatchedState = !state.isWatched
+        viewModelScope.launch {
+            _uiState.value = state.copy(isWatchedUpdating = true)
+            try {
+                setMovieWatchedUseCase(state.movie.mapToDomain(), newWatchedState)
+                _uiState.value = state.copy(
+                    isWatched = newWatchedState,
+                    isWatchedUpdating = false
+                )
+            } catch (_: Exception) {
+                _uiState.value = state.copy(isWatchedUpdating = false)
             }
         }
     }

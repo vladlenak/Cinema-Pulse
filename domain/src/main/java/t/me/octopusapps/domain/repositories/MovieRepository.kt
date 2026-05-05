@@ -13,4 +13,8 @@ public interface MovieRepository {
     public suspend fun isMovieFavorite(movieId: Int): Boolean
     public suspend fun addFavoriteMovie(movie: Movie)
     public suspend fun removeFavoriteMovie(movieId: Int)
+    public suspend fun getWatchedMovies(): List<Movie>
+    public suspend fun isMovieWatched(movieId: Int): Boolean
+    public suspend fun addWatchedMovie(movie: Movie)
+    public suspend fun removeWatchedMovie(movieId: Int)
 }

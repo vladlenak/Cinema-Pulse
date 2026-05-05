@@ -9,6 +9,7 @@ import t.me.octopusapps.cinemapulse.presentation.screens.favorites.FavoriteMovie
 import t.me.octopusapps.cinemapulse.presentation.screens.moviedetails.MovieDetailsScreen
 import t.me.octopusapps.cinemapulse.presentation.screens.movielist.MovieListScreen
 import t.me.octopusapps.cinemapulse.presentation.screens.moviesearch.MovieSearchScreen
+import t.me.octopusapps.cinemapulse.presentation.screens.watched.WatchedMoviesScreen
 
 @Composable
 internal fun MovieApp() {
@@ -25,6 +26,9 @@ internal fun MovieApp() {
                 },
                 onFavoritesClick = {
                     navController.navigate(FavoriteMovies)
+                },
+                onWatchedClick = {
+                    navController.navigate(WatchedMovies)
                 }
             )
         }
@@ -38,6 +42,14 @@ internal fun MovieApp() {
         }
         composable<FavoriteMovies> {
             FavoriteMoviesScreen(
+                onMovieClick = { movieId ->
+                    navController.navigate(MovieDetails(movieId = movieId))
+                },
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+        composable<WatchedMovies> {
+            WatchedMoviesScreen(
                 onMovieClick = { movieId ->
                     navController.navigate(MovieDetails(movieId = movieId))
                 },

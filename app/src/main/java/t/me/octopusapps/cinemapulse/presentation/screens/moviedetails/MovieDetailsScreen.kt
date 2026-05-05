@@ -20,6 +20,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -84,6 +86,28 @@ internal fun MovieDetailsScreen(
                 actions = {
                     val state = uiState
                     if (state is MovieDetailsUiState.Success) {
+                        IconButton(
+                            onClick = viewModel::onWatchedClick,
+                            enabled = !state.isWatchedUpdating
+                        ) {
+                            Icon(
+                                imageVector = if (state.isWatched) {
+                                    Icons.Default.Visibility
+                                } else {
+                                    Icons.Default.VisibilityOff
+                                },
+                                contentDescription = if (state.isWatched) {
+                                    "Remove from watched"
+                                } else {
+                                    "Mark as watched"
+                                },
+                                tint = if (state.isWatched) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                }
+                            )
+                        }
                         IconButton(
                             onClick = viewModel::onFavoriteClick,
                             enabled = !state.isFavoriteUpdating

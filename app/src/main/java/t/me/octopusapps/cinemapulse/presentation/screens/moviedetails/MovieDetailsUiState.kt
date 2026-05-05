@@ -7,7 +7,9 @@ internal sealed class MovieDetailsUiState {
     data class Success(
         val movie: MovieUiModel,
         val isFavorite: Boolean,
-        val isFavoriteUpdating: Boolean = false
+        val isFavoriteUpdating: Boolean = false,
+        val isWatched: Boolean = false,
+        val isWatchedUpdating: Boolean = false
     ) : MovieDetailsUiState()
     data class Error(val message: String) : MovieDetailsUiState()
 }

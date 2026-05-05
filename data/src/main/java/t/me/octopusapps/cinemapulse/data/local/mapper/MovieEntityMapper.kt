@@ -2,6 +2,7 @@ package t.me.octopusapps.cinemapulse.data.local.mapper
 
 import t.me.octopusapps.cinemapulse.data.local.entities.FavoriteMovieEntity
 import t.me.octopusapps.cinemapulse.data.local.entities.MovieEntity
+import t.me.octopusapps.cinemapulse.data.local.entities.WatchedMovieEntity
 import t.me.octopusapps.domain.models.Movie
 import t.me.octopusapps.domain.models.MovieCategory
 
@@ -63,6 +64,42 @@ internal fun Movie.toFavoriteEntity(): FavoriteMovieEntity =
     )
 
 internal fun FavoriteMovieEntity.toDomain(): Movie =
+    Movie(
+        id = id,
+        title = title,
+        overview = overview,
+        popularity = popularity,
+        releaseDate = releaseDate,
+        voteAverage = voteAverage,
+        voteCount = voteCount,
+        posterPath = posterPath,
+        backdropPath = backdropPath,
+        genreIds = genreIds?.split(",")?.mapNotNull { it.toIntOrNull() },
+        adult = adult,
+        originalLanguage = originalLanguage,
+        originalTitle = originalTitle,
+        video = video
+    )
+
+internal fun Movie.toWatchedEntity(): WatchedMovieEntity =
+    WatchedMovieEntity(
+        id = id,
+        title = title,
+        overview = overview,
+        popularity = popularity,
+        releaseDate = releaseDate,
+        voteAverage = voteAverage,
+        voteCount = voteCount,
+        posterPath = posterPath,
+        backdropPath = backdropPath,
+        genreIds = genreIds?.joinToString(","),
+        adult = adult,
+        originalLanguage = originalLanguage,
+        originalTitle = originalTitle,
+        video = video
+    )
+
+internal fun WatchedMovieEntity.toDomain(): Movie =
     Movie(
         id = id,
         title = title,

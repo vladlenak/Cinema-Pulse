@@ -6,9 +6,10 @@ import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import t.me.octopusapps.cinemapulse.data.local.entities.FavoriteMovieEntity
 import t.me.octopusapps.cinemapulse.data.local.dao.MovieDao
+import t.me.octopusapps.cinemapulse.data.local.entities.FavoriteMovieEntity
 import t.me.octopusapps.cinemapulse.data.local.entities.MovieEntity
+import t.me.octopusapps.cinemapulse.data.local.entities.WatchedMovieEntity
 import t.me.octopusapps.cinemapulse.data.models.Genre
 import t.me.octopusapps.cinemapulse.data.models.MovieDetails
 import t.me.octopusapps.cinemapulse.data.models.MovieResponse
@@ -83,6 +84,23 @@ class MovieRepositoryImplTest {
     )
 
     private val fakeFavoriteEntity = FavoriteMovieEntity(
+        id = 1,
+        title = "Inception",
+        overview = "A dream within a dream",
+        popularity = 9.5,
+        releaseDate = "2010-07-16",
+        voteAverage = 8.8,
+        voteCount = 30000,
+        posterPath = "/poster.jpg",
+        backdropPath = null,
+        genreIds = "28",
+        adult = false,
+        originalLanguage = "en",
+        originalTitle = "Inception",
+        video = false
+    )
+
+    private val fakeWatchedEntity = WatchedMovieEntity(
         id = 1,
         title = "Inception",
         overview = "A dream within a dream",
@@ -291,5 +309,47 @@ class MovieRepositoryImplTest {
         repository.removeFavoriteMovie(1)
 
         coVerify { movieDao.deleteFavoriteMovie(1) }
+    }
+
+    // --- watched ---
+
+    @Test
+    fun `getWatchedMovies returns mapped watched movies`() = runTest {
+        coEvery { movieDao.getWatchedMovies() } returns listOf(fakeWatchedEntity)
+
+        val result = repository.getWatchedMovies()
+
+        assertEquals(1, result.size)
+        assertEquals("Inception", result[0].title)
+        assertEquals(listOf(28), result[0].genreIds)
+    }
+
+    @Test
+    fun `isMovieWatched returns watched state from dao`() = runTest {
+        coEvery { movieDao.isMovieWatched(1) } returns true
+
+        val result = repository.isMovieWatched(1)
+
+        assertEquals(true, result)
+    }
+
+    @Test
+    fun `addWatchedMovie saves watched movie`() = runTest {
+        repository.addWatchedMovie(fakeMovie)
+
+        coVerify {
+            movieDao.insertWatchedMovie(
+                match {
+                    it.id == 1 && it.title == "Inception" && it.genreIds == "28"
+                }
+            )
+        }
+    }
+
+    @Test
+    fun `removeWatchedMovie deletes watched movie`() = runTest {
+        repository.removeWatchedMovie(1)
+
+        coVerify { movieDao.deleteWatchedMovie(1) }
     }
 }

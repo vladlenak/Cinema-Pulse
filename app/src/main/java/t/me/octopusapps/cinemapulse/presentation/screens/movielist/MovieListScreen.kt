@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,7 +43,8 @@ internal fun MovieListScreen(
     viewModel: MovieListViewModel = hiltViewModel(),
     onMovieClick: (Int) -> Unit,
     onSearchClick: () -> Unit,
-    onFavoritesClick: () -> Unit
+    onFavoritesClick: () -> Unit,
+    onWatchedClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
@@ -69,6 +71,9 @@ internal fun MovieListScreen(
                 actions = {
                     IconButton(onClick = onFavoritesClick) {
                         Icon(Icons.Default.Favorite, contentDescription = "Favorites")
+                    }
+                    IconButton(onClick = onWatchedClick) {
+                        Icon(Icons.Default.Visibility, contentDescription = "Watched")
                     }
                     IconButton(onClick = onSearchClick) {
                         Icon(Icons.Default.Search, contentDescription = "Search")
