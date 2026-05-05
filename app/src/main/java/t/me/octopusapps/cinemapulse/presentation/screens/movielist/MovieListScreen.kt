@@ -3,12 +3,15 @@ package t.me.octopusapps.cinemapulse.presentation.screens.movielist
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
@@ -34,7 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import t.me.octopusapps.cinemapulse.presentation.components.MovieItemComponent
+import t.me.octopusapps.cinemapulse.presentation.components.MoviePosterCard
 import t.me.octopusapps.domain.models.MovieCategory
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,14 +50,14 @@ internal fun MovieListScreen(
     onWatchedClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val listState = rememberLazyListState()
+    val gridState = rememberLazyGridState()
     val categories = MovieCategory.entries
 
     val shouldLoadMore by remember {
         derivedStateOf {
-            val lastVisible = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-            val total = listState.layoutInfo.totalItemsCount
-            lastVisible >= total - 3
+            val lastVisible = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            val total = gridState.layoutInfo.totalItemsCount
+            total > 0 && lastVisible >= total - 6
         }
     }
 
@@ -65,9 +68,19 @@ internal fun MovieListScreen(
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text("Cinema Pulse") },
+                title = {
+                    Column {
+                        Text("Cinema Pulse")
+                        Text(
+                            text = uiState.selectedCategory.label,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                },
                 actions = {
                     IconButton(onClick = onFavoritesClick) {
                         Icon(Icons.Default.Favorite, contentDescription = "Favorites")
@@ -82,7 +95,11 @@ internal fun MovieListScreen(
             )
         }
     ) { innerPadding ->
-        Column(modifier = Modifier.padding(innerPadding)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
 
             PrimaryScrollableTabRow(
                 selectedTabIndex = categories.indexOf(uiState.selectedCategory),
@@ -133,15 +150,30 @@ internal fun MovieListScreen(
                 }
 
                 else -> {
-                    LazyColumn(state = listState) {
-                        items(uiState.movies) { movie ->
-                            MovieItemComponent(movie) {
+                    LazyVerticalGrid(
+                        columns = GridCells.Adaptive(minSize = 148.dp),
+                        state = gridState,
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(
+                            start = 16.dp,
+                            top = 16.dp,
+                            end = 16.dp,
+                            bottom = 24.dp
+                        ),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(20.dp)
+                    ) {
+                        items(
+                            items = uiState.movies,
+                            key = { movie -> movie.id }
+                        ) { movie ->
+                            MoviePosterCard(movie) {
                                 onMovieClick(movie.id)
                             }
                         }
 
                         if (uiState.isLoadingMore) {
-                            item {
+                            item(span = { GridItemSpan(maxLineSpan) }) {
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -154,7 +186,7 @@ internal fun MovieListScreen(
                         }
 
                         if (uiState.error != null && uiState.movies.isNotEmpty()) {
-                            item {
+                            item(span = { GridItemSpan(maxLineSpan) }) {
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
