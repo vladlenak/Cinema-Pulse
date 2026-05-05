@@ -1,5 +1,8 @@
 package t.me.octopusapps.cinemapulse.data.repositories
 
+import android.database.SQLException
+import kotlinx.coroutines.CancellationException
+import retrofit2.HttpException
 import t.me.octopusapps.cinemapulse.data.local.dao.MovieDao
 import t.me.octopusapps.cinemapulse.data.local.mapper.toDomain
 import t.me.octopusapps.cinemapulse.data.local.mapper.toEntity
@@ -8,10 +11,12 @@ import t.me.octopusapps.cinemapulse.data.local.mapper.toWatchedEntity
 import t.me.octopusapps.cinemapulse.data.mapper.mapToMovie
 import t.me.octopusapps.cinemapulse.data.mapper.mapToMovieList
 import t.me.octopusapps.cinemapulse.data.remote.MovieApi
+import t.me.octopusapps.domain.errors.MovieError
 import t.me.octopusapps.domain.models.Movie
 import t.me.octopusapps.domain.models.MovieCategory
 import t.me.octopusapps.domain.models.MovieList
 import t.me.octopusapps.domain.repositories.MovieRepository
+import java.io.IOException
 
 internal class MovieRepositoryImpl(
     private val api: MovieApi,
@@ -34,8 +39,12 @@ internal class MovieRepositoryImpl(
                 movieList.results.map { it.toEntity(category, page, movieList.totalPages) }
             )
             movieList
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
-            val cached = movieDao.getMoviesByCategoryAndPage(category.name, page)
+            val cached = runStorageRequest {
+                movieDao.getMoviesByCategoryAndPage(category.name, page)
+            }
             if (cached.isNotEmpty()) {
                 MovieList(
                     page = page,
@@ -43,7 +52,7 @@ internal class MovieRepositoryImpl(
                     totalPages = cached.first().totalPages
                 )
             } else {
-                throw e
+                throw e.toMovieError()
             }
         }
     }
@@ -55,39 +64,100 @@ internal class MovieRepositoryImpl(
                 movie.toEntity(MovieCategory.POPULAR, page = 0, totalPages = 0)
             )
             movie
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
-            movieDao.getMovieById(movieId)?.toDomain() ?: throw e
+            runStorageRequest {
+                movieDao.getMovieById(movieId)
+            }?.toDomain() ?: throw e.toMovieError(movieId = movieId)
         }
     }
 
     override suspend fun searchMovies(query: String): MovieList =
-        api.searchMovies(query).mapToMovieList()
+        runRemoteRequest {
+            api.searchMovies(query).mapToMovieList()
+        }
 
     override suspend fun getFavoriteMovies(): List<Movie> =
-        movieDao.getFavoriteMovies().map { it.toDomain() }
+        runStorageRequest {
+            movieDao.getFavoriteMovies().map { it.toDomain() }
+        }
 
     override suspend fun isMovieFavorite(movieId: Int): Boolean =
-        movieDao.isMovieFavorite(movieId)
+        runStorageRequest {
+            movieDao.isMovieFavorite(movieId)
+        }
 
     override suspend fun addFavoriteMovie(movie: Movie) {
-        movieDao.insertFavoriteMovie(movie.toFavoriteEntity())
+        runStorageRequest {
+            movieDao.insertFavoriteMovie(movie.toFavoriteEntity())
+        }
     }
 
     override suspend fun removeFavoriteMovie(movieId: Int) {
-        movieDao.deleteFavoriteMovie(movieId)
+        runStorageRequest {
+            movieDao.deleteFavoriteMovie(movieId)
+        }
     }
 
     override suspend fun getWatchedMovies(): List<Movie> =
-        movieDao.getWatchedMovies().map { it.toDomain() }
+        runStorageRequest {
+            movieDao.getWatchedMovies().map { it.toDomain() }
+        }
 
     override suspend fun isMovieWatched(movieId: Int): Boolean =
-        movieDao.isMovieWatched(movieId)
+        runStorageRequest {
+            movieDao.isMovieWatched(movieId)
+        }
 
     override suspend fun addWatchedMovie(movie: Movie) {
-        movieDao.insertWatchedMovie(movie.toWatchedEntity())
+        runStorageRequest {
+            movieDao.insertWatchedMovie(movie.toWatchedEntity())
+        }
     }
 
     override suspend fun removeWatchedMovie(movieId: Int) {
-        movieDao.deleteWatchedMovie(movieId)
+        runStorageRequest {
+            movieDao.deleteWatchedMovie(movieId)
+        }
+    }
+
+    private suspend fun <T> runRemoteRequest(block: suspend () -> T): T =
+        try {
+            block()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            throw e.toMovieError()
+        }
+
+    private suspend fun <T> runStorageRequest(block: suspend () -> T): T =
+        try {
+            block()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: MovieError) {
+            throw e
+        } catch (e: Exception) {
+            throw MovieError.Storage(e)
+        }
+
+    private fun Exception.toMovieError(movieId: Int? = null): MovieError =
+        when (this) {
+            is MovieError -> this
+            is IOException -> MovieError.Network(this)
+            is HttpException -> {
+                if (code() == HTTP_NOT_FOUND) {
+                    MovieError.NotFound(movieId = movieId, cause = this)
+                } else {
+                    MovieError.Remote(code = code(), cause = this)
+                }
+            }
+            is SQLException -> MovieError.Storage(this)
+            else -> MovieError.Unknown(this)
+        }
+
+    private companion object {
+        const val HTTP_NOT_FOUND = 404
     }
 }

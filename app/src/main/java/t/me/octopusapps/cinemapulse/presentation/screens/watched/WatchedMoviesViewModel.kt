@@ -3,9 +3,11 @@ package t.me.octopusapps.cinemapulse.presentation.screens.watched
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import t.me.octopusapps.cinemapulse.presentation.errors.toMovieErrorMessage
 import t.me.octopusapps.cinemapulse.presentation.mapper.mapToMovieUiModel
 import t.me.octopusapps.domain.usecases.GetWatchedMoviesUseCase
 import javax.inject.Inject
@@ -29,9 +31,11 @@ internal class WatchedMoviesViewModel @Inject constructor(
             try {
                 val movies = getWatchedMoviesUseCase().map { it.mapToMovieUiModel() }
                 _uiState.value = WatchedMoviesUiState.Success(movies)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 _uiState.value =
-                    WatchedMoviesUiState.Error(e.message ?: "An unexpected error occurred")
+                    WatchedMoviesUiState.Error(e.toMovieErrorMessage())
             }
         }
     }

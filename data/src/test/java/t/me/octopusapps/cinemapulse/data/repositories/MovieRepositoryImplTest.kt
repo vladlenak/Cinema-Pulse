@@ -14,8 +14,10 @@ import t.me.octopusapps.cinemapulse.data.models.Genre
 import t.me.octopusapps.cinemapulse.data.models.MovieDetails
 import t.me.octopusapps.cinemapulse.data.models.MovieResponse
 import t.me.octopusapps.cinemapulse.data.remote.MovieApi
+import t.me.octopusapps.domain.errors.MovieError
 import t.me.octopusapps.domain.models.Movie
 import t.me.octopusapps.domain.models.MovieCategory
+import java.io.IOException
 
 class MovieRepositoryImplTest {
 
@@ -192,9 +194,9 @@ class MovieRepositoryImplTest {
         assertEquals("Inception", result.results[0].title)
     }
 
-    @Test(expected = Exception::class)
-    fun `getMoviesByCategory throws when network fails and cache is empty`() = runTest {
-        coEvery { api.getTopRatedMovies(any()) } throws Exception("Network error")
+    @Test(expected = MovieError.Network::class)
+    fun `getMoviesByCategory maps network error when cache is empty`() = runTest {
+        coEvery { api.getTopRatedMovies(any()) } throws IOException("Network error")
         coEvery { movieDao.getMoviesByCategoryAndPage(any(), any()) } returns emptyList()
 
         repository.getMoviesByCategory(MovieCategory.TOP_RATED, 1)
@@ -233,9 +235,9 @@ class MovieRepositoryImplTest {
         assertEquals("Inception", result.title)
     }
 
-    @Test(expected = Exception::class)
-    fun `getMovieDetails throws when network fails and cache is empty`() = runTest {
-        coEvery { api.getMovieDetails(any()) } throws Exception("Not found")
+    @Test(expected = MovieError.Network::class)
+    fun `getMovieDetails maps network error when cache is empty`() = runTest {
+        coEvery { api.getMovieDetails(any()) } throws IOException("Network error")
         coEvery { movieDao.getMovieById(any()) } returns null
 
         repository.getMovieDetails(999)
@@ -262,9 +264,9 @@ class MovieRepositoryImplTest {
         coVerify { api.searchMovies("Batman") }
     }
 
-    @Test(expected = Exception::class)
-    fun `searchMovies propagates api exception`() = runTest {
-        coEvery { api.searchMovies(any()) } throws Exception("Network error")
+    @Test(expected = MovieError.Network::class)
+    fun `searchMovies maps network error`() = runTest {
+        coEvery { api.searchMovies(any()) } throws IOException("Network error")
 
         repository.searchMovies("Inception")
     }
@@ -280,6 +282,13 @@ class MovieRepositoryImplTest {
         assertEquals(1, result.size)
         assertEquals("Inception", result[0].title)
         assertEquals(listOf(28), result[0].genreIds)
+    }
+
+    @Test(expected = MovieError.Storage::class)
+    fun `getFavoriteMovies maps dao exception to storage error`() = runTest {
+        coEvery { movieDao.getFavoriteMovies() } throws IllegalStateException("Storage error")
+
+        repository.getFavoriteMovies()
     }
 
     @Test

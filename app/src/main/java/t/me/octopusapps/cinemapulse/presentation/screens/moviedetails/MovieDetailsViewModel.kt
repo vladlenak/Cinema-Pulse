@@ -3,9 +3,11 @@ package t.me.octopusapps.cinemapulse.presentation.screens.moviedetails
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import t.me.octopusapps.cinemapulse.presentation.errors.toMovieErrorMessage
 import t.me.octopusapps.cinemapulse.presentation.mapper.mapToDomain
 import t.me.octopusapps.cinemapulse.presentation.mapper.mapToMovieUiModel
 import t.me.octopusapps.domain.usecases.GetMovieDetailsUseCase
@@ -41,9 +43,11 @@ internal class MovieDetailsViewModel @Inject constructor(
                     isFavorite = isFavorite,
                     isWatched = isWatched
                 )
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 _uiState.value =
-                    MovieDetailsUiState.Error(e.message ?: "An unexpected error occurred")
+                    MovieDetailsUiState.Error(e.toMovieErrorMessage())
             }
         }
     }
@@ -61,6 +65,8 @@ internal class MovieDetailsViewModel @Inject constructor(
                     isFavorite = newFavoriteState,
                     isFavoriteUpdating = false
                 )
+            } catch (e: CancellationException) {
+                throw e
             } catch (_: Exception) {
                 _uiState.value = state.copy(isFavoriteUpdating = false)
             }
@@ -80,6 +86,8 @@ internal class MovieDetailsViewModel @Inject constructor(
                     isWatched = newWatchedState,
                     isWatchedUpdating = false
                 )
+            } catch (e: CancellationException) {
+                throw e
             } catch (_: Exception) {
                 _uiState.value = state.copy(isWatchedUpdating = false)
             }

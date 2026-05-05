@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
+import t.me.octopusapps.cinemapulse.presentation.errors.toMovieErrorMessage
 import t.me.octopusapps.cinemapulse.presentation.mapper.mapToMovieUiList
 import t.me.octopusapps.domain.usecases.SearchMoviesUseCase
 import javax.inject.Inject
@@ -42,7 +43,7 @@ internal class MovieSearchViewModel @Inject constructor(
                     } catch (e: CancellationException) {
                         throw e
                     } catch (e: Exception) {
-                        MovieSearchUiState.Error(e.message ?: "Unknown Error")
+                        MovieSearchUiState.Error(e.toMovieErrorMessage(defaultMessage = "Unknown Error"))
                     }
                 }
             }

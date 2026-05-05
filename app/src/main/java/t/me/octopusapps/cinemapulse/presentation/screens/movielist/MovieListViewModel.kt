@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import t.me.octopusapps.cinemapulse.presentation.errors.toMovieErrorMessage
 import t.me.octopusapps.cinemapulse.presentation.mapper.mapToMovieUiList
 import t.me.octopusapps.domain.models.MovieCategory
 import t.me.octopusapps.domain.usecases.GetMoviesByCategoryUseCase
@@ -74,7 +75,7 @@ internal class MovieListViewModel @Inject constructor(
                         it.copy(
                             isInitialLoading = false,
                             isLoadingMore = false,
-                            error = e.message ?: "Unknown error"
+                            error = e.toMovieErrorMessage(defaultMessage = "Unknown error")
                         )
                     } else {
                         it
