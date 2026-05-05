@@ -9,8 +9,9 @@ An Android app for discovering and exploring movies, powered by [The Movie Datab
 - **Movie Categories** - browse Popular, Top Rated, Upcoming, and Now Playing movies with tab navigation
 - **Infinite Scroll** - automatic pagination for all movie categories
 - **Movie Details** - full movie information: poster, overview, genres, rating, vote count, release date, and original language
+- **Favorites** - save movies from the details screen and browse them in a dedicated favorites screen
 - **Search** - find movies by title with debounced live search
-- **Offline Support** - cached category pages and movie details are available when the network fails
+- **Offline Support** - cached category pages, movie details, and favorite movies are available locally
 - **Error Handling** - retry actions on the main and details screens, plus clear error states for search
 - **Network Timeouts** - clear error messages instead of infinite loading
 - **Cinema Theme** - custom dark/light color scheme with gold accent
@@ -44,6 +45,7 @@ domain/       -> use cases, repository interface, models
 - Multi-module project structure with separate `app`, `data`, and `domain` layers
 - TMDB API integration with authenticated requests through OkHttp interceptor
 - Category-based movie browsing with pagination
+- Persistent favorite movies stored in a dedicated Room table
 - Debounced movie search using Kotlin Flow
 - Room cache fallback for movie lists and movie details
 - ViewModel-driven UI state with loading, success, and error states
@@ -75,7 +77,10 @@ domain/       -> use cases, repository interface, models
 ./gradlew :data:test
 
 # All unit tests
-./gradlew :domain:test :app:test :data:test
+./gradlew test
+
+# Debug APK build
+./gradlew assembleDebug
 ```
 
 ## CI
