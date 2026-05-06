@@ -8,7 +8,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import t.me.octopusapps.cinemapulse.data.BuildConfig
@@ -17,6 +16,7 @@ import t.me.octopusapps.cinemapulse.data.local.CinemaPulseDatabase
 import t.me.octopusapps.cinemapulse.data.local.CinemaPulseMigrations
 import t.me.octopusapps.cinemapulse.data.local.dao.MovieDao
 import t.me.octopusapps.cinemapulse.data.remote.AuthInterceptor
+import t.me.octopusapps.cinemapulse.data.remote.HttpLoggingInterceptorFactory
 import t.me.octopusapps.cinemapulse.data.remote.MovieApi
 import t.me.octopusapps.cinemapulse.data.repositories.MovieRepositoryImpl
 import t.me.octopusapps.domain.repositories.MovieRepository
@@ -49,15 +49,7 @@ internal object DataModule {
         val apiKey = BuildConfig.TMDB_API_KEY
         return OkHttpClient.Builder()
             .addInterceptor(AuthInterceptor(apiKey))
-            .addInterceptor(
-                HttpLoggingInterceptor().apply {
-                    level = if (BuildConfig.DEBUG) {
-                        HttpLoggingInterceptor.Level.BODY
-                    } else {
-                        HttpLoggingInterceptor.Level.NONE
-                    }
-                }
-            )
+            .addInterceptor(HttpLoggingInterceptorFactory.create(isDebug = BuildConfig.DEBUG))
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(15, TimeUnit.SECONDS)
             .writeTimeout(15, TimeUnit.SECONDS)
