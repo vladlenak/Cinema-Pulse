@@ -4,6 +4,9 @@
 agp = "9.2.1"
 kotlin = "2.3.21"
 ksp = "2.3.2"
+detekt = "2.0.0-alpha.3"
+ktlint = "1.8.0"
+spotless = "8.4.0"
 
 # Core Android
 core-ktx = "1.18.0"
@@ -118,3 +121,7 @@ google-dagger-hilt-android = { id = "com.google.dagger.hilt.android", version.re
 
 # KSP
 google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+
+# Static analysis / Formatting
+detekt = { id = "dev.detekt", version.ref = "detekt" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }

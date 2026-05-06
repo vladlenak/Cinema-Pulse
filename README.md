@@ -30,6 +30,7 @@ An Android app for discovering and exploring movies, powered by [The Movie Datab
 | Local Storage | Room |
 | Image Loading | Coil |
 | Testing | JUnit4, MockK, Coroutines Test |
+| Quality | Detekt, Spotless, ktlint, Android Lint |
 | CI/CD | GitHub Actions |
 
 ## Architecture
@@ -50,7 +51,7 @@ domain/       -> use cases, repository interface, models
 - Room cache fallback for movie lists and movie details
 - ViewModel-driven UI state with loading, success, and error states
 - Unit tests for domain use cases, repository logic, mappers, and ViewModels
-- GitHub Actions workflow for lint, unit tests, and debug APK build
+- GitHub Actions workflow for formatting checks, static analysis, lint, unit tests, and debug APK build
 
 ## Getting Started
 
@@ -79,10 +80,22 @@ domain/       -> use cases, repository interface, models
 # All unit tests
 ./gradlew test
 
+# Formatting check
+./gradlew spotlessCheck
+
+# Apply formatting
+./gradlew format
+
+# Static analysis
+./gradlew detekt
+
+# Formatting + static analysis
+./gradlew qualityCheck
+
 # Debug APK build
 ./gradlew assembleDebug
 ```
 
 ## CI
 
-The project uses GitHub Actions to run lint, unit tests, and build a debug APK on pushes and pull requests to `main`.
+The project uses GitHub Actions to run formatting checks, Detekt, Android Lint, unit tests, and build a debug APK on pushes and pull requests to `main`.

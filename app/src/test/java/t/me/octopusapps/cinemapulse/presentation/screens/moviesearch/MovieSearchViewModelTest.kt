@@ -49,9 +49,9 @@ class MovieSearchViewModelTest {
                 adult = false,
                 originalLanguage = "en",
                 originalTitle = title,
-                video = false
-            )
-        )
+                video = false,
+            ),
+        ),
     )
 
     @Before

@@ -21,9 +21,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import t.me.octopusapps.cinemapulse.R
@@ -47,28 +47,28 @@ internal fun MovieApp() {
                     currentDestination = currentDestination,
                     onDestinationClick = { destination ->
                         navController.navigateToTopLevelDestination(destination)
-                    }
+                    },
                 )
             }
-        }
+        },
     ) { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = MovieList,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding),
         ) {
             composable<MovieList> {
                 MovieListScreen(
                     onMovieClick = { movieId ->
                         navController.navigate(MovieDetails(movieId = movieId))
-                    }
+                    },
                 )
             }
             composable<MovieSearch> {
                 MovieSearchScreen(
                     onMovieClick = { movieId ->
                         navController.navigate(MovieDetails(movieId = movieId))
-                    }
+                    },
                 )
             }
             composable<FavoriteMovies> {
@@ -78,7 +78,7 @@ internal fun MovieApp() {
                     },
                     onBrowseMoviesClick = {
                         navController.navigateToTopLevelDestination(TopLevelDestination.Movies)
-                    }
+                    },
                 )
             }
             composable<WatchedMovies> {
@@ -88,14 +88,14 @@ internal fun MovieApp() {
                     },
                     onBrowseMoviesClick = {
                         navController.navigateToTopLevelDestination(TopLevelDestination.Movies)
-                    }
+                    },
                 )
             }
             composable<MovieDetails> { movieDetailsEntry ->
                 val movieId = movieDetailsEntry.toRoute<MovieDetails>()
                 MovieDetailsScreen(
                     movieId = movieId.movieId,
-                    onBackClick = { navController.popBackStack() }
+                    onBackClick = { navController.popBackStack() },
                 )
             }
         }
@@ -105,7 +105,7 @@ internal fun MovieApp() {
 @Composable
 private fun CinemaPulseNavigationBar(
     currentDestination: NavDestination?,
-    onDestinationClick: (TopLevelDestination) -> Unit
+    onDestinationClick: (TopLevelDestination) -> Unit,
 ) {
     NavigationBar {
         TopLevelDestination.entries.forEach { destination ->
@@ -116,10 +116,10 @@ private fun CinemaPulseNavigationBar(
                 icon = {
                     Icon(
                         imageVector = destination.icon,
-                        contentDescription = label
+                        contentDescription = label,
                     )
                 },
-                label = { Text(label) }
+                label = { Text(label) },
             )
         }
     }
@@ -129,41 +129,40 @@ private enum class TopLevelDestination(
     @param:StringRes val labelRes: Int,
     val icon: ImageVector,
     val route: Any,
-    val routeName: String
+    val routeName: String,
 ) {
     Movies(
         labelRes = R.string.nav_movies,
         icon = Icons.Default.Home,
         route = MovieList,
-        routeName = MovieList::class.qualifiedName.orEmpty()
+        routeName = MovieList::class.qualifiedName.orEmpty(),
     ),
     Search(
         labelRes = R.string.nav_search,
         icon = Icons.Default.Search,
         route = MovieSearch,
-        routeName = MovieSearch::class.qualifiedName.orEmpty()
+        routeName = MovieSearch::class.qualifiedName.orEmpty(),
     ),
     Favorites(
         labelRes = R.string.nav_favorites,
         icon = Icons.Default.Favorite,
         route = FavoriteMovies,
-        routeName = FavoriteMovies::class.qualifiedName.orEmpty()
+        routeName = FavoriteMovies::class.qualifiedName.orEmpty(),
     ),
     Watched(
         labelRes = R.string.nav_watched,
         icon = Icons.Default.Visibility,
         route = WatchedMovies,
-        routeName = WatchedMovies::class.qualifiedName.orEmpty()
-    )
+        routeName = WatchedMovies::class.qualifiedName.orEmpty(),
+    ),
 }
 
-private fun NavDestination?.isTopLevelDestination(): Boolean {
-    return TopLevelDestination.entries.any { isSelected(it) }
+private fun NavDestination?.isTopLevelDestination(): Boolean = TopLevelDestination.entries.any {
+    isSelected(it)
 }
 
-private fun NavDestination?.isSelected(destination: TopLevelDestination): Boolean {
-    return this?.route == destination.routeName
-}
+private fun NavDestination?.isSelected(destination: TopLevelDestination): Boolean =
+    this?.route == destination.routeName
 
 private fun NavHostController.navigateToTopLevelDestination(destination: TopLevelDestination) {
     navigate(destination.route) {

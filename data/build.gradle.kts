@@ -33,7 +33,7 @@ android {
         buildConfigField(
             "String",
             "TMDB_API_KEY",
-            "\"${localProperties["apikey"] ?: ""}\""
+            "\"${localProperties["apikey"] ?: ""}\"",
         )
     }
 
@@ -42,7 +42,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }

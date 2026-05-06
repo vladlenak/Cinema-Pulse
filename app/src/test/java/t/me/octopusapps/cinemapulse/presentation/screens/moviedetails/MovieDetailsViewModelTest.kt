@@ -52,13 +52,13 @@ class MovieDetailsViewModelTest {
         adult = false,
         originalLanguage = "en",
         originalTitle = "Inception",
-        video = false
+        video = false,
     )
 
     private val secondFakeMovie = fakeMovie.copy(
         id = 2,
         title = "Interstellar",
-        originalTitle = "Interstellar"
+        originalTitle = "Interstellar",
     )
 
     @Before
@@ -69,7 +69,7 @@ class MovieDetailsViewModelTest {
             isMovieFavoriteUseCase,
             setMovieFavoriteUseCase,
             isMovieWatchedUseCase,
-            setMovieWatchedUseCase
+            setMovieWatchedUseCase,
         )
     }
 
@@ -130,7 +130,7 @@ class MovieDetailsViewModelTest {
         assertTrue(state is MovieDetailsUiState.Error)
         assertEquals(
             UiText.DynamicString("Not found"),
-            (state as MovieDetailsUiState.Error).message
+            (state as MovieDetailsUiState.Error).message,
         )
         coVerify(exactly = 0) { isMovieFavoriteUseCase(any()) }
         coVerify(exactly = 0) { isMovieWatchedUseCase(any()) }
@@ -178,7 +178,7 @@ class MovieDetailsViewModelTest {
         coVerify {
             setMovieFavoriteUseCase(
                 match { it.id == fakeMovie.id && it.title == fakeMovie.title },
-                true
+                true,
             )
         }
     }
@@ -200,7 +200,7 @@ class MovieDetailsViewModelTest {
         coVerify {
             setMovieFavoriteUseCase(
                 match { it.id == fakeMovie.id && it.title == fakeMovie.title },
-                false
+                false,
             )
         }
     }
@@ -245,34 +245,35 @@ class MovieDetailsViewModelTest {
     }
 
     @Test
-    fun `onFavoriteClick preserves watched state changed while favorite update is pending`() = runTest {
-        val favoriteUpdate = CompletableDeferred<Unit>()
-        coEvery { getMovieDetailsUseCase(1) } returns fakeMovie
-        coEvery { isMovieFavoriteUseCase(1) } returns false
-        coEvery { isMovieWatchedUseCase(1) } returns false
-        coEvery { setMovieFavoriteUseCase(any(), true) } coAnswers { favoriteUpdate.await() }
+    fun `onFavoriteClick preserves watched state changed while favorite update is pending`() =
+        runTest {
+            val favoriteUpdate = CompletableDeferred<Unit>()
+            coEvery { getMovieDetailsUseCase(1) } returns fakeMovie
+            coEvery { isMovieFavoriteUseCase(1) } returns false
+            coEvery { isMovieWatchedUseCase(1) } returns false
+            coEvery { setMovieFavoriteUseCase(any(), true) } coAnswers { favoriteUpdate.await() }
 
-        viewModel.fetchMovieDetails(1)
-        advanceUntilIdle()
-        viewModel.onFavoriteClick()
-        runCurrent()
-        viewModel.onWatchedClick()
-        advanceUntilIdle()
+            viewModel.fetchMovieDetails(1)
+            advanceUntilIdle()
+            viewModel.onFavoriteClick()
+            runCurrent()
+            viewModel.onWatchedClick()
+            advanceUntilIdle()
 
-        val watchedState = viewModel.uiState.value as MovieDetailsUiState.Success
-        assertTrue(watchedState.isFavoriteUpdating)
-        assertTrue(watchedState.isWatched)
-        assertFalse(watchedState.isWatchedUpdating)
+            val watchedState = viewModel.uiState.value as MovieDetailsUiState.Success
+            assertTrue(watchedState.isFavoriteUpdating)
+            assertTrue(watchedState.isWatched)
+            assertFalse(watchedState.isWatchedUpdating)
 
-        favoriteUpdate.complete(Unit)
-        advanceUntilIdle()
+            favoriteUpdate.complete(Unit)
+            advanceUntilIdle()
 
-        val state = viewModel.uiState.value as MovieDetailsUiState.Success
-        assertTrue(state.isFavorite)
-        assertFalse(state.isFavoriteUpdating)
-        assertTrue(state.isWatched)
-        assertFalse(state.isWatchedUpdating)
-    }
+            val state = viewModel.uiState.value as MovieDetailsUiState.Success
+            assertTrue(state.isFavorite)
+            assertFalse(state.isFavoriteUpdating)
+            assertTrue(state.isWatched)
+            assertFalse(state.isWatchedUpdating)
+        }
 
     @Test
     fun `onWatchedClick adds movie to watched`() = runTest {
@@ -291,7 +292,7 @@ class MovieDetailsViewModelTest {
         coVerify {
             setMovieWatchedUseCase(
                 match { it.id == fakeMovie.id && it.title == fakeMovie.title },
-                true
+                true,
             )
         }
     }
@@ -313,7 +314,7 @@ class MovieDetailsViewModelTest {
         coVerify {
             setMovieWatchedUseCase(
                 match { it.id == fakeMovie.id && it.title == fakeMovie.title },
-                false
+                false,
             )
         }
     }

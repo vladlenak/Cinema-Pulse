@@ -11,7 +11,7 @@ internal data class MovieListUiState(
     val error: UiText? = null,
     val currentPage: Int = 0,
     val totalPages: Int = 1,
-    val selectedCategory: MovieCategory = MovieCategory.POPULAR
+    val selectedCategory: MovieCategory = MovieCategory.POPULAR,
 ) {
     val canLoadMore: Boolean
         get() = currentPage < totalPages && !isInitialLoading && !isLoadingMore

@@ -19,5 +19,5 @@ internal data class MovieDetailsEntity(
     val originalLanguage: String,
     val originalTitle: String,
     val video: Boolean,
-    val cachedAt: Long = System.currentTimeMillis()
+    val cachedAt: Long = System.currentTimeMillis(),
 )

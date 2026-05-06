@@ -43,10 +43,10 @@ internal data class MovieDetails(
     val voteAverage: Double,
 
     @SerializedName("vote_count")
-    val voteCount: Int
+    val voteCount: Int,
 )
 
 internal data class Genre(
     @SerializedName("id") val id: Int,
-    @SerializedName("name") val name: String
+    @SerializedName("name") val name: String,
 )

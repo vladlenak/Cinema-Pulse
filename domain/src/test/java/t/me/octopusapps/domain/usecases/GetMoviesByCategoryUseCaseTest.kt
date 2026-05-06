@@ -26,9 +26,9 @@ class GetMoviesByCategoryUseCaseTest {
                 voteAverage = 8.8, voteCount = 30000,
                 posterPath = null, backdropPath = null,
                 genreIds = listOf(28), adult = false,
-                originalLanguage = "en", originalTitle = "Inception", video = false
-            )
-        )
+                originalLanguage = "en", originalTitle = "Inception", video = false,
+            ),
+        ),
     )
 
     @Test
@@ -73,7 +73,8 @@ class GetMoviesByCategoryUseCaseTest {
 
     @Test
     fun `invoke passes correct category and page to repository`() = runTest {
-        coEvery { repository.getMoviesByCategory(MovieCategory.TOP_RATED, 3) } returns fakeMovieList(3)
+        coEvery { repository.getMoviesByCategory(MovieCategory.TOP_RATED, 3) } returns
+            fakeMovieList(3)
 
         useCase(MovieCategory.TOP_RATED, 3)
 

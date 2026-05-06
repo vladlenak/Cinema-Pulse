@@ -25,7 +25,7 @@ internal object CinemaPulseMigrations {
                 `addedAt` INTEGER NOT NULL,
                 PRIMARY KEY(`id`)
             )
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 
@@ -50,7 +50,7 @@ internal object CinemaPulseMigrations {
                 `watchedAt` INTEGER NOT NULL,
                 PRIMARY KEY(`id`)
             )
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 
@@ -63,13 +63,13 @@ internal object CinemaPulseMigrations {
                 FROM `movies`
                 GROUP BY `category`, `page`, `id`
             )
-            """.trimIndent()
+            """.trimIndent(),
         )
         database.execSQL(
             """
             CREATE UNIQUE INDEX IF NOT EXISTS `index_movies_category_page_id`
             ON `movies` (`category`, `page`, `id`)
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 
@@ -94,7 +94,7 @@ internal object CinemaPulseMigrations {
                 `cachedAt` INTEGER NOT NULL,
                 PRIMARY KEY(`id`)
             )
-            """.trimIndent()
+            """.trimIndent(),
         )
         database.execSQL(
             """
@@ -112,7 +112,7 @@ internal object CinemaPulseMigrations {
             FROM `movies`
             WHERE `page` = 0
             ORDER BY `cachedAt`, `rowId`
-            """.trimIndent()
+            """.trimIndent(),
         )
         database.execSQL("DELETE FROM `movies` WHERE `page` = 0")
     }

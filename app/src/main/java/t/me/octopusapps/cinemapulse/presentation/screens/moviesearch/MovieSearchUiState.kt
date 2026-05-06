@@ -7,5 +7,5 @@ internal data class MovieSearchUiState(
     val query: String = "",
     val movies: List<MovieUiModel> = emptyList(),
     val isLoading: Boolean = false,
-    val error: UiText? = null
+    val error: UiText? = null,
 )

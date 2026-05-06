@@ -19,5 +19,5 @@ internal data class WatchedMovieEntity(
     val originalLanguage: String,
     val originalTitle: String,
     val video: Boolean,
-    val watchedAt: Long = System.currentTimeMillis()
+    val watchedAt: Long = System.currentTimeMillis(),
 )

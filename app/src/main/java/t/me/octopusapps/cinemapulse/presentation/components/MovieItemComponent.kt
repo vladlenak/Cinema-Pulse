@@ -47,7 +47,7 @@ import t.me.octopusapps.cinemapulse.presentation.models.MovieUiModel
 internal fun MovieItemComponent(
     movie: MovieUiModel,
     modifier: Modifier = Modifier,
-    onClick: (MovieUiModel) -> Unit
+    onClick: (MovieUiModel) -> Unit,
 ) {
     Card(
         modifier = modifier
@@ -56,19 +56,19 @@ internal fun MovieItemComponent(
             .clickable { onClick(movie) },
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
         ),
         border = BorderStroke(
             width = 1.dp,
-            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             MoviePoster(
                 movie = movie,
@@ -76,21 +76,21 @@ internal fun MovieItemComponent(
                     .width(88.dp)
                     .aspectRatio(2f / 3f),
                 cornerRadius = 8,
-                compactFallback = true
+                compactFallback = true,
             )
 
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .padding(vertical = 2.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+                verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 Text(
                     text = movie.title,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
 
                 MovieMetaChips(movie = movie)
@@ -101,7 +101,7 @@ internal fun MovieItemComponent(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 3,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
 
@@ -109,11 +109,11 @@ internal fun MovieItemComponent(
 
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     MovieRatingPill(
                         voteAverage = movie.voteAverage,
-                        modifier = Modifier.wrapContentWidth()
+                        modifier = Modifier.wrapContentWidth(),
                     )
 
                     if (movie.adult) {
@@ -129,24 +129,24 @@ internal fun MovieItemComponent(
 internal fun MoviePosterCard(
     movie: MovieUiModel,
     modifier: Modifier = Modifier,
-    onClick: (MovieUiModel) -> Unit
+    onClick: (MovieUiModel) -> Unit,
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
             .clickable { onClick(movie) },
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Card(
             shape = RoundedCornerShape(8.dp),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
             ),
             border = BorderStroke(
                 width = 1.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.28f)
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.28f),
             ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
             Box {
                 MoviePoster(
@@ -155,21 +155,21 @@ internal fun MoviePosterCard(
                         .fillMaxWidth()
                         .aspectRatio(2f / 3f),
                     cornerRadius = 8,
-                    compactFallback = false
+                    compactFallback = false,
                 )
 
                 MovieRatingPill(
                     voteAverage = movie.voteAverage,
                     modifier = Modifier
                         .align(Alignment.TopStart)
-                        .padding(8.dp)
+                        .padding(8.dp),
                 )
 
                 if (movie.adult) {
                     AdultBadge(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .padding(8.dp)
+                            .padding(8.dp),
                     )
                 }
             }
@@ -181,7 +181,7 @@ internal fun MoviePosterCard(
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 2,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
             )
             MovieMetaChips(movie = movie)
         }
@@ -193,20 +193,20 @@ private fun MoviePoster(
     movie: MovieUiModel,
     modifier: Modifier = Modifier,
     cornerRadius: Int,
-    compactFallback: Boolean
+    compactFallback: Boolean,
 ) {
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(cornerRadius.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         if (movie.posterPath != null) {
             SubcomposeAsyncImage(
                 model = "${ImageConstants.IMAGE_BASE_URL}${movie.posterPath}",
                 contentDescription = stringResource(
                     R.string.content_description_movie_poster,
-                    movie.title
+                    movie.title,
                 ),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
@@ -216,17 +216,17 @@ private fun MoviePoster(
                 error = {
                     PosterFallback(
                         title = movie.title,
-                        compact = compactFallback
+                        compact = compactFallback,
                     )
                 },
                 success = {
                     SubcomposeAsyncImageContent()
-                }
+                },
             )
         } else {
             PosterFallback(
                 title = movie.title,
-                compact = compactFallback
+                compact = compactFallback,
             )
         }
     }
@@ -237,22 +237,19 @@ private fun PosterPlaceholder() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.72f))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.72f)),
     )
 }
 
 @Composable
-private fun PosterFallback(
-    title: String,
-    compact: Boolean
-) {
+private fun PosterFallback(title: String, compact: Boolean) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(if (compact) 8.dp else 14.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Text(
             text = title,
@@ -264,7 +261,7 @@ private fun PosterFallback(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             maxLines = if (compact) 3 else 4,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }
@@ -275,7 +272,7 @@ private fun MovieMetaChips(movie: MovieUiModel) {
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         MetaChip(text = movie.releaseYear(unknownYear))
 
@@ -286,29 +283,26 @@ private fun MovieMetaChips(movie: MovieUiModel) {
 }
 
 @Composable
-private fun MovieRatingPill(
-    voteAverage: Double,
-    modifier: Modifier = Modifier
-) {
+private fun MovieRatingPill(voteAverage: Double, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.94f))
             .padding(PaddingValues(horizontal = 8.dp, vertical = 4.dp)),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Icon(
             imageVector = Icons.Default.Star,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(13.dp)
+            modifier = Modifier.size(13.dp),
         )
         Text(
             text = String.format("%.1f", voteAverage),
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onPrimaryContainer
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
         )
     }
 }
@@ -318,7 +312,7 @@ private fun MetaChip(text: String) {
     Surface(
         shape = CircleShape,
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.72f),
-        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
     ) {
         Text(
             text = text,
@@ -329,7 +323,7 @@ private fun MetaChip(text: String) {
             modifier = Modifier
                 .defaultMinSize(minWidth = 34.dp)
                 .padding(horizontal = 8.dp, vertical = 3.dp),
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
     }
 }
@@ -340,17 +334,20 @@ private fun AdultBadge(modifier: Modifier = Modifier) {
         modifier = modifier,
         shape = RoundedCornerShape(6.dp),
         color = MaterialTheme.colorScheme.errorContainer,
-        contentColor = MaterialTheme.colorScheme.onErrorContainer
+        contentColor = MaterialTheme.colorScheme.onErrorContainer,
     ) {
         Text(
             text = stringResource(R.string.common_adult_badge),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp)
+            modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp),
         )
     }
 }
 
-private fun MovieUiModel.releaseYear(fallback: String): String {
-    return releaseDate.take(4).takeIf { it.length == 4 } ?: fallback
-}
+private const val RELEASE_YEAR_LENGTH = 4
+
+private fun MovieUiModel.releaseYear(fallback: String): String =
+    releaseDate.take(RELEASE_YEAR_LENGTH).takeIf {
+        it.length == RELEASE_YEAR_LENGTH
+    } ?: fallback

@@ -45,7 +45,7 @@ import t.me.octopusapps.domain.models.MovieCategory
 @Composable
 internal fun MovieListScreen(
     viewModel: MovieListViewModel = hiltViewModel(),
-    onMovieClick: (Int) -> Unit
+    onMovieClick: (Int) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val gridState = rememberLazyGridState()
@@ -79,28 +79,27 @@ internal fun MovieListScreen(
                         Text(
                             text = stringResource(uiState.selectedCategory.labelRes),
                             style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
-                }
+                },
             )
-        }
+        },
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(innerPadding),
         ) {
-
             PrimaryScrollableTabRow(
                 selectedTabIndex = categories.indexOf(uiState.selectedCategory),
-                edgePadding = 16.dp
+                edgePadding = 16.dp,
             ) {
                 categories.forEach { category ->
                     Tab(
                         selected = uiState.selectedCategory == category,
                         onClick = { viewModel.onCategorySelected(category) },
-                        text = { Text(stringResource(category.labelRes)) }
+                        text = { Text(stringResource(category.labelRes)) },
                     )
                 }
             }
@@ -109,7 +108,7 @@ internal fun MovieListScreen(
                 uiState.isInitialLoading -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
+                        contentAlignment = Alignment.Center,
                     ) {
                         CircularProgressIndicator()
                     }
@@ -123,7 +122,7 @@ internal fun MovieListScreen(
                         message = uiState.error!!.asString(),
                         actionLabel = stringResource(R.string.common_try_again),
                         onActionClick = viewModel::retry,
-                        isError = true
+                        isError = true,
                     )
                 }
 
@@ -132,7 +131,7 @@ internal fun MovieListScreen(
                         modifier = Modifier.fillMaxSize(),
                         icon = Icons.Default.Search,
                         title = stringResource(R.string.movie_list_empty_title),
-                        message = stringResource(R.string.movie_list_empty_message)
+                        message = stringResource(R.string.movie_list_empty_message),
                     )
                 }
 
@@ -145,18 +144,18 @@ internal fun MovieListScreen(
                             start = 16.dp,
                             top = 16.dp,
                             end = 16.dp,
-                            bottom = 24.dp
+                            bottom = 24.dp,
                         ),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(20.dp)
+                        verticalArrangement = Arrangement.spacedBy(20.dp),
                     ) {
                         items(
                             items = uiState.movies,
-                            key = { movie -> movie.id }
+                            key = { movie -> movie.id },
                         ) { movie ->
                             MoviePosterCard(
                                 movie = movie,
-                                modifier = Modifier.animateItem()
+                                modifier = Modifier.animateItem(),
                             ) {
                                 onMovieClick(movie.id)
                             }
@@ -168,7 +167,7 @@ internal fun MovieListScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(16.dp),
-                                    contentAlignment = Alignment.Center
+                                    contentAlignment = Alignment.Center,
                                 ) {
                                     CircularProgressIndicator()
                                 }
@@ -183,12 +182,14 @@ internal fun MovieListScreen(
                                         .fillMaxWidth()
                                         .padding(16.dp),
                                     icon = Icons.Default.Warning,
-                                    title = stringResource(R.string.movie_list_load_more_error_title),
+                                    title = stringResource(
+                                        R.string.movie_list_load_more_error_title,
+                                    ),
                                     message = uiState.error!!.asString(),
                                     actionLabel = stringResource(R.string.common_retry),
                                     onActionClick = viewModel::retry,
                                     isError = true,
-                                    compact = true
+                                    compact = true,
                                 )
                             }
                         }

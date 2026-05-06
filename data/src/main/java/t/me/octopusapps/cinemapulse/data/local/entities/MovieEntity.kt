@@ -7,8 +7,8 @@ import androidx.room.PrimaryKey
 @Entity(
     tableName = "movies",
     indices = [
-        Index(value = ["category", "page", "id"], unique = true)
-    ]
+        Index(value = ["category", "page", "id"], unique = true),
+    ],
 )
 internal data class MovieEntity(
     @PrimaryKey(autoGenerate = true) val rowId: Int = 0,
@@ -29,5 +29,5 @@ internal data class MovieEntity(
     val video: Boolean,
     val page: Int,
     val totalPages: Int,
-    val cachedAt: Long = System.currentTimeMillis()
+    val cachedAt: Long = System.currentTimeMillis(),
 )

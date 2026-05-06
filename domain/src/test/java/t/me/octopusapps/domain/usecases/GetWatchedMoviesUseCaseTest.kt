@@ -28,7 +28,7 @@ class GetWatchedMoviesUseCaseTest {
         adult = false,
         originalLanguage = "en",
         originalTitle = "Inception",
-        video = false
+        video = false,
     )
 
     @Test

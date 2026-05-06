@@ -1,0 +1,25 @@
+naming:
+  FunctionNaming:
+    ignoreAnnotated:
+      - Composable
+
+complexity:
+  LongMethod:
+    ignoreAnnotated:
+      - Composable
+  TooManyFunctions:
+    allowedFunctionsPerFile: 20
+    allowedFunctionsPerClass: 20
+    allowedFunctionsPerInterface: 20
+    allowedFunctionsPerObject: 20
+    ignoreAnnotatedFunctions:
+      - Composable
+
+style:
+  MagicNumber:
+    ignoreAnnotated:
+      - Composable
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: false

@@ -4,10 +4,10 @@ import android.content.ContentValues
 import android.database.sqlite.SQLiteConstraintException
 import android.database.sqlite.SQLiteDatabase
 import androidx.room.testing.MigrationTestHelper
+import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.sqlite.db.SupportSQLiteDatabase
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
@@ -21,7 +21,7 @@ internal class CinemaPulseDatabaseMigrationTest {
     @get:Rule
     val helper = MigrationTestHelper(
         InstrumentationRegistry.getInstrumentation(),
-        CinemaPulseDatabase::class.java
+        CinemaPulseDatabase::class.java,
     )
 
     private val context = ApplicationProvider.getApplicationContext<android.content.Context>()
@@ -39,7 +39,7 @@ internal class CinemaPulseDatabaseMigrationTest {
             TEST_DB,
             6,
             true,
-            *CinemaPulseMigrations.ALL
+            *CinemaPulseMigrations.ALL,
         ).use { database ->
             assertEquals("Inception", findCachedMovieTitle(database, movieId = 1))
             assertDuplicateInsertFails(database)
@@ -54,7 +54,7 @@ internal class CinemaPulseDatabaseMigrationTest {
             TEST_DB,
             6,
             true,
-            *CinemaPulseMigrations.ALL
+            *CinemaPulseMigrations.ALL,
         ).use { database ->
             assertEquals(1, countCachedMovieRows(database, movieId = 1))
             assertEquals("Inception Updated", findCachedMovieTitle(database, movieId = 1))
@@ -70,7 +70,7 @@ internal class CinemaPulseDatabaseMigrationTest {
             TEST_DB,
             6,
             true,
-            *CinemaPulseMigrations.ALL
+            *CinemaPulseMigrations.ALL,
         ).use { database ->
             assertEquals("Inception Details", findCachedMovieDetailsTitle(database, movieId = 1))
             assertEquals(0, countSyntheticListCacheRows(database))
@@ -84,7 +84,7 @@ internal class CinemaPulseDatabaseMigrationTest {
             database.insert(
                 "movies",
                 SQLiteDatabase.CONFLICT_NONE,
-                cachedMovieValues(rowId = 1, title = "Inception")
+                cachedMovieValues(rowId = 1, title = "Inception"),
             )
         }
     }
@@ -95,17 +95,17 @@ internal class CinemaPulseDatabaseMigrationTest {
             database.insert(
                 "movies",
                 SQLiteDatabase.CONFLICT_NONE,
-                cachedMovieValues(rowId = 1, title = "Inception")
+                cachedMovieValues(rowId = 1, title = "Inception"),
             )
             database.insert(
                 "movies",
                 SQLiteDatabase.CONFLICT_NONE,
-                cachedMovieValues(rowId = 2, title = "Inception Updated")
+                cachedMovieValues(rowId = 2, title = "Inception Updated"),
             )
             database.insert(
                 "movies",
                 SQLiteDatabase.CONFLICT_NONE,
-                cachedMovieValues(rowId = 3, movieId = 2, title = "Interstellar")
+                cachedMovieValues(rowId = 3, movieId = 2, title = "Interstellar"),
             )
         }
     }
@@ -120,8 +120,8 @@ internal class CinemaPulseDatabaseMigrationTest {
                     rowId = 1,
                     title = "Inception Details",
                     page = 0,
-                    totalPages = 0
-                )
+                    totalPages = 0,
+                ),
             )
             database.insert(
                 "movies",
@@ -130,8 +130,8 @@ internal class CinemaPulseDatabaseMigrationTest {
                     rowId = 2,
                     title = "Inception List",
                     page = 1,
-                    totalPages = 5
-                )
+                    totalPages = 5,
+                ),
             )
         }
     }
@@ -141,7 +141,7 @@ internal class CinemaPulseDatabaseMigrationTest {
         movieId: Int = 1,
         title: String,
         page: Int = 1,
-        totalPages: Int = 5
+        totalPages: Int = 5,
     ): ContentValues = ContentValues().apply {
         put("rowId", rowId)
         put("id", movieId)
@@ -166,7 +166,7 @@ internal class CinemaPulseDatabaseMigrationTest {
 
     private fun countCachedMovieRows(database: SupportSQLiteDatabase, movieId: Int): Int =
         database.query(
-            "SELECT COUNT(*) FROM `movies` WHERE `category` = 'POPULAR' AND `page` = 1 AND `id` = $movieId"
+            "SELECT COUNT(*) FROM `movies` WHERE `category` = 'POPULAR' AND `page` = 1 AND `id` = $movieId",
         ).use { cursor ->
             cursor.moveToFirst()
             cursor.getInt(0)
@@ -174,7 +174,7 @@ internal class CinemaPulseDatabaseMigrationTest {
 
     private fun findCachedMovieTitle(database: SupportSQLiteDatabase, movieId: Int): String =
         database.query(
-            "SELECT `title` FROM `movies` WHERE `category` = 'POPULAR' AND `page` = 1 AND `id` = $movieId"
+            "SELECT `title` FROM `movies` WHERE `category` = 'POPULAR' AND `page` = 1 AND `id` = $movieId",
         ).use { cursor ->
             cursor.moveToFirst()
             cursor.getString(0)
@@ -182,7 +182,7 @@ internal class CinemaPulseDatabaseMigrationTest {
 
     private fun findCachedMovieDetailsTitle(database: SupportSQLiteDatabase, movieId: Int): String =
         database.query(
-            "SELECT `title` FROM `movie_details` WHERE `id` = $movieId"
+            "SELECT `title` FROM `movie_details` WHERE `id` = $movieId",
         ).use { cursor ->
             cursor.moveToFirst()
             cursor.getString(0)
@@ -209,7 +209,7 @@ internal class CinemaPulseDatabaseMigrationTest {
                     0, 'en', 'Duplicate', 0, 1,
                     5, 99
                 )
-                """.trimIndent()
+                """.trimIndent(),
             )
         }
     }

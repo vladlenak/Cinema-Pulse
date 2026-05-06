@@ -29,7 +29,7 @@ class SearchMoviesUseCaseTest {
         coEvery { repository.searchMovies(any()) } returns MovieList(
             page = 1,
             results = emptyList(),
-            totalPages = 1
+            totalPages = 1,
         )
 
         useCase("Batman")

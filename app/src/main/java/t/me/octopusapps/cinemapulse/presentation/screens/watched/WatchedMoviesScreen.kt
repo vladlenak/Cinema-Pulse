@@ -40,7 +40,7 @@ internal fun WatchedMoviesScreen(
     onMovieClick: (Int) -> Unit,
     onBrowseMoviesClick: () -> Unit,
     onBackClick: (() -> Unit)? = null,
-    viewModel: WatchedMoviesViewModel = hiltViewModel()
+    viewModel: WatchedMoviesViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -66,13 +66,13 @@ internal fun WatchedMoviesScreen(
                         IconButton(onClick = onBackClick) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.common_back)
+                                contentDescription = stringResource(R.string.common_back),
                             )
                         }
                     }
-                }
+                },
             )
-        }
+        },
     ) { innerPadding ->
         when (val state = uiState) {
             is WatchedMoviesUiState.Loading -> {
@@ -80,7 +80,7 @@ internal fun WatchedMoviesScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator()
                 }
@@ -96,22 +96,22 @@ internal fun WatchedMoviesScreen(
                         title = stringResource(R.string.watched_movies_empty_title),
                         message = stringResource(R.string.watched_movies_empty_message),
                         actionLabel = stringResource(R.string.common_browse_movies),
-                        onActionClick = onBrowseMoviesClick
+                        onActionClick = onBrowseMoviesClick,
                     )
                 } else {
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding),
-                        contentPadding = PaddingValues(top = 8.dp, bottom = 24.dp)
+                        contentPadding = PaddingValues(top = 8.dp, bottom = 24.dp),
                     ) {
                         items(
                             items = state.movies,
-                            key = { movie -> movie.id }
+                            key = { movie -> movie.id },
                         ) { movie ->
                             MovieItemComponent(
                                 movie = movie,
-                                modifier = Modifier.animateItem()
+                                modifier = Modifier.animateItem(),
                             ) {
                                 onMovieClick(movie.id)
                             }
@@ -130,7 +130,7 @@ internal fun WatchedMoviesScreen(
                     message = state.message.asString(),
                     actionLabel = stringResource(R.string.common_try_again),
                     onActionClick = viewModel::loadWatched,
-                    isError = true
+                    isError = true,
                 )
             }
         }

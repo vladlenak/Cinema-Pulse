@@ -39,7 +39,7 @@ class FavoriteMoviesViewModelTest {
         adult = false,
         originalLanguage = "en",
         originalTitle = "Inception",
-        video = false
+        video = false,
     )
 
     @Before
@@ -97,7 +97,7 @@ class FavoriteMoviesViewModelTest {
         assertTrue(state is FavoriteMoviesUiState.Error)
         assertEquals(
             UiText.DynamicString("Storage error"),
-            (state as FavoriteMoviesUiState.Error).message
+            (state as FavoriteMoviesUiState.Error).message,
         )
     }
 

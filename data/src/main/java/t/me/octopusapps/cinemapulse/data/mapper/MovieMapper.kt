@@ -5,27 +5,25 @@ import t.me.octopusapps.cinemapulse.data.models.MovieResponse
 import t.me.octopusapps.domain.models.Movie
 import t.me.octopusapps.domain.models.MovieList
 
-internal fun MovieDetails.mapToMovie() =
-    Movie(
-        id = this.id,
-        title = this.title,
-        overview = this.overview,
-        popularity = this.popularity,
-        releaseDate = this.releaseDate,
-        voteAverage = this.voteAverage,
-        voteCount = this.voteCount,
-        posterPath = this.posterPath,
-        backdropPath = this.backdropPath,
-        genreIds = this.genres?.map { it.id } ?: emptyList(),
-        adult = this.adult,
-        originalLanguage = this.originalLanguage,
-        originalTitle = this.originalTitle,
-        video = this.video
-    )
+internal fun MovieDetails.mapToMovie() = Movie(
+    id = this.id,
+    title = this.title,
+    overview = this.overview,
+    popularity = this.popularity,
+    releaseDate = this.releaseDate,
+    voteAverage = this.voteAverage,
+    voteCount = this.voteCount,
+    posterPath = this.posterPath,
+    backdropPath = this.backdropPath,
+    genreIds = this.genres?.map { it.id } ?: emptyList(),
+    adult = this.adult,
+    originalLanguage = this.originalLanguage,
+    originalTitle = this.originalTitle,
+    video = this.video,
+)
 
-internal fun MovieResponse.mapToMovieList() =
-    MovieList(
-        page = this.page,
-        results = this.results.map { it.mapToMovie() },
-        totalPages = this.totalPages
-    )
+internal fun MovieResponse.mapToMovieList() = MovieList(
+    page = this.page,
+    results = this.results.map { it.mapToMovie() },
+    totalPages = this.totalPages,
+)

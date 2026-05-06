@@ -3,6 +3,7 @@ package t.me.octopusapps.cinemapulse.presentation.screens.moviedetails
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +18,6 @@ import t.me.octopusapps.domain.usecases.IsMovieFavoriteUseCase
 import t.me.octopusapps.domain.usecases.IsMovieWatchedUseCase
 import t.me.octopusapps.domain.usecases.SetMovieFavoriteUseCase
 import t.me.octopusapps.domain.usecases.SetMovieWatchedUseCase
-import javax.inject.Inject
 
 @HiltViewModel
 internal class MovieDetailsViewModel @Inject constructor(
@@ -25,7 +25,7 @@ internal class MovieDetailsViewModel @Inject constructor(
     private val isMovieFavoriteUseCase: IsMovieFavoriteUseCase,
     private val setMovieFavoriteUseCase: SetMovieFavoriteUseCase,
     private val isMovieWatchedUseCase: IsMovieWatchedUseCase,
-    private val setMovieWatchedUseCase: SetMovieWatchedUseCase
+    private val setMovieWatchedUseCase: SetMovieWatchedUseCase,
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<MovieDetailsUiState> =
@@ -54,7 +54,7 @@ internal class MovieDetailsViewModel @Inject constructor(
                     _uiState.value = MovieDetailsUiState.Success(
                         movie = movieDetails,
                         isFavorite = isFavorite,
-                        isWatched = isWatched
+                        isWatched = isWatched,
                     )
                 }
             } catch (e: CancellationException) {
@@ -84,7 +84,7 @@ internal class MovieDetailsViewModel @Inject constructor(
                 updateMovieState(movie.id) {
                     it.copy(
                         isFavorite = newFavoriteState,
-                        isFavoriteUpdating = false
+                        isFavoriteUpdating = false,
                     )
                 }
             } catch (e: CancellationException) {
@@ -113,7 +113,7 @@ internal class MovieDetailsViewModel @Inject constructor(
                 updateMovieState(movie.id) {
                     it.copy(
                         isWatched = newWatchedState,
-                        isWatchedUpdating = false
+                        isWatchedUpdating = false,
                     )
                 }
             } catch (e: CancellationException) {
@@ -128,7 +128,7 @@ internal class MovieDetailsViewModel @Inject constructor(
 
     private fun updateMovieState(
         movieId: Int,
-        transform: (MovieDetailsUiState.Success) -> MovieDetailsUiState.Success
+        transform: (MovieDetailsUiState.Success) -> MovieDetailsUiState.Success,
     ) {
         _uiState.update { state ->
             if (state is MovieDetailsUiState.Success && state.movie.id == movieId) {

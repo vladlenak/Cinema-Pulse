@@ -27,7 +27,7 @@ class SetMovieFavoriteUseCaseTest {
         adult = false,
         originalLanguage = "en",
         originalTitle = "Inception",
-        video = false
+        video = false,
     )
 
     @Test

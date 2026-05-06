@@ -3,6 +3,7 @@ package t.me.octopusapps.cinemapulse.presentation.screens.movielist
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,11 +14,10 @@ import t.me.octopusapps.cinemapulse.presentation.errors.toMovieErrorMessage
 import t.me.octopusapps.cinemapulse.presentation.mapper.mapToMovieUiList
 import t.me.octopusapps.domain.models.MovieCategory
 import t.me.octopusapps.domain.usecases.GetMoviesByCategoryUseCase
-import javax.inject.Inject
 
 @HiltViewModel
 internal class MovieListViewModel @Inject constructor(
-    private val getMoviesByCategoryUseCase: GetMoviesByCategoryUseCase
+    private val getMoviesByCategoryUseCase: GetMoviesByCategoryUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MovieListUiState())
@@ -46,8 +46,11 @@ internal class MovieListViewModel @Inject constructor(
         val category = state.selectedCategory
 
         _uiState.update {
-            if (nextPage == 1) it.copy(isInitialLoading = true)
-            else it.copy(isLoadingMore = true)
+            if (nextPage == 1) {
+                it.copy(isInitialLoading = true)
+            } else {
+                it.copy(isLoadingMore = true)
+            }
         }
 
         pageLoadJob = viewModelScope.launch {
@@ -61,7 +64,7 @@ internal class MovieListViewModel @Inject constructor(
                             totalPages = result.totalPages,
                             isInitialLoading = false,
                             isLoadingMore = false,
-                            error = null
+                            error = null,
                         )
                     } else {
                         it
@@ -75,7 +78,7 @@ internal class MovieListViewModel @Inject constructor(
                         it.copy(
                             isInitialLoading = false,
                             isLoadingMore = false,
-                            error = e.toMovieErrorMessage()
+                            error = e.toMovieErrorMessage(),
                         )
                     } else {
                         it

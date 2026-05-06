@@ -1,5 +1,6 @@
 package t.me.octopusapps.cinemapulse.data.remote
 
+import java.util.concurrent.TimeUnit
 import okhttp3.Call
 import okhttp3.Connection
 import okhttp3.Interceptor
@@ -11,7 +12,6 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.util.concurrent.TimeUnit
 
 class HttpLoggingInterceptorFactoryTest {
 
@@ -20,15 +20,15 @@ class HttpLoggingInterceptorFactoryTest {
         val logs = mutableListOf<String>()
         val interceptor = HttpLoggingInterceptorFactory.create(
             isDebug = true,
-            logger = HttpLoggingInterceptor.Logger { message -> logs += message }
+            logger = HttpLoggingInterceptor.Logger { message -> logs += message },
         )
 
         interceptor.intercept(
             FakeChain(
                 Request.Builder()
                     .url("https://api.themoviedb.org/3/movie/popular?api_key=secret-key&page=1")
-                    .build()
-            )
+                    .build(),
+            ),
         )
 
         val output = logs.joinToString(separator = "\n")
@@ -41,34 +41,31 @@ class HttpLoggingInterceptorFactoryTest {
         val logs = mutableListOf<String>()
         val interceptor = HttpLoggingInterceptorFactory.create(
             isDebug = false,
-            logger = HttpLoggingInterceptor.Logger { message -> logs += message }
+            logger = HttpLoggingInterceptor.Logger { message -> logs += message },
         )
 
         interceptor.intercept(
             FakeChain(
                 Request.Builder()
                     .url("https://api.themoviedb.org/3/movie/popular?api_key=secret-key&page=1")
-                    .build()
-            )
+                    .build(),
+            ),
         )
 
         assertTrue(logs.isEmpty())
     }
 
-    private class FakeChain(
-        private val request: Request
-    ) : Interceptor.Chain {
+    private class FakeChain(private val request: Request) : Interceptor.Chain {
 
         override fun request(): Request = request
 
-        override fun proceed(request: Request): Response =
-            Response.Builder()
-                .request(request)
-                .protocol(Protocol.HTTP_1_1)
-                .code(200)
-                .message("OK")
-                .body("{}".toResponseBody())
-                .build()
+        override fun proceed(request: Request): Response = Response.Builder()
+            .request(request)
+            .protocol(Protocol.HTTP_1_1)
+            .code(200)
+            .message("OK")
+            .body("{}".toResponseBody())
+            .build()
 
         override fun connection(): Connection? = null
 

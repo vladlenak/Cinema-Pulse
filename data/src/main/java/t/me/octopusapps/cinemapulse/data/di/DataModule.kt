@@ -7,6 +7,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import java.util.concurrent.TimeUnit
+import javax.inject.Singleton
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -20,12 +22,12 @@ import t.me.octopusapps.cinemapulse.data.remote.HttpLoggingInterceptorFactory
 import t.me.octopusapps.cinemapulse.data.remote.MovieApi
 import t.me.octopusapps.cinemapulse.data.repositories.MovieRepositoryImpl
 import t.me.octopusapps.domain.repositories.MovieRepository
-import java.util.concurrent.TimeUnit
-import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 internal object DataModule {
+
+    private const val NETWORK_TIMEOUT_SECONDS = 15L
 
     @Provides
     @Singleton
@@ -33,7 +35,7 @@ internal object DataModule {
         Room.databaseBuilder(
             context,
             CinemaPulseDatabase::class.java,
-            "cinema_pulse.db"
+            "cinema_pulse.db",
         )
             .addMigrations(*CinemaPulseMigrations.ALL)
             .fallbackToDestructiveMigration(false)
@@ -50,21 +52,20 @@ internal object DataModule {
         return OkHttpClient.Builder()
             .addInterceptor(AuthInterceptor(apiKey))
             .addInterceptor(HttpLoggingInterceptorFactory.create(isDebug = BuildConfig.DEBUG))
-            .connectTimeout(15, TimeUnit.SECONDS)
-            .readTimeout(15, TimeUnit.SECONDS)
-            .writeTimeout(15, TimeUnit.SECONDS)
+            .connectTimeout(NETWORK_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .readTimeout(NETWORK_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .writeTimeout(NETWORK_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .build()
     }
 
     @Provides
     @Singleton
-    fun provideMovieApi(okHttpClient: OkHttpClient): MovieApi =
-        Retrofit.Builder()
-            .baseUrl(ApiConstants.BASE_URL)
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(MovieApi::class.java)
+    fun provideMovieApi(okHttpClient: OkHttpClient): MovieApi = Retrofit.Builder()
+        .baseUrl(ApiConstants.BASE_URL)
+        .client(okHttpClient)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+        .create(MovieApi::class.java)
 
     @Provides
     @Singleton

@@ -24,7 +24,7 @@ class MovieMapperTest {
         adult = false,
         originalLanguage = "en",
         originalTitle = "Inception",
-        video = false
+        video = false,
     )
 
     // --- MovieDetails.mapToMovie() ---
@@ -90,7 +90,7 @@ class MovieMapperTest {
         val response = MovieResponse(
             page = 2,
             totalPages = 10,
-            results = listOf(fakeMovieDetails)
+            results = listOf(fakeMovieDetails),
         )
 
         val movieList = response.mapToMovieList()
@@ -106,8 +106,8 @@ class MovieMapperTest {
             totalPages = 5,
             results = listOf(
                 fakeMovieDetails,
-                fakeMovieDetails.copy(id = 2, title = "Interstellar")
-            )
+                fakeMovieDetails.copy(id = 2, title = "Interstellar"),
+            ),
         )
 
         val movieList = response.mapToMovieList()

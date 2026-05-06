@@ -20,8 +20,7 @@ import t.me.octopusapps.domain.usecases.SetMovieWatchedUseCase
 internal object DomainModule {
 
     @Provides
-    fun provideSearchMoviesUseCase(repository: MovieRepository) =
-        SearchMoviesUseCase(repository)
+    fun provideSearchMoviesUseCase(repository: MovieRepository) = SearchMoviesUseCase(repository)
 
     @Provides
     fun provideGetMovieDetailsUseCase(repository: MovieRepository) =

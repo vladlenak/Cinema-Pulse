@@ -39,7 +39,7 @@ class WatchedMoviesViewModelTest {
         adult = false,
         originalLanguage = "en",
         originalTitle = "Inception",
-        video = false
+        video = false,
     )
 
     @Before
@@ -97,7 +97,7 @@ class WatchedMoviesViewModelTest {
         assertTrue(state is WatchedMoviesUiState.Error)
         assertEquals(
             UiText.DynamicString("Storage error"),
-            (state as WatchedMoviesUiState.Error).message
+            (state as WatchedMoviesUiState.Error).message,
         )
     }
 

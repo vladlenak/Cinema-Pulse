@@ -30,18 +30,18 @@ internal fun StateMessageComponent(
     actionLabel: String? = null,
     onActionClick: (() -> Unit)? = null,
     isError: Boolean = false,
-    compact: Boolean = false
+    compact: Boolean = false,
 ) {
     Box(
         modifier = modifier.animateContentSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Column(
             modifier = Modifier
                 .widthIn(max = if (compact) 320.dp else 360.dp)
                 .padding(if (compact) 16.dp else 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(if (compact) 10.dp else 14.dp)
+            verticalArrangement = Arrangement.spacedBy(if (compact) 10.dp else 14.dp),
         ) {
             Surface(
                 shape = CircleShape,
@@ -54,16 +54,16 @@ internal fun StateMessageComponent(
                     MaterialTheme.colorScheme.onErrorContainer
                 } else {
                     MaterialTheme.colorScheme.onTertiaryContainer
-                }
+                },
             ) {
                 Box(
                     modifier = Modifier.size(if (compact) 52.dp else 72.dp),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         imageVector = icon,
                         contentDescription = null,
-                        modifier = Modifier.size(if (compact) 24.dp else 34.dp)
+                        modifier = Modifier.size(if (compact) 24.dp else 34.dp),
                     )
                 }
             }
@@ -76,14 +76,14 @@ internal fun StateMessageComponent(
                     MaterialTheme.typography.titleLarge
                 },
                 fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
 
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
 
             if (actionLabel != null && onActionClick != null) {

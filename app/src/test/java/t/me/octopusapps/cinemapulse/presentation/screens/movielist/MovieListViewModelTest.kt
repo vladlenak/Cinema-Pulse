@@ -51,9 +51,9 @@ class MovieListViewModelTest {
                 adult = false,
                 originalLanguage = "en",
                 originalTitle = "Movie $page",
-                video = false
-            )
-        )
+                video = false,
+            ),
+        ),
     )
 
     @Before

@@ -41,9 +41,8 @@ import t.me.octopusapps.cinemapulse.presentation.text.asString
 internal fun MovieSearchScreen(
     onMovieClick: (Int) -> Unit,
     onBackClick: (() -> Unit)? = null,
-    viewModel: MovieSearchViewModel = hiltViewModel()
+    viewModel: MovieSearchViewModel = hiltViewModel(),
 ) {
-
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
@@ -55,19 +54,19 @@ internal fun MovieSearchScreen(
                         IconButton(onClick = onBackClick) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.common_back)
+                                contentDescription = stringResource(R.string.common_back),
                             )
                         }
                     }
-                }
+                },
             )
-        }
+        },
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
                 .padding(16.dp)
-                .fillMaxSize()
+                .fillMaxSize(),
         ) {
             OutlinedTextField(
                 value = uiState.query,
@@ -76,25 +75,25 @@ internal fun MovieSearchScreen(
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 },
                 trailingIcon = {
                     if (uiState.query.isNotEmpty()) {
                         IconButton(
-                            onClick = viewModel::clearQuery
+                            onClick = viewModel::clearQuery,
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = stringResource(
-                                    R.string.movie_search_clear_content_description
-                                )
+                                    R.string.movie_search_clear_content_description,
+                                ),
                             )
                         }
                     }
                 },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -103,7 +102,7 @@ internal fun MovieSearchScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 when {
                     uiState.isLoading -> {
@@ -118,7 +117,7 @@ internal fun MovieSearchScreen(
                             message = uiState.error?.asString().orEmpty(),
                             actionLabel = stringResource(R.string.common_try_again),
                             onActionClick = viewModel::retry,
-                            isError = true
+                            isError = true,
                         )
                     }
 
@@ -127,7 +126,7 @@ internal fun MovieSearchScreen(
                             modifier = Modifier.fillMaxSize(),
                             icon = Icons.Default.Search,
                             title = stringResource(R.string.movie_search_empty_title),
-                            message = stringResource(R.string.movie_search_empty_message)
+                            message = stringResource(R.string.movie_search_empty_message),
                         )
                     }
 
@@ -138,25 +137,25 @@ internal fun MovieSearchScreen(
                             title = stringResource(R.string.movie_search_no_results_title),
                             message = stringResource(
                                 R.string.movie_search_no_results_message,
-                                uiState.query
+                                uiState.query,
                             ),
                             actionLabel = stringResource(R.string.movie_search_clear_action),
-                            onActionClick = viewModel::clearQuery
+                            onActionClick = viewModel::clearQuery,
                         )
                     }
 
                     else -> {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(bottom = 24.dp)
+                            contentPadding = PaddingValues(bottom = 24.dp),
                         ) {
                             items(
                                 items = uiState.movies,
-                                key = { movie -> movie.id }
+                                key = { movie -> movie.id },
                             ) { movie ->
                                 MovieItemComponent(
                                     movie = movie,
-                                    modifier = Modifier.animateItem()
+                                    modifier = Modifier.animateItem(),
                                 ) {
                                     onMovieClick(movie.id)
                                 }

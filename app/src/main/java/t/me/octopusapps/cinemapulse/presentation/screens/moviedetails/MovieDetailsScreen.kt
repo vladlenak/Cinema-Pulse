@@ -68,7 +68,7 @@ import t.me.octopusapps.cinemapulse.presentation.text.asString
 internal fun MovieDetailsScreen(
     movieId: Int,
     onBackClick: () -> Unit,
-    viewModel: MovieDetailsViewModel = hiltViewModel()
+    viewModel: MovieDetailsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val detailsTitle = stringResource(R.string.movie_details_title)
@@ -81,7 +81,7 @@ internal fun MovieDetailsScreen(
         is MovieDetailsUiState.Loading -> {
             MovieDetailsTransientScaffold(
                 title = detailsTitle,
-                onBackClick = onBackClick
+                onBackClick = onBackClick,
             ) {
                 CircularProgressIndicator()
             }
@@ -90,7 +90,7 @@ internal fun MovieDetailsScreen(
         is MovieDetailsUiState.Error -> {
             MovieDetailsTransientScaffold(
                 title = detailsTitle,
-                onBackClick = onBackClick
+                onBackClick = onBackClick,
             ) {
                 StateMessageComponent(
                     icon = Icons.Default.Warning,
@@ -98,7 +98,7 @@ internal fun MovieDetailsScreen(
                     message = state.message.asString(),
                     actionLabel = stringResource(R.string.common_try_again),
                     onActionClick = { viewModel.fetchMovieDetails(movieId) },
-                    isError = true
+                    isError = true,
                 )
             }
         }
@@ -106,7 +106,7 @@ internal fun MovieDetailsScreen(
         is MovieDetailsUiState.Success -> {
             Scaffold(
                 containerColor = MaterialTheme.colorScheme.background,
-                contentWindowInsets = WindowInsets(0, 0, 0, 0)
+                contentWindowInsets = WindowInsets(0, 0, 0, 0),
             ) { innerPadding ->
                 MovieDetailsContent(
                     movie = state.movie,
@@ -117,7 +117,7 @@ internal fun MovieDetailsScreen(
                     onBackClick = onBackClick,
                     onFavoriteClick = viewModel::onFavoriteClick,
                     onWatchedClick = viewModel::onWatchedClick,
-                    modifier = Modifier.padding(innerPadding)
+                    modifier = Modifier.padding(innerPadding),
                 )
             }
         }
@@ -129,7 +129,7 @@ internal fun MovieDetailsScreen(
 private fun MovieDetailsTransientScaffold(
     title: String,
     onBackClick: () -> Unit,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -139,19 +139,19 @@ private fun MovieDetailsTransientScaffold(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.common_back)
+                            contentDescription = stringResource(R.string.common_back),
                         )
                     }
-                }
+                },
             )
-        }
+        },
     ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(horizontal = 24.dp),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             content()
         }
@@ -169,13 +169,13 @@ private fun MovieDetailsContent(
     onBackClick: () -> Unit,
     onFavoriteClick: () -> Unit,
     onWatchedClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .navigationBarsPadding()
+            .navigationBarsPadding(),
     ) {
         MovieHero(
             movie = movie,
@@ -185,19 +185,19 @@ private fun MovieDetailsContent(
             isWatchedUpdating = isWatchedUpdating,
             onBackClick = onBackClick,
             onFavoriteClick = onFavoriteClick,
-            onWatchedClick = onWatchedClick
+            onWatchedClick = onWatchedClick,
         )
 
         Column(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             if (movie.overview.isNotBlank()) {
                 DetailsSection(title = stringResource(R.string.movie_details_overview_section)) {
                     Text(
                         text = movie.overview,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -206,39 +206,39 @@ private fun MovieDetailsContent(
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         StatCard(
                             label = stringResource(R.string.movie_details_rating_label),
                             value = stringResource(
                                 R.string.movie_details_rating_value,
-                                movie.voteAverage
+                                movie.voteAverage,
                             ),
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
                         )
                         StatCard(
                             label = stringResource(R.string.movie_details_votes_label),
                             value = formatVoteCount(movie.voteCount),
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
                         )
                     }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         StatCard(
                             label = stringResource(R.string.movie_details_release_label),
                             value = movie.releaseDate.ifBlank {
                                 stringResource(R.string.common_tba)
                             },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
                         )
                         StatCard(
                             label = stringResource(R.string.movie_details_language_label),
                             value = movie.originalLanguage.uppercase().ifBlank {
                                 stringResource(R.string.common_not_available)
                             },
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
                         )
                     }
                 }
@@ -249,7 +249,7 @@ private fun MovieDetailsContent(
                 DetailsSection(title = stringResource(R.string.movie_details_genres_section)) {
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         genreResourceIds.forEach { genreRes ->
                             GenreChip(text = stringResource(genreRes))
@@ -272,7 +272,7 @@ private fun MovieHero(
     isWatchedUpdating: Boolean,
     onBackClick: () -> Unit,
     onFavoriteClick: () -> Unit,
-    onWatchedClick: () -> Unit
+    onWatchedClick: () -> Unit,
 ) {
     val backContentDescription = stringResource(R.string.common_back)
     val watchedContentDescription = if (isWatched) {
@@ -291,7 +291,7 @@ private fun MovieHero(
         modifier = Modifier
             .fillMaxWidth()
             .height(430.dp)
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(MaterialTheme.colorScheme.surfaceVariant),
     ) {
         HeroImage(movie = movie)
 
@@ -303,10 +303,10 @@ private fun MovieHero(
                         colors = listOf(
                             Color.Black.copy(alpha = 0.60f),
                             Color.Black.copy(alpha = 0.10f),
-                            Color.Black.copy(alpha = 0.78f)
-                        )
-                    )
-                )
+                            Color.Black.copy(alpha = 0.78f),
+                        ),
+                    ),
+                ),
         )
 
         Row(
@@ -315,12 +315,12 @@ private fun MovieHero(
                 .statusBarsPadding()
                 .padding(start = 12.dp, top = 8.dp, end = 12.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             HeroIconButton(
                 onClick = onBackClick,
                 icon = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = backContentDescription
+                contentDescription = backContentDescription,
             )
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -329,14 +329,14 @@ private fun MovieHero(
                     icon = if (isWatched) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                     contentDescription = watchedContentDescription,
                     enabled = !isWatchedUpdating,
-                    selected = isWatched
+                    selected = isWatched,
                 )
                 HeroIconButton(
                     onClick = onFavoriteClick,
                     icon = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                     contentDescription = favoriteContentDescription,
                     enabled = !isFavoriteUpdating,
-                    selected = isFavorite
+                    selected = isFavorite,
                 )
             }
         }
@@ -347,13 +347,13 @@ private fun MovieHero(
                 .fillMaxWidth()
                 .padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(14.dp),
-            verticalAlignment = Alignment.Bottom
+            verticalAlignment = Alignment.Bottom,
         ) {
             PosterThumbnail(movie = movie)
 
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 if (movie.adult) {
                     AdultBadge()
@@ -365,7 +365,7 @@ private fun MovieHero(
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     maxLines = 3,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
 
                 if (movie.originalTitle.isNotBlank() && movie.originalTitle != movie.title) {
@@ -374,13 +374,13 @@ private fun MovieHero(
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.White.copy(alpha = 0.76f),
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
 
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     RatingPill(voteAverage = movie.voteAverage)
                     MetaPill(text = movie.releaseYear(unknownYear))
@@ -399,17 +399,17 @@ private fun HeroImage(movie: MovieUiModel) {
 
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         if (imagePath != null) {
             AsyncImage(
                 model = "${ImageConstants.IMAGE_BASE_URL}$imagePath",
                 contentDescription = stringResource(
                     R.string.content_description_movie_backdrop,
-                    movie.title
+                    movie.title,
                 ),
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             )
         } else {
             Text(
@@ -417,7 +417,7 @@ private fun HeroImage(movie: MovieUiModel) {
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(24.dp)
+                modifier = Modifier.padding(24.dp),
             )
         }
     }
@@ -431,26 +431,26 @@ private fun PosterThumbnail(movie: MovieUiModel) {
             .aspectRatio(2f / 3f),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         if (movie.posterPath != null) {
             AsyncImage(
                 model = "${ImageConstants.IMAGE_BASE_URL}${movie.posterPath}",
                 contentDescription = stringResource(
                     R.string.content_description_movie_poster,
-                    movie.title
+                    movie.title,
                 ),
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             )
         } else {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(10.dp),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Text(
                     text = movie.title,
@@ -458,7 +458,7 @@ private fun PosterThumbnail(movie: MovieUiModel) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 4,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -471,7 +471,7 @@ private fun HeroIconButton(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     contentDescription: String,
     enabled: Boolean = true,
-    selected: Boolean = false
+    selected: Boolean = false,
 ) {
     Surface(
         shape = CircleShape,
@@ -484,68 +484,61 @@ private fun HeroIconButton(
             MaterialTheme.colorScheme.onPrimaryContainer
         } else {
             Color.White
-        }
+        },
     ) {
         IconButton(
             onClick = onClick,
             enabled = enabled,
-            modifier = Modifier.size(44.dp)
+            modifier = Modifier.size(44.dp),
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = contentDescription
+                contentDescription = contentDescription,
             )
         }
     }
 }
 
 @Composable
-private fun DetailsSection(
-    title: String,
-    content: @Composable () -> Unit
-) {
+private fun DetailsSection(title: String, content: @Composable () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
         )
         content()
     }
 }
 
 @Composable
-private fun StatCard(
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier
-) {
+private fun StatCard(label: String, value: String, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
         ),
         shape = RoundedCornerShape(8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
                 text = value,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }
@@ -556,23 +549,23 @@ private fun RatingPill(voteAverage: Double) {
     Surface(
         shape = CircleShape,
         color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.94f),
-        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
                 imageVector = Icons.Default.Star,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(14.dp)
+                modifier = Modifier.size(14.dp),
             )
             Text(
                 text = String.format("%.1f", voteAverage),
                 style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
         }
     }
@@ -583,13 +576,13 @@ private fun MetaPill(text: String) {
     Surface(
         shape = CircleShape,
         color = Color.Black.copy(alpha = 0.46f),
-        contentColor = Color.White
+        contentColor = Color.White,
     ) {
         Text(
             text = text,
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
         )
     }
 }
@@ -599,13 +592,13 @@ private fun AdultBadge() {
     Surface(
         shape = RoundedCornerShape(6.dp),
         color = MaterialTheme.colorScheme.errorContainer,
-        contentColor = MaterialTheme.colorScheme.onErrorContainer
+        contentColor = MaterialTheme.colorScheme.onErrorContainer,
     ) {
         Text(
             text = stringResource(R.string.common_adult_badge),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
         )
     }
 }
@@ -615,30 +608,35 @@ private fun GenreChip(text: String) {
     Surface(
         shape = CircleShape,
         color = MaterialTheme.colorScheme.secondaryContainer,
-        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
     ) {
         Text(
             text = text,
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp)
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
         )
     }
 }
 
-private fun MovieUiModel.releaseYear(fallback: String): String {
-    return releaseDate.take(4).takeIf { it.length == 4 } ?: fallback
-}
+private const val RELEASE_YEAR_LENGTH = 4
+
+private fun MovieUiModel.releaseYear(fallback: String): String =
+    releaseDate.take(RELEASE_YEAR_LENGTH).takeIf {
+        it.length == RELEASE_YEAR_LENGTH
+    } ?: fallback
 
 @Composable
 private fun formatVoteCount(count: Int): String = when {
     count >= 1_000_000 -> stringResource(
         R.string.movie_details_vote_count_millions,
-        count / 1_000_000.0
+        count / 1_000_000.0,
     )
+
     count >= 1_000 -> stringResource(
         R.string.movie_details_vote_count_thousands,
-        count / 1_000.0
+        count / 1_000.0,
     )
+
     else -> count.toString()
 }

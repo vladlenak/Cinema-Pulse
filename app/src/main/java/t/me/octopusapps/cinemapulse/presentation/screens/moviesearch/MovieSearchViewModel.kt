@@ -3,6 +3,7 @@ package t.me.octopusapps.cinemapulse.presentation.screens.moviesearch
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -13,11 +14,10 @@ import kotlinx.coroutines.launch
 import t.me.octopusapps.cinemapulse.presentation.errors.toMovieErrorMessage
 import t.me.octopusapps.cinemapulse.presentation.mapper.mapToMovieUiList
 import t.me.octopusapps.domain.usecases.SearchMoviesUseCase
-import javax.inject.Inject
 
 @HiltViewModel
 internal class MovieSearchViewModel @Inject constructor(
-    private val searchMoviesUseCase: SearchMoviesUseCase
+    private val searchMoviesUseCase: SearchMoviesUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MovieSearchUiState())
@@ -38,7 +38,7 @@ internal class MovieSearchViewModel @Inject constructor(
             state.copy(
                 movies = emptyList(),
                 error = null,
-                isLoading = false
+                isLoading = false,
             )
         }
         search(query)
@@ -68,7 +68,7 @@ internal class MovieSearchViewModel @Inject constructor(
             _uiState.update { state ->
                 state.copy(
                     isLoading = true,
-                    error = null
+                    error = null,
                 )
             }
 
@@ -79,7 +79,7 @@ internal class MovieSearchViewModel @Inject constructor(
                         state.copy(
                             movies = movies,
                             isLoading = false,
-                            error = null
+                            error = null,
                         )
                     } else {
                         state
@@ -93,7 +93,7 @@ internal class MovieSearchViewModel @Inject constructor(
                         state.copy(
                             movies = emptyList(),
                             isLoading = false,
-                            error = e.toMovieErrorMessage()
+                            error = e.toMovieErrorMessage(),
                         )
                     } else {
                         state

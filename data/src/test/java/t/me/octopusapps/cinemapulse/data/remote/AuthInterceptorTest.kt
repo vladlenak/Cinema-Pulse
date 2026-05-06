@@ -1,5 +1,6 @@
 package t.me.octopusapps.cinemapulse.data.remote
 
+import java.util.concurrent.TimeUnit
 import okhttp3.Call
 import okhttp3.Connection
 import okhttp3.Interceptor
@@ -10,7 +11,6 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
-import java.util.concurrent.TimeUnit
 
 class AuthInterceptorTest {
 
@@ -26,7 +26,7 @@ class AuthInterceptorTest {
         val chain = FakeChain(
             Request.Builder()
                 .url("https://api.themoviedb.org/3/movie/popular?page=1")
-                .build()
+                .build(),
         )
 
         AuthInterceptor(" test-api-key ").intercept(chain)
@@ -41,7 +41,7 @@ class AuthInterceptorTest {
         val chain = FakeChain(
             Request.Builder()
                 .url("https://api.themoviedb.org/3/movie/popular?api_key=old-key")
-                .build()
+                .build(),
         )
 
         AuthInterceptor("new-key").intercept(chain)
@@ -49,9 +49,7 @@ class AuthInterceptorTest {
         assertEquals(listOf("new-key"), chain.proceededRequest.url.queryParameterValues("api_key"))
     }
 
-    private class FakeChain(
-        private val request: Request
-    ) : Interceptor.Chain {
+    private class FakeChain(private val request: Request) : Interceptor.Chain {
 
         lateinit var proceededRequest: Request
             private set

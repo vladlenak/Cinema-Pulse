@@ -14,5 +14,5 @@ public data class Movie(
     val adult: Boolean,
     val originalLanguage: String,
     val originalTitle: String,
-    val video: Boolean
+    val video: Boolean,
 )

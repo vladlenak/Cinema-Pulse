@@ -19,5 +19,5 @@ internal data class FavoriteMovieEntity(
     val originalLanguage: String,
     val originalTitle: String,
     val video: Boolean,
-    val addedAt: Long = System.currentTimeMillis()
+    val addedAt: Long = System.currentTimeMillis(),
 )

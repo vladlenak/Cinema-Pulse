@@ -28,6 +28,8 @@ jobs:
             ${{ runner.os }}-gradle-
       - name: Create local.properties
         run: echo "apikey=FAKE_KEY_FOR_CI" >> local.properties
+      - name: Run formatting and static analysis
+        run: ./gradlew qualityCheck
       - name: Run lint
         run: ./gradlew lint
       - name: Run unit tests

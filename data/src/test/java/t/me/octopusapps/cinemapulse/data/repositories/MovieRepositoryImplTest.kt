@@ -3,6 +3,7 @@ package t.me.octopusapps.cinemapulse.data.repositories
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import java.io.IOException
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -18,7 +19,6 @@ import t.me.octopusapps.cinemapulse.data.remote.MovieApi
 import t.me.octopusapps.domain.errors.MovieError
 import t.me.octopusapps.domain.models.Movie
 import t.me.octopusapps.domain.models.MovieCategory
-import java.io.IOException
 
 class MovieRepositoryImplTest {
 
@@ -40,13 +40,13 @@ class MovieRepositoryImplTest {
         adult = false,
         originalLanguage = "en",
         originalTitle = "Inception",
-        video = false
+        video = false,
     )
 
     private val fakeResponse = MovieResponse(
         page = 1,
         totalPages = 5,
-        results = listOf(fakeMovieDetails)
+        results = listOf(fakeMovieDetails),
     )
 
     private val fakeCachedEntity = MovieEntity(
@@ -66,7 +66,7 @@ class MovieRepositoryImplTest {
         originalTitle = "Inception",
         video = false,
         page = 1,
-        totalPages = 5
+        totalPages = 5,
     )
 
     private val fakeCachedDetailsEntity = MovieDetailsEntity(
@@ -83,7 +83,7 @@ class MovieRepositoryImplTest {
         adult = false,
         originalLanguage = "en",
         originalTitle = "Inception",
-        video = false
+        video = false,
     )
 
     private val fakeMovie = Movie(
@@ -100,7 +100,7 @@ class MovieRepositoryImplTest {
         adult = false,
         originalLanguage = "en",
         originalTitle = "Inception",
-        video = false
+        video = false,
     )
 
     private val fakeFavoriteEntity = FavoriteMovieEntity(
@@ -117,7 +117,7 @@ class MovieRepositoryImplTest {
         adult = false,
         originalLanguage = "en",
         originalTitle = "Inception",
-        video = false
+        video = false,
     )
 
     private val fakeWatchedEntity = WatchedMovieEntity(
@@ -134,7 +134,7 @@ class MovieRepositoryImplTest {
         adult = false,
         originalLanguage = "en",
         originalTitle = "Inception",
-        video = false
+        video = false,
     )
 
     // --- getPopularMovies ---
@@ -243,7 +243,7 @@ class MovieRepositoryImplTest {
             movieDao.insertMovieDetails(
                 match {
                     it.id == 1 && it.title == "Inception" && it.genreIds == "28"
-                }
+                },
             )
         }
     }
@@ -334,7 +334,7 @@ class MovieRepositoryImplTest {
             movieDao.insertFavoriteMovie(
                 match {
                     it.id == 1 && it.title == "Inception" && it.genreIds == "28"
-                }
+                },
             )
         }
     }
@@ -376,7 +376,7 @@ class MovieRepositoryImplTest {
             movieDao.insertWatchedMovie(
                 match {
                     it.id == 1 && it.title == "Inception" && it.genreIds == "28"
-                }
+                },
             )
         }
     }

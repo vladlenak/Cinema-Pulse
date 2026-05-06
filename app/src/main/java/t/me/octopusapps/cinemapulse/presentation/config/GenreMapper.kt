@@ -22,7 +22,7 @@ internal val genreNameResources: Map<Int, Int> = mapOf(
     10770 to R.string.genre_tv_movie,
     53 to R.string.genre_thriller,
     10752 to R.string.genre_war,
-    37 to R.string.genre_western
+    37 to R.string.genre_western,
 )
 
 @StringRes
