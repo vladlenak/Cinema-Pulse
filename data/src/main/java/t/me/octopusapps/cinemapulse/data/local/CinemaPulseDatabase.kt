@@ -11,7 +11,7 @@ import t.me.octopusapps.cinemapulse.data.local.entities.WatchedMovieEntity
 @Database(
     entities = [MovieEntity::class, FavoriteMovieEntity::class, WatchedMovieEntity::class],
     version = 5,
-    exportSchema = false
+    exportSchema = true
 )
 @TypeConverters(Converters::class)
 internal abstract class CinemaPulseDatabase : RoomDatabase() {

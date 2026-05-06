@@ -3,17 +3,26 @@ package t.me.octopusapps.cinemapulse.data.local
 import android.content.ContentValues
 import android.database.sqlite.SQLiteConstraintException
 import android.database.sqlite.SQLiteDatabase
-import androidx.room.Room
+import androidx.room.testing.MigrationTestHelper
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.sqlite.db.SupportSQLiteDatabase
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 internal class CinemaPulseDatabaseMigrationTest {
+
+    @get:Rule
+    val helper = MigrationTestHelper(
+        InstrumentationRegistry.getInstrumentation(),
+        CinemaPulseDatabase::class.java
+    )
 
     private val context = ApplicationProvider.getApplicationContext<android.content.Context>()
 
@@ -23,101 +32,65 @@ internal class CinemaPulseDatabaseMigrationTest {
     }
 
     @Test
+    fun migrate2To5_preservesCachedMoviesAndValidatesSchema() {
+        createVersion2DatabaseWithCachedMovie()
+
+        helper.runMigrationsAndValidate(
+            TEST_DB,
+            5,
+            true,
+            *CinemaPulseMigrations.ALL
+        ).use { database ->
+            assertEquals("Inception", findCachedMovieTitle(database, movieId = 1))
+            assertDuplicateInsertFails(database)
+        }
+    }
+
+    @Test
     fun migrate4To5_removesDuplicateCachedMoviesAndCreatesUniqueIndex() {
         createVersion4DatabaseWithDuplicateCachedMovies()
 
-        val database = Room.databaseBuilder(context, CinemaPulseDatabase::class.java, TEST_DB)
-            .addMigrations(*CinemaPulseMigrations.ALL)
-            .build()
-        try {
-            val sqliteDatabase = database.openHelper.writableDatabase
+        helper.runMigrationsAndValidate(
+            TEST_DB,
+            5,
+            true,
+            *CinemaPulseMigrations.ALL
+        ).use { database ->
+            assertEquals(1, countCachedMovieRows(database, movieId = 1))
+            assertEquals("Inception Updated", findCachedMovieTitle(database, movieId = 1))
+            assertDuplicateInsertFails(database)
+        }
+    }
 
-            assertEquals(1, countCachedMovieRows(sqliteDatabase, movieId = 1))
-            assertEquals("Inception Updated", findCachedMovieTitle(sqliteDatabase, movieId = 1))
-            assertDuplicateInsertFails(sqliteDatabase)
-        } finally {
-            database.close()
+    private fun createVersion2DatabaseWithCachedMovie() {
+        context.deleteDatabase(TEST_DB)
+        helper.createDatabase(TEST_DB, 2).use { database ->
+            database.insert(
+                "movies",
+                SQLiteDatabase.CONFLICT_NONE,
+                cachedMovieValues(rowId = 1, title = "Inception")
+            )
         }
     }
 
     private fun createVersion4DatabaseWithDuplicateCachedMovies() {
         context.deleteDatabase(TEST_DB)
-        val database = SQLiteDatabase.openOrCreateDatabase(context.getDatabasePath(TEST_DB), null)
-        database.use {
-            it.execSQL(
-                """
-                CREATE TABLE IF NOT EXISTS `movies` (
-                    `rowId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                    `id` INTEGER NOT NULL,
-                    `category` TEXT NOT NULL,
-                    `title` TEXT NOT NULL,
-                    `overview` TEXT NOT NULL,
-                    `popularity` REAL NOT NULL,
-                    `releaseDate` TEXT NOT NULL,
-                    `voteAverage` REAL NOT NULL,
-                    `voteCount` INTEGER NOT NULL,
-                    `posterPath` TEXT,
-                    `backdropPath` TEXT,
-                    `genreIds` TEXT,
-                    `adult` INTEGER NOT NULL,
-                    `originalLanguage` TEXT NOT NULL,
-                    `originalTitle` TEXT NOT NULL,
-                    `video` INTEGER NOT NULL,
-                    `page` INTEGER NOT NULL,
-                    `totalPages` INTEGER NOT NULL,
-                    `cachedAt` INTEGER NOT NULL
-                )
-                """.trimIndent()
+        helper.createDatabase(TEST_DB, 4).use { database ->
+            database.insert(
+                "movies",
+                SQLiteDatabase.CONFLICT_NONE,
+                cachedMovieValues(rowId = 1, title = "Inception")
             )
-            it.execSQL(
-                """
-                CREATE TABLE IF NOT EXISTS `favorite_movies` (
-                    `id` INTEGER NOT NULL,
-                    `title` TEXT NOT NULL,
-                    `overview` TEXT NOT NULL,
-                    `popularity` REAL NOT NULL,
-                    `releaseDate` TEXT NOT NULL,
-                    `voteAverage` REAL NOT NULL,
-                    `voteCount` INTEGER NOT NULL,
-                    `posterPath` TEXT,
-                    `backdropPath` TEXT,
-                    `genreIds` TEXT,
-                    `adult` INTEGER NOT NULL,
-                    `originalLanguage` TEXT NOT NULL,
-                    `originalTitle` TEXT NOT NULL,
-                    `video` INTEGER NOT NULL,
-                    `addedAt` INTEGER NOT NULL,
-                    PRIMARY KEY(`id`)
-                )
-                """.trimIndent()
+            database.insert(
+                "movies",
+                SQLiteDatabase.CONFLICT_NONE,
+                cachedMovieValues(rowId = 2, title = "Inception Updated")
             )
-            it.execSQL(
-                """
-                CREATE TABLE IF NOT EXISTS `watched_movies` (
-                    `id` INTEGER NOT NULL,
-                    `title` TEXT NOT NULL,
-                    `overview` TEXT NOT NULL,
-                    `popularity` REAL NOT NULL,
-                    `releaseDate` TEXT NOT NULL,
-                    `voteAverage` REAL NOT NULL,
-                    `voteCount` INTEGER NOT NULL,
-                    `posterPath` TEXT,
-                    `backdropPath` TEXT,
-                    `genreIds` TEXT,
-                    `adult` INTEGER NOT NULL,
-                    `originalLanguage` TEXT NOT NULL,
-                    `originalTitle` TEXT NOT NULL,
-                    `video` INTEGER NOT NULL,
-                    `watchedAt` INTEGER NOT NULL,
-                    PRIMARY KEY(`id`)
-                )
-                """.trimIndent()
+            database.insert(
+                "movies",
+                SQLiteDatabase.CONFLICT_NONE,
+                cachedMovieValues(rowId = 3, movieId = 2, title = "Interstellar")
             )
-
-            it.insert("movies", null, cachedMovieValues(rowId = 1, title = "Inception"))
-            it.insert("movies", null, cachedMovieValues(rowId = 2, title = "Inception Updated"))
-            it.insert("movies", null, cachedMovieValues(rowId = 3, movieId = 2, title = "Interstellar"))
-            it.version = 4
         }
     }
 
@@ -147,7 +120,7 @@ internal class CinemaPulseDatabaseMigrationTest {
         put("cachedAt", rowId.toLong())
     }
 
-    private fun countCachedMovieRows(database: androidx.sqlite.db.SupportSQLiteDatabase, movieId: Int): Int =
+    private fun countCachedMovieRows(database: SupportSQLiteDatabase, movieId: Int): Int =
         database.query(
             "SELECT COUNT(*) FROM `movies` WHERE `category` = 'POPULAR' AND `page` = 1 AND `id` = $movieId"
         ).use { cursor ->
@@ -155,7 +128,7 @@ internal class CinemaPulseDatabaseMigrationTest {
             cursor.getInt(0)
         }
 
-    private fun findCachedMovieTitle(database: androidx.sqlite.db.SupportSQLiteDatabase, movieId: Int): String =
+    private fun findCachedMovieTitle(database: SupportSQLiteDatabase, movieId: Int): String =
         database.query(
             "SELECT `title` FROM `movies` WHERE `category` = 'POPULAR' AND `page` = 1 AND `id` = $movieId"
         ).use { cursor ->
@@ -163,7 +136,7 @@ internal class CinemaPulseDatabaseMigrationTest {
             cursor.getString(0)
         }
 
-    private fun assertDuplicateInsertFails(database: androidx.sqlite.db.SupportSQLiteDatabase) {
+    private fun assertDuplicateInsertFails(database: SupportSQLiteDatabase) {
         assertThrows(SQLiteConstraintException::class.java) {
             database.execSQL(
                 """

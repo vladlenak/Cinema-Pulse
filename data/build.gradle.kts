@@ -66,6 +66,16 @@ android {
     buildFeatures {
         buildConfig = true
     }
+
+    // --- Room schemas ---
+    sourceSets {
+        getByName("androidTest").assets.directories.add("$projectDir/schemas")
+    }
+}
+
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+    arg("room.incremental", "true")
 }
 
 dependencies {
@@ -98,4 +108,5 @@ dependencies {
     // --- Android testing ---
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.room.testing)
 }
