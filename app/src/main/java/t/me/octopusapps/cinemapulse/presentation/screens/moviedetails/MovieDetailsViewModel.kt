@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import t.me.octopusapps.cinemapulse.presentation.errors.toMovieErrorMessage
 import t.me.octopusapps.cinemapulse.presentation.mapper.mapToDomain
@@ -30,24 +32,38 @@ internal class MovieDetailsViewModel @Inject constructor(
         MutableStateFlow(MovieDetailsUiState.Loading)
     val uiState: StateFlow<MovieDetailsUiState> = _uiState
 
+    private var detailsJob: Job? = null
+    private var favoriteJob: Job? = null
+    private var watchedJob: Job? = null
+    private var detailsRequestId = 0L
+
     fun fetchMovieDetails(movieId: Int) {
-        viewModelScope.launch {
+        detailsJob?.cancel()
+        favoriteJob?.cancel()
+        watchedJob?.cancel()
+
+        val requestId = ++detailsRequestId
+        detailsJob = viewModelScope.launch {
             _uiState.value = MovieDetailsUiState.Loading
             try {
                 val movieDetails =
                     getMovieDetailsUseCase.invoke(movieId).mapToMovieUiModel()
                 val isFavorite = isMovieFavoriteUseCase(movieId)
                 val isWatched = isMovieWatchedUseCase(movieId)
-                _uiState.value = MovieDetailsUiState.Success(
-                    movie = movieDetails,
-                    isFavorite = isFavorite,
-                    isWatched = isWatched
-                )
+                if (requestId == detailsRequestId) {
+                    _uiState.value = MovieDetailsUiState.Success(
+                        movie = movieDetails,
+                        isFavorite = isFavorite,
+                        isWatched = isWatched
+                    )
+                }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                _uiState.value =
-                    MovieDetailsUiState.Error(e.toMovieErrorMessage())
+                if (requestId == detailsRequestId) {
+                    _uiState.value =
+                        MovieDetailsUiState.Error(e.toMovieErrorMessage())
+                }
             }
         }
     }
@@ -56,19 +72,27 @@ internal class MovieDetailsViewModel @Inject constructor(
         val state = _uiState.value as? MovieDetailsUiState.Success ?: return
         if (state.isFavoriteUpdating) return
 
+        val movie = state.movie
         val newFavoriteState = !state.isFavorite
-        viewModelScope.launch {
-            _uiState.value = state.copy(isFavoriteUpdating = true)
+        updateMovieState(movie.id) {
+            it.copy(isFavoriteUpdating = true)
+        }
+
+        favoriteJob = viewModelScope.launch {
             try {
-                setMovieFavoriteUseCase(state.movie.mapToDomain(), newFavoriteState)
-                _uiState.value = state.copy(
-                    isFavorite = newFavoriteState,
-                    isFavoriteUpdating = false
-                )
+                setMovieFavoriteUseCase(movie.mapToDomain(), newFavoriteState)
+                updateMovieState(movie.id) {
+                    it.copy(
+                        isFavorite = newFavoriteState,
+                        isFavoriteUpdating = false
+                    )
+                }
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
-                _uiState.value = state.copy(isFavoriteUpdating = false)
+                updateMovieState(movie.id) {
+                    it.copy(isFavoriteUpdating = false)
+                }
             }
         }
     }
@@ -77,19 +101,40 @@ internal class MovieDetailsViewModel @Inject constructor(
         val state = _uiState.value as? MovieDetailsUiState.Success ?: return
         if (state.isWatchedUpdating) return
 
+        val movie = state.movie
         val newWatchedState = !state.isWatched
-        viewModelScope.launch {
-            _uiState.value = state.copy(isWatchedUpdating = true)
+        updateMovieState(movie.id) {
+            it.copy(isWatchedUpdating = true)
+        }
+
+        watchedJob = viewModelScope.launch {
             try {
-                setMovieWatchedUseCase(state.movie.mapToDomain(), newWatchedState)
-                _uiState.value = state.copy(
-                    isWatched = newWatchedState,
-                    isWatchedUpdating = false
-                )
+                setMovieWatchedUseCase(movie.mapToDomain(), newWatchedState)
+                updateMovieState(movie.id) {
+                    it.copy(
+                        isWatched = newWatchedState,
+                        isWatchedUpdating = false
+                    )
+                }
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
-                _uiState.value = state.copy(isWatchedUpdating = false)
+                updateMovieState(movie.id) {
+                    it.copy(isWatchedUpdating = false)
+                }
+            }
+        }
+    }
+
+    private fun updateMovieState(
+        movieId: Int,
+        transform: (MovieDetailsUiState.Success) -> MovieDetailsUiState.Success
+    ) {
+        _uiState.update { state ->
+            if (state is MovieDetailsUiState.Success && state.movie.id == movieId) {
+                transform(state)
+            } else {
+                state
             }
         }
     }

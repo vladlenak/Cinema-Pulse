@@ -3,11 +3,13 @@ package t.me.octopusapps.cinemapulse.presentation.screens.moviedetails
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
@@ -50,6 +52,12 @@ class MovieDetailsViewModelTest {
         originalLanguage = "en",
         originalTitle = "Inception",
         video = false
+    )
+
+    private val secondFakeMovie = fakeMovie.copy(
+        id = 2,
+        title = "Interstellar",
+        originalTitle = "Interstellar"
     )
 
     @Before
@@ -125,6 +133,31 @@ class MovieDetailsViewModelTest {
     }
 
     @Test
+    fun `fetchMovieDetails keeps newer result when older request completes later`() = runTest {
+        val firstResult = CompletableDeferred<Movie>()
+        coEvery { getMovieDetailsUseCase(1) } coAnswers { firstResult.await() }
+        coEvery { getMovieDetailsUseCase(2) } returns secondFakeMovie
+        coEvery { isMovieFavoriteUseCase(2) } returns false
+        coEvery { isMovieWatchedUseCase(2) } returns true
+
+        viewModel.fetchMovieDetails(1)
+        runCurrent()
+        viewModel.fetchMovieDetails(2)
+        advanceUntilIdle()
+
+        firstResult.complete(fakeMovie)
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as MovieDetailsUiState.Success
+        assertEquals(2, state.movie.id)
+        assertEquals("Interstellar", state.movie.title)
+        assertFalse(state.isFavorite)
+        assertTrue(state.isWatched)
+        coVerify(exactly = 0) { isMovieFavoriteUseCase(1) }
+        coVerify(exactly = 0) { isMovieWatchedUseCase(1) }
+    }
+
+    @Test
     fun `onFavoriteClick adds movie to favorites`() = runTest {
         coEvery { getMovieDetailsUseCase(1) } returns fakeMovie
         coEvery { isMovieFavoriteUseCase(1) } returns false
@@ -183,6 +216,58 @@ class MovieDetailsViewModelTest {
         val state = viewModel.uiState.value as MovieDetailsUiState.Success
         assertFalse(state.isFavorite)
         assertFalse(state.isFavoriteUpdating)
+    }
+
+    @Test
+    fun `onFavoriteClick ignores duplicate clicks while update is pending`() = runTest {
+        val favoriteUpdate = CompletableDeferred<Unit>()
+        coEvery { getMovieDetailsUseCase(1) } returns fakeMovie
+        coEvery { isMovieFavoriteUseCase(1) } returns false
+        coEvery { isMovieWatchedUseCase(1) } returns false
+        coEvery { setMovieFavoriteUseCase(any(), true) } coAnswers { favoriteUpdate.await() }
+
+        viewModel.fetchMovieDetails(1)
+        advanceUntilIdle()
+        viewModel.onFavoriteClick()
+        viewModel.onFavoriteClick()
+        runCurrent()
+
+        val updatingState = viewModel.uiState.value as MovieDetailsUiState.Success
+        assertTrue(updatingState.isFavoriteUpdating)
+        coVerify(exactly = 1) { setMovieFavoriteUseCase(any(), true) }
+
+        favoriteUpdate.complete(Unit)
+        advanceUntilIdle()
+    }
+
+    @Test
+    fun `onFavoriteClick preserves watched state changed while favorite update is pending`() = runTest {
+        val favoriteUpdate = CompletableDeferred<Unit>()
+        coEvery { getMovieDetailsUseCase(1) } returns fakeMovie
+        coEvery { isMovieFavoriteUseCase(1) } returns false
+        coEvery { isMovieWatchedUseCase(1) } returns false
+        coEvery { setMovieFavoriteUseCase(any(), true) } coAnswers { favoriteUpdate.await() }
+
+        viewModel.fetchMovieDetails(1)
+        advanceUntilIdle()
+        viewModel.onFavoriteClick()
+        runCurrent()
+        viewModel.onWatchedClick()
+        advanceUntilIdle()
+
+        val watchedState = viewModel.uiState.value as MovieDetailsUiState.Success
+        assertTrue(watchedState.isFavoriteUpdating)
+        assertTrue(watchedState.isWatched)
+        assertFalse(watchedState.isWatchedUpdating)
+
+        favoriteUpdate.complete(Unit)
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as MovieDetailsUiState.Success
+        assertTrue(state.isFavorite)
+        assertFalse(state.isFavoriteUpdating)
+        assertTrue(state.isWatched)
+        assertFalse(state.isWatchedUpdating)
     }
 
     @Test
