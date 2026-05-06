@@ -14,6 +14,8 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -65,18 +67,36 @@ class MovieSearchViewModelTest {
     @Test
     fun `initial state is empty success`() {
         val state = viewModel.uiState.value
-        assertTrue(state is MovieSearchUiState.Success)
-        assertTrue((state as MovieSearchUiState.Success).movies.isEmpty())
+        assertEquals("", state.query)
+        assertTrue(state.movies.isEmpty())
+        assertFalse(state.isLoading)
+        assertNull(state.error)
     }
 
     @Test
     fun `onQueryChanged with blank query resets to empty success`() = runTest {
+        viewModel.onQueryChanged("Inception")
+        advanceTimeBy(100L)
+
         viewModel.onQueryChanged("")
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
-        assertTrue(state is MovieSearchUiState.Success)
-        assertTrue((state as MovieSearchUiState.Success).movies.isEmpty())
+        assertEquals("", state.query)
+        assertTrue(state.movies.isEmpty())
+        assertFalse(state.isLoading)
+        assertNull(state.error)
+    }
+
+    @Test
+    fun `onQueryChanged stores query in ui state immediately`() {
+        viewModel.onQueryChanged("Inception")
+
+        val state = viewModel.uiState.value
+        assertEquals("Inception", state.query)
+        assertTrue(state.movies.isEmpty())
+        assertFalse(state.isLoading)
+        assertNull(state.error)
     }
 
     @Test
@@ -88,8 +108,10 @@ class MovieSearchViewModelTest {
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
-        assertTrue(state is MovieSearchUiState.Success)
-        assertEquals(1, (state as MovieSearchUiState.Success).movies.size)
+        assertEquals("Inception", state.query)
+        assertEquals(1, state.movies.size)
+        assertFalse(state.isLoading)
+        assertNull(state.error)
     }
 
     @Test
@@ -99,6 +121,23 @@ class MovieSearchViewModelTest {
         viewModel.onQueryChanged("Inc")
         advanceTimeBy(200L)
 
+        coVerify(exactly = 0) { useCase(any()) }
+    }
+
+    @Test
+    fun `clearQuery resets state and cancels pending search`() = runTest {
+        coEvery { useCase(any()) } returns fakeMovieList()
+
+        viewModel.onQueryChanged("Inception")
+        viewModel.clearQuery()
+        advanceTimeBy(401L)
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals("", state.query)
+        assertTrue(state.movies.isEmpty())
+        assertFalse(state.isLoading)
+        assertNull(state.error)
         coVerify(exactly = 0) { useCase(any()) }
     }
 
@@ -134,8 +173,10 @@ class MovieSearchViewModelTest {
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
-        assertTrue(state is MovieSearchUiState.Success)
-        assertEquals("Batman", (state as MovieSearchUiState.Success).movies.single().title)
+        assertEquals("Batman", state.query)
+        assertEquals("Batman", state.movies.single().title)
+        assertFalse(state.isLoading)
+        assertNull(state.error)
         coVerify(exactly = 1) { useCase("Inception") }
         coVerify(exactly = 1) { useCase("Batman") }
     }
@@ -148,6 +189,31 @@ class MovieSearchViewModelTest {
         advanceTimeBy(401L)
         advanceUntilIdle()
 
-        assertTrue(viewModel.uiState.value is MovieSearchUiState.Error)
+        val state = viewModel.uiState.value
+        assertEquals("Inception", state.query)
+        assertTrue(state.movies.isEmpty())
+        assertFalse(state.isLoading)
+        assertEquals("Network error", state.error)
+    }
+
+    @Test
+    fun `retry repeats current query after error`() = runTest {
+        coEvery { useCase("Inception") } throws Exception("Network error")
+
+        viewModel.onQueryChanged("Inception")
+        advanceTimeBy(401L)
+        advanceUntilIdle()
+
+        coEvery { useCase("Inception") } returns fakeMovieList()
+        viewModel.retry()
+        advanceTimeBy(401L)
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals("Inception", state.query)
+        assertEquals(1, state.movies.size)
+        assertFalse(state.isLoading)
+        assertNull(state.error)
+        coVerify(exactly = 2) { useCase("Inception") }
     }
 }

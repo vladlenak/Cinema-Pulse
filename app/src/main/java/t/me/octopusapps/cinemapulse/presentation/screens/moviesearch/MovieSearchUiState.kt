@@ -2,8 +2,9 @@ package t.me.octopusapps.cinemapulse.presentation.screens.moviesearch
 
 import t.me.octopusapps.cinemapulse.presentation.models.MovieUiModel
 
-internal sealed class MovieSearchUiState {
-    data object Loading : MovieSearchUiState()
-    data class Success(val movies: List<MovieUiModel>) : MovieSearchUiState()
-    data class Error(val message: String) : MovieSearchUiState()
-}
+internal data class MovieSearchUiState(
+    val query: String = "",
+    val movies: List<MovieUiModel> = emptyList(),
+    val isLoading: Boolean = false,
+    val error: String? = null
+)

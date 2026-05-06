@@ -4,62 +4,102 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import t.me.octopusapps.cinemapulse.presentation.errors.toMovieErrorMessage
 import t.me.octopusapps.cinemapulse.presentation.mapper.mapToMovieUiList
 import t.me.octopusapps.domain.usecases.SearchMoviesUseCase
 import javax.inject.Inject
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 internal class MovieSearchViewModel @Inject constructor(
     private val searchMoviesUseCase: SearchMoviesUseCase
 ) : ViewModel() {
 
-    private val _uiState =
-        MutableStateFlow<MovieSearchUiState>(MovieSearchUiState.Success(emptyList()))
+    private val _uiState = MutableStateFlow(MovieSearchUiState())
     val uiState = _uiState.asStateFlow()
 
-    private val _query = MutableStateFlow("")
-
-    init {
-        _query
-            .mapLatest { query ->
-                val trimmedQuery = query.trim()
-                if (trimmedQuery.isBlank()) {
-                    MovieSearchUiState.Success(emptyList())
-                } else {
-                    delay(SEARCH_DEBOUNCE_MS)
-                    _uiState.value = MovieSearchUiState.Loading
-                    try {
-                        val movies = searchMoviesUseCase(trimmedQuery).mapToMovieUiList().results
-                        MovieSearchUiState.Success(movies)
-                    } catch (e: CancellationException) {
-                        throw e
-                    } catch (e: Exception) {
-                        MovieSearchUiState.Error(e.toMovieErrorMessage(defaultMessage = "Unknown Error"))
-                    }
-                }
-            }
-            .onEach { state -> _uiState.value = state }
-            .launchIn(viewModelScope)
-    }
+    private var searchJob: Job? = null
 
     fun onQueryChanged(query: String) {
-        _query.value = query
+        setQuery(query)
+        search(query)
     }
 
     fun retry() {
-        val query = _query.value
-        if (query.isNotBlank()) {
-            _query.value = ""
-            _query.value = query
+        val query = _uiState.value.query
+        if (query.isBlank()) return
+
+        _uiState.update { state ->
+            state.copy(
+                movies = emptyList(),
+                error = null,
+                isLoading = false
+            )
+        }
+        search(query)
+    }
+
+    fun clearQuery() {
+        if (_uiState.value.query.isNotEmpty()) {
+            searchJob?.cancel()
+            _uiState.value = MovieSearchUiState()
+        }
+    }
+
+    private fun setQuery(query: String) {
+        _uiState.value = MovieSearchUiState(query = query)
+    }
+
+    private fun search(query: String) {
+        searchJob?.cancel()
+
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.isBlank()) return
+
+        searchJob = viewModelScope.launch {
+            delay(SEARCH_DEBOUNCE_MS)
+            if (_uiState.value.query != query) return@launch
+
+            _uiState.update { state ->
+                state.copy(
+                    isLoading = true,
+                    error = null
+                )
+            }
+
+            try {
+                val movies = searchMoviesUseCase(trimmedQuery).mapToMovieUiList().results
+                _uiState.update { state ->
+                    if (state.query == query) {
+                        state.copy(
+                            movies = movies,
+                            isLoading = false,
+                            error = null
+                        )
+                    } else {
+                        state
+                    }
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _uiState.update { state ->
+                    if (state.query == query) {
+                        state.copy(
+                            movies = emptyList(),
+                            isLoading = false,
+                            error = e.toMovieErrorMessage(defaultMessage = "Unknown Error")
+                        )
+                    } else {
+                        state
+                    }
+                }
+            }
         }
     }
 

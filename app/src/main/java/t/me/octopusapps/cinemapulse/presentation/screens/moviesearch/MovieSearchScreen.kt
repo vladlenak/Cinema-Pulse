@@ -26,9 +26,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -45,7 +42,6 @@ internal fun MovieSearchScreen(
 ) {
 
     val uiState by viewModel.uiState.collectAsState()
-    var query by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = {
@@ -71,11 +67,8 @@ internal fun MovieSearchScreen(
                 .fillMaxSize()
         ) {
             OutlinedTextField(
-                value = query,
-                onValueChange = { newQuery ->
-                    query = newQuery
-                    viewModel.onQueryChanged(newQuery)
-                },
+                value = uiState.query,
+                onValueChange = viewModel::onQueryChanged,
                 label = { Text("Search") },
                 leadingIcon = {
                     Icon(
@@ -84,12 +77,9 @@ internal fun MovieSearchScreen(
                     )
                 },
                 trailingIcon = {
-                    if (query.isNotEmpty()) {
+                    if (uiState.query.isNotEmpty()) {
                         IconButton(
-                            onClick = {
-                                query = ""
-                                viewModel.onQueryChanged("")
-                            }
+                            onClick = viewModel::clearQuery
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
@@ -110,67 +100,60 @@ internal fun MovieSearchScreen(
                     .weight(1f),
                 contentAlignment = Alignment.Center
             ) {
-                when (val state = uiState) {
-                    is MovieSearchUiState.Loading -> {
+                when {
+                    uiState.isLoading -> {
                         CircularProgressIndicator()
                     }
 
-                    is MovieSearchUiState.Success -> {
-                        when {
-                            query.isBlank() -> {
-                                StateMessageComponent(
-                                    modifier = Modifier.fillMaxSize(),
-                                    icon = Icons.Default.Search,
-                                    title = "Search the catalog",
-                                    message = "Find movies by title and open details from the results."
-                                )
-                            }
-
-                            state.movies.isEmpty() -> {
-                                StateMessageComponent(
-                                    modifier = Modifier.fillMaxSize(),
-                                    icon = Icons.Default.Search,
-                                    title = "No results",
-                                    message = "No movies found for \"$query\".",
-                                    actionLabel = "Clear search",
-                                    onActionClick = {
-                                        query = ""
-                                        viewModel.onQueryChanged("")
-                                    }
-                                )
-                            }
-
-                            else -> {
-                                LazyColumn(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentPadding = PaddingValues(bottom = 24.dp)
-                                ) {
-                                    items(
-                                        items = state.movies,
-                                        key = { movie -> movie.id }
-                                    ) { movie ->
-                                        MovieItemComponent(
-                                            movie = movie,
-                                            modifier = Modifier.animateItem()
-                                        ) {
-                                            onMovieClick(movie.id)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    is MovieSearchUiState.Error -> {
+                    uiState.error != null -> {
                         StateMessageComponent(
                             modifier = Modifier.fillMaxSize(),
                             icon = Icons.Default.Warning,
                             title = "Search failed",
-                            message = state.message,
+                            message = uiState.error.orEmpty(),
                             actionLabel = "Try again",
                             onActionClick = viewModel::retry,
                             isError = true
                         )
+                    }
+
+                    uiState.query.isBlank() -> {
+                        StateMessageComponent(
+                            modifier = Modifier.fillMaxSize(),
+                            icon = Icons.Default.Search,
+                            title = "Search the catalog",
+                            message = "Find movies by title and open details from the results."
+                        )
+                    }
+
+                    uiState.movies.isEmpty() -> {
+                        StateMessageComponent(
+                            modifier = Modifier.fillMaxSize(),
+                            icon = Icons.Default.Search,
+                            title = "No results",
+                            message = "No movies found for \"${uiState.query}\".",
+                            actionLabel = "Clear search",
+                            onActionClick = viewModel::clearQuery
+                        )
+                    }
+
+                    else -> {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(bottom = 24.dp)
+                        ) {
+                            items(
+                                items = uiState.movies,
+                                key = { movie -> movie.id }
+                            ) { movie ->
+                                MovieItemComponent(
+                                    movie = movie,
+                                    modifier = Modifier.animateItem()
+                                ) {
+                                    onMovieClick(movie.id)
+                                }
+                            }
+                        }
                     }
                 }
             }
