@@ -1,6 +1,7 @@
 package t.me.octopusapps.cinemapulse.data.local.mapper
 
 import t.me.octopusapps.cinemapulse.data.local.entities.FavoriteMovieEntity
+import t.me.octopusapps.cinemapulse.data.local.entities.MovieDetailsEntity
 import t.me.octopusapps.cinemapulse.data.local.entities.MovieEntity
 import t.me.octopusapps.cinemapulse.data.local.entities.WatchedMovieEntity
 import t.me.octopusapps.domain.models.Movie
@@ -18,7 +19,7 @@ internal fun Movie.toEntity(category: MovieCategory, page: Int, totalPages: Int)
         voteCount = voteCount,
         posterPath = posterPath,
         backdropPath = backdropPath,
-        genreIds = genreIds?.joinToString(","),
+        genreIds = genreIds.toGenreIdString(),
         adult = adult,
         originalLanguage = originalLanguage,
         originalTitle = originalTitle,
@@ -38,7 +39,43 @@ internal fun MovieEntity.toDomain(): Movie =
         voteCount = voteCount,
         posterPath = posterPath,
         backdropPath = backdropPath,
-        genreIds = genreIds?.split(",")?.mapNotNull { it.toIntOrNull() },
+        genreIds = genreIds.toGenreIdList(),
+        adult = adult,
+        originalLanguage = originalLanguage,
+        originalTitle = originalTitle,
+        video = video
+    )
+
+internal fun Movie.toDetailsEntity(): MovieDetailsEntity =
+    MovieDetailsEntity(
+        id = id,
+        title = title,
+        overview = overview,
+        popularity = popularity,
+        releaseDate = releaseDate,
+        voteAverage = voteAverage,
+        voteCount = voteCount,
+        posterPath = posterPath,
+        backdropPath = backdropPath,
+        genreIds = genreIds.toGenreIdString(),
+        adult = adult,
+        originalLanguage = originalLanguage,
+        originalTitle = originalTitle,
+        video = video
+    )
+
+internal fun MovieDetailsEntity.toDomain(): Movie =
+    Movie(
+        id = id,
+        title = title,
+        overview = overview,
+        popularity = popularity,
+        releaseDate = releaseDate,
+        voteAverage = voteAverage,
+        voteCount = voteCount,
+        posterPath = posterPath,
+        backdropPath = backdropPath,
+        genreIds = genreIds.toGenreIdList(),
         adult = adult,
         originalLanguage = originalLanguage,
         originalTitle = originalTitle,
@@ -56,7 +93,7 @@ internal fun Movie.toFavoriteEntity(): FavoriteMovieEntity =
         voteCount = voteCount,
         posterPath = posterPath,
         backdropPath = backdropPath,
-        genreIds = genreIds?.joinToString(","),
+        genreIds = genreIds.toGenreIdString(),
         adult = adult,
         originalLanguage = originalLanguage,
         originalTitle = originalTitle,
@@ -74,7 +111,7 @@ internal fun FavoriteMovieEntity.toDomain(): Movie =
         voteCount = voteCount,
         posterPath = posterPath,
         backdropPath = backdropPath,
-        genreIds = genreIds?.split(",")?.mapNotNull { it.toIntOrNull() },
+        genreIds = genreIds.toGenreIdList(),
         adult = adult,
         originalLanguage = originalLanguage,
         originalTitle = originalTitle,
@@ -92,7 +129,7 @@ internal fun Movie.toWatchedEntity(): WatchedMovieEntity =
         voteCount = voteCount,
         posterPath = posterPath,
         backdropPath = backdropPath,
-        genreIds = genreIds?.joinToString(","),
+        genreIds = genreIds.toGenreIdString(),
         adult = adult,
         originalLanguage = originalLanguage,
         originalTitle = originalTitle,
@@ -110,9 +147,15 @@ internal fun WatchedMovieEntity.toDomain(): Movie =
         voteCount = voteCount,
         posterPath = posterPath,
         backdropPath = backdropPath,
-        genreIds = genreIds?.split(",")?.mapNotNull { it.toIntOrNull() },
+        genreIds = genreIds.toGenreIdList(),
         adult = adult,
         originalLanguage = originalLanguage,
         originalTitle = originalTitle,
         video = video
     )
+
+private fun List<Int>?.toGenreIdString(): String? =
+    this?.joinToString(",")
+
+private fun String?.toGenreIdList(): List<Int>? =
+    this?.split(",")?.mapNotNull { it.toIntOrNull() }

@@ -4,6 +4,7 @@ import android.database.SQLException
 import kotlinx.coroutines.CancellationException
 import retrofit2.HttpException
 import t.me.octopusapps.cinemapulse.data.local.dao.MovieDao
+import t.me.octopusapps.cinemapulse.data.local.mapper.toDetailsEntity
 import t.me.octopusapps.cinemapulse.data.local.mapper.toDomain
 import t.me.octopusapps.cinemapulse.data.local.mapper.toEntity
 import t.me.octopusapps.cinemapulse.data.local.mapper.toFavoriteEntity
@@ -60,15 +61,13 @@ internal class MovieRepositoryImpl(
     override suspend fun getMovieDetails(movieId: Int): Movie {
         return try {
             val movie = api.getMovieDetails(movieId).mapToMovie()
-            movieDao.insertMovie(
-                movie.toEntity(MovieCategory.POPULAR, page = 0, totalPages = 0)
-            )
+            movieDao.insertMovieDetails(movie.toDetailsEntity())
             movie
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             runStorageRequest {
-                movieDao.getMovieById(movieId)
+                movieDao.getMovieDetailsById(movieId)
             }?.toDomain() ?: throw e.toMovieError(movieId = movieId)
         }
     }

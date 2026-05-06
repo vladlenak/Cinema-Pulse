@@ -8,6 +8,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import t.me.octopusapps.cinemapulse.data.local.dao.MovieDao
 import t.me.octopusapps.cinemapulse.data.local.entities.FavoriteMovieEntity
+import t.me.octopusapps.cinemapulse.data.local.entities.MovieDetailsEntity
 import t.me.octopusapps.cinemapulse.data.local.entities.MovieEntity
 import t.me.octopusapps.cinemapulse.data.local.entities.WatchedMovieEntity
 import t.me.octopusapps.cinemapulse.data.models.Genre
@@ -66,6 +67,23 @@ class MovieRepositoryImplTest {
         video = false,
         page = 1,
         totalPages = 5
+    )
+
+    private val fakeCachedDetailsEntity = MovieDetailsEntity(
+        id = 1,
+        title = "Inception",
+        overview = "A dream within a dream",
+        popularity = 9.5,
+        releaseDate = "2010-07-16",
+        voteAverage = 8.8,
+        voteCount = 30000,
+        posterPath = "/poster.jpg",
+        backdropPath = null,
+        genreIds = "28",
+        adult = false,
+        originalLanguage = "en",
+        originalTitle = "Inception",
+        video = false
     )
 
     private val fakeMovie = Movie(
@@ -221,24 +239,32 @@ class MovieRepositoryImplTest {
 
         repository.getMovieDetails(1)
 
-        coVerify { movieDao.insertMovie(any()) }
+        coVerify {
+            movieDao.insertMovieDetails(
+                match {
+                    it.id == 1 && it.title == "Inception" && it.genreIds == "28"
+                }
+            )
+        }
     }
 
     @Test
     fun `getMovieDetails returns cached movie when network fails`() = runTest {
         coEvery { api.getMovieDetails(1) } throws Exception("Not found")
-        coEvery { movieDao.getMovieById(1) } returns fakeCachedEntity
+        coEvery { movieDao.getMovieDetailsById(1) } returns fakeCachedDetailsEntity
 
         val result = repository.getMovieDetails(1)
 
         assertEquals(1, result.id)
         assertEquals("Inception", result.title)
+        coVerify { movieDao.getMovieDetailsById(1) }
+        coVerify(exactly = 0) { movieDao.getMoviesByCategoryAndPage(any(), any()) }
     }
 
     @Test(expected = MovieError.Network::class)
     fun `getMovieDetails maps network error when cache is empty`() = runTest {
         coEvery { api.getMovieDetails(any()) } throws IOException("Network error")
-        coEvery { movieDao.getMovieById(any()) } returns null
+        coEvery { movieDao.getMovieDetailsById(any()) } returns null
 
         repository.getMovieDetails(999)
     }

@@ -32,12 +32,12 @@ internal class CinemaPulseDatabaseMigrationTest {
     }
 
     @Test
-    fun migrate2To5_preservesCachedMoviesAndValidatesSchema() {
+    fun migrate2To6_preservesCachedMoviesAndValidatesSchema() {
         createVersion2DatabaseWithCachedMovie()
 
         helper.runMigrationsAndValidate(
             TEST_DB,
-            5,
+            6,
             true,
             *CinemaPulseMigrations.ALL
         ).use { database ->
@@ -47,18 +47,34 @@ internal class CinemaPulseDatabaseMigrationTest {
     }
 
     @Test
-    fun migrate4To5_removesDuplicateCachedMoviesAndCreatesUniqueIndex() {
+    fun migrate4To6_removesDuplicateCachedMoviesAndCreatesUniqueIndex() {
         createVersion4DatabaseWithDuplicateCachedMovies()
 
         helper.runMigrationsAndValidate(
             TEST_DB,
-            5,
+            6,
             true,
             *CinemaPulseMigrations.ALL
         ).use { database ->
             assertEquals(1, countCachedMovieRows(database, movieId = 1))
             assertEquals("Inception Updated", findCachedMovieTitle(database, movieId = 1))
             assertDuplicateInsertFails(database)
+        }
+    }
+
+    @Test
+    fun migrate5To6_movesCachedDetailsToDedicatedTableAndKeepsListCache() {
+        createVersion5DatabaseWithMixedDetailAndListCache()
+
+        helper.runMigrationsAndValidate(
+            TEST_DB,
+            6,
+            true,
+            *CinemaPulseMigrations.ALL
+        ).use { database ->
+            assertEquals("Inception Details", findCachedMovieDetailsTitle(database, movieId = 1))
+            assertEquals(0, countSyntheticListCacheRows(database))
+            assertEquals("Inception List", findCachedMovieTitle(database, movieId = 1))
         }
     }
 
@@ -94,10 +110,38 @@ internal class CinemaPulseDatabaseMigrationTest {
         }
     }
 
+    private fun createVersion5DatabaseWithMixedDetailAndListCache() {
+        context.deleteDatabase(TEST_DB)
+        helper.createDatabase(TEST_DB, 5).use { database ->
+            database.insert(
+                "movies",
+                SQLiteDatabase.CONFLICT_NONE,
+                cachedMovieValues(
+                    rowId = 1,
+                    title = "Inception Details",
+                    page = 0,
+                    totalPages = 0
+                )
+            )
+            database.insert(
+                "movies",
+                SQLiteDatabase.CONFLICT_NONE,
+                cachedMovieValues(
+                    rowId = 2,
+                    title = "Inception List",
+                    page = 1,
+                    totalPages = 5
+                )
+            )
+        }
+    }
+
     private fun cachedMovieValues(
         rowId: Int,
         movieId: Int = 1,
-        title: String
+        title: String,
+        page: Int = 1,
+        totalPages: Int = 5
     ): ContentValues = ContentValues().apply {
         put("rowId", rowId)
         put("id", movieId)
@@ -115,8 +159,8 @@ internal class CinemaPulseDatabaseMigrationTest {
         put("originalLanguage", "en")
         put("originalTitle", title)
         put("video", 0)
-        put("page", 1)
-        put("totalPages", 5)
+        put("page", page)
+        put("totalPages", totalPages)
         put("cachedAt", rowId.toLong())
     }
 
@@ -134,6 +178,20 @@ internal class CinemaPulseDatabaseMigrationTest {
         ).use { cursor ->
             cursor.moveToFirst()
             cursor.getString(0)
+        }
+
+    private fun findCachedMovieDetailsTitle(database: SupportSQLiteDatabase, movieId: Int): String =
+        database.query(
+            "SELECT `title` FROM `movie_details` WHERE `id` = $movieId"
+        ).use { cursor ->
+            cursor.moveToFirst()
+            cursor.getString(0)
+        }
+
+    private fun countSyntheticListCacheRows(database: SupportSQLiteDatabase): Int =
+        database.query("SELECT COUNT(*) FROM `movies` WHERE `page` = 0").use { cursor ->
+            cursor.moveToFirst()
+            cursor.getInt(0)
         }
 
     private fun assertDuplicateInsertFails(database: SupportSQLiteDatabase) {
