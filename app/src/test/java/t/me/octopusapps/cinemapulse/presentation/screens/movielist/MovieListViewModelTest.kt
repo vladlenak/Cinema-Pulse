@@ -20,6 +20,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import t.me.octopusapps.cinemapulse.presentation.text.UiText
 import t.me.octopusapps.domain.models.Movie
 import t.me.octopusapps.domain.models.MovieCategory
 import t.me.octopusapps.domain.models.MovieList
@@ -177,7 +178,7 @@ class MovieListViewModelTest {
 
         val state = viewModel.uiState.value
         assertNotNull(state.error)
-        assertEquals("Network error", state.error)
+        assertEquals(UiText.DynamicString("Network error"), state.error)
         assertFalse(state.isInitialLoading)
     }
 

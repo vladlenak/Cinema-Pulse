@@ -50,15 +50,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
+import t.me.octopusapps.cinemapulse.R
 import t.me.octopusapps.cinemapulse.presentation.components.StateMessageComponent
 import t.me.octopusapps.cinemapulse.presentation.config.ImageConstants
-import t.me.octopusapps.cinemapulse.presentation.config.genreMap
+import t.me.octopusapps.cinemapulse.presentation.config.genreNameRes
 import t.me.octopusapps.cinemapulse.presentation.models.MovieUiModel
+import t.me.octopusapps.cinemapulse.presentation.text.asString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,6 +71,7 @@ internal fun MovieDetailsScreen(
     viewModel: MovieDetailsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val detailsTitle = stringResource(R.string.movie_details_title)
 
     LaunchedEffect(movieId) {
         viewModel.fetchMovieDetails(movieId)
@@ -76,7 +80,7 @@ internal fun MovieDetailsScreen(
     when (val state = uiState) {
         is MovieDetailsUiState.Loading -> {
             MovieDetailsTransientScaffold(
-                title = "Movie Details",
+                title = detailsTitle,
                 onBackClick = onBackClick
             ) {
                 CircularProgressIndicator()
@@ -85,14 +89,14 @@ internal fun MovieDetailsScreen(
 
         is MovieDetailsUiState.Error -> {
             MovieDetailsTransientScaffold(
-                title = "Movie Details",
+                title = detailsTitle,
                 onBackClick = onBackClick
             ) {
                 StateMessageComponent(
                     icon = Icons.Default.Warning,
-                    title = "Could not load details",
-                    message = state.message,
-                    actionLabel = "Try again",
+                    title = stringResource(R.string.movie_details_load_error_title),
+                    message = state.message.asString(),
+                    actionLabel = stringResource(R.string.common_try_again),
                     onActionClick = { viewModel.fetchMovieDetails(movieId) },
                     isError = true
                 )
@@ -135,7 +139,7 @@ private fun MovieDetailsTransientScaffold(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.common_back)
                         )
                     }
                 }
@@ -189,7 +193,7 @@ private fun MovieDetailsContent(
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             if (movie.overview.isNotBlank()) {
-                DetailsSection(title = "Overview") {
+                DetailsSection(title = stringResource(R.string.movie_details_overview_section)) {
                     Text(
                         text = movie.overview,
                         style = MaterialTheme.typography.bodyMedium,
@@ -198,19 +202,22 @@ private fun MovieDetailsContent(
                 }
             }
 
-            DetailsSection(title = "Details") {
+            DetailsSection(title = stringResource(R.string.movie_details_details_section)) {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         StatCard(
-                            label = "Rating",
-                            value = "${String.format("%.1f", movie.voteAverage)} / 10",
+                            label = stringResource(R.string.movie_details_rating_label),
+                            value = stringResource(
+                                R.string.movie_details_rating_value,
+                                movie.voteAverage
+                            ),
                             modifier = Modifier.weight(1f)
                         )
                         StatCard(
-                            label = "Votes",
+                            label = stringResource(R.string.movie_details_votes_label),
                             value = formatVoteCount(movie.voteCount),
                             modifier = Modifier.weight(1f)
                         )
@@ -220,28 +227,32 @@ private fun MovieDetailsContent(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         StatCard(
-                            label = "Release",
-                            value = movie.releaseDate.ifBlank { "TBA" },
+                            label = stringResource(R.string.movie_details_release_label),
+                            value = movie.releaseDate.ifBlank {
+                                stringResource(R.string.common_tba)
+                            },
                             modifier = Modifier.weight(1f)
                         )
                         StatCard(
-                            label = "Language",
-                            value = movie.originalLanguage.uppercase().ifBlank { "N/A" },
+                            label = stringResource(R.string.movie_details_language_label),
+                            value = movie.originalLanguage.uppercase().ifBlank {
+                                stringResource(R.string.common_not_available)
+                            },
                             modifier = Modifier.weight(1f)
                         )
                     }
                 }
             }
 
-            val genreNames = movie.genreIds?.mapNotNull { genreMap[it] } ?: emptyList()
-            if (genreNames.isNotEmpty()) {
-                DetailsSection(title = "Genres") {
+            val genreResourceIds = movie.genreIds?.mapNotNull { genreNameRes(it) } ?: emptyList()
+            if (genreResourceIds.isNotEmpty()) {
+                DetailsSection(title = stringResource(R.string.movie_details_genres_section)) {
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        genreNames.forEach { genre ->
-                            GenreChip(text = genre)
+                        genreResourceIds.forEach { genreRes ->
+                            GenreChip(text = stringResource(genreRes))
                         }
                     }
                 }
@@ -263,6 +274,19 @@ private fun MovieHero(
     onFavoriteClick: () -> Unit,
     onWatchedClick: () -> Unit
 ) {
+    val backContentDescription = stringResource(R.string.common_back)
+    val watchedContentDescription = if (isWatched) {
+        stringResource(R.string.movie_details_remove_watched)
+    } else {
+        stringResource(R.string.movie_details_mark_watched)
+    }
+    val favoriteContentDescription = if (isFavorite) {
+        stringResource(R.string.movie_details_remove_favorite)
+    } else {
+        stringResource(R.string.movie_details_add_favorite)
+    }
+    val unknownYear = stringResource(R.string.common_tba)
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -296,29 +320,21 @@ private fun MovieHero(
             HeroIconButton(
                 onClick = onBackClick,
                 icon = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back"
+                contentDescription = backContentDescription
             )
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 HeroIconButton(
                     onClick = onWatchedClick,
                     icon = if (isWatched) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                    contentDescription = if (isWatched) {
-                        "Remove from watched"
-                    } else {
-                        "Mark as watched"
-                    },
+                    contentDescription = watchedContentDescription,
                     enabled = !isWatchedUpdating,
                     selected = isWatched
                 )
                 HeroIconButton(
                     onClick = onFavoriteClick,
                     icon = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                    contentDescription = if (isFavorite) {
-                        "Remove from favorites"
-                    } else {
-                        "Add to favorites"
-                    },
+                    contentDescription = favoriteContentDescription,
                     enabled = !isFavoriteUpdating,
                     selected = isFavorite
                 )
@@ -367,7 +383,7 @@ private fun MovieHero(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     RatingPill(voteAverage = movie.voteAverage)
-                    MetaPill(text = movie.releaseYear())
+                    MetaPill(text = movie.releaseYear(unknownYear))
                     if (movie.originalLanguage.isNotBlank()) {
                         MetaPill(text = movie.originalLanguage.uppercase())
                     }
@@ -388,7 +404,10 @@ private fun HeroImage(movie: MovieUiModel) {
         if (imagePath != null) {
             AsyncImage(
                 model = "${ImageConstants.IMAGE_BASE_URL}$imagePath",
-                contentDescription = "${movie.title} backdrop",
+                contentDescription = stringResource(
+                    R.string.content_description_movie_backdrop,
+                    movie.title
+                ),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
@@ -419,7 +438,10 @@ private fun PosterThumbnail(movie: MovieUiModel) {
         if (movie.posterPath != null) {
             AsyncImage(
                 model = "${ImageConstants.IMAGE_BASE_URL}${movie.posterPath}",
-                contentDescription = "${movie.title} poster",
+                contentDescription = stringResource(
+                    R.string.content_description_movie_poster,
+                    movie.title
+                ),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
@@ -580,7 +602,7 @@ private fun AdultBadge() {
         contentColor = MaterialTheme.colorScheme.onErrorContainer
     ) {
         Text(
-            text = "18+",
+            text = stringResource(R.string.common_adult_badge),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
@@ -604,12 +626,19 @@ private fun GenreChip(text: String) {
     }
 }
 
-private fun MovieUiModel.releaseYear(): String {
-    return releaseDate.take(4).takeIf { it.length == 4 } ?: "TBA"
+private fun MovieUiModel.releaseYear(fallback: String): String {
+    return releaseDate.take(4).takeIf { it.length == 4 } ?: fallback
 }
 
+@Composable
 private fun formatVoteCount(count: Int): String = when {
-    count >= 1_000_000 -> "${String.format("%.1f", count / 1_000_000.0)}M"
-    count >= 1_000 -> "${String.format("%.1f", count / 1_000.0)}K"
+    count >= 1_000_000 -> stringResource(
+        R.string.movie_details_vote_count_millions,
+        count / 1_000_000.0
+    )
+    count >= 1_000 -> stringResource(
+        R.string.movie_details_vote_count_thousands,
+        count / 1_000.0
+    )
     else -> count.toString()
 }

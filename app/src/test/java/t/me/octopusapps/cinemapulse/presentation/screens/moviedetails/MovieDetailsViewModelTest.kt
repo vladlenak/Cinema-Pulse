@@ -18,6 +18,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import t.me.octopusapps.cinemapulse.presentation.text.UiText
 import t.me.octopusapps.domain.models.Movie
 import t.me.octopusapps.domain.usecases.GetMovieDetailsUseCase
 import t.me.octopusapps.domain.usecases.IsMovieFavoriteUseCase
@@ -127,7 +128,10 @@ class MovieDetailsViewModelTest {
 
         val state = viewModel.uiState.value
         assertTrue(state is MovieDetailsUiState.Error)
-        assertEquals("Not found", (state as MovieDetailsUiState.Error).message)
+        assertEquals(
+            UiText.DynamicString("Not found"),
+            (state as MovieDetailsUiState.Error).message
+        )
         coVerify(exactly = 0) { isMovieFavoriteUseCase(any()) }
         coVerify(exactly = 0) { isMovieWatchedUseCase(any()) }
     }

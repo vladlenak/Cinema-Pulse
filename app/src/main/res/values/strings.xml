@@ -1,3 +1,91 @@
 <resources>
     <string name="app_name">Cinema Pulse</string>
+    <string name="nav_movies">Movies</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_favorites">Favorites</string>
+    <string name="nav_watched">Watched</string>
+
+    <string name="category_popular">Popular</string>
+    <string name="category_top_rated">Top Rated</string>
+    <string name="category_upcoming">Upcoming</string>
+    <string name="category_now_playing">Now Playing</string>
+
+    <string name="common_back">Back</string>
+    <string name="common_try_again">Try again</string>
+    <string name="common_retry">Retry</string>
+    <string name="common_browse_movies">Browse movies</string>
+    <string name="common_tba">TBA</string>
+    <string name="common_not_available">N/A</string>
+    <string name="common_adult_badge">18+</string>
+
+    <string name="content_description_movie_poster">%1$s poster</string>
+    <string name="content_description_movie_backdrop">%1$s backdrop</string>
+
+    <string name="movie_list_load_error_title">Could not load movies</string>
+    <string name="movie_list_empty_title">No movies found</string>
+    <string name="movie_list_empty_message">Try another category or check back later.</string>
+    <string name="movie_list_load_more_error_title">Could not load more</string>
+
+    <string name="movie_search_title">Search Movies</string>
+    <string name="movie_search_field_label">Search</string>
+    <string name="movie_search_clear_content_description">Clear search</string>
+    <string name="movie_search_failed_title">Search failed</string>
+    <string name="movie_search_empty_title">Search the catalog</string>
+    <string name="movie_search_empty_message">Find movies by title and open details from the results.</string>
+    <string name="movie_search_no_results_title">No results</string>
+    <string name="movie_search_no_results_message">No movies found for &quot;%1$s&quot;.</string>
+    <string name="movie_search_clear_action">Clear search</string>
+
+    <string name="favorite_movies_title">Favorites</string>
+    <string name="favorite_movies_empty_title">No favorites yet</string>
+    <string name="favorite_movies_empty_message">Open a movie and tap the heart to build your watchlist.</string>
+    <string name="favorite_movies_load_error_title">Could not load favorites</string>
+
+    <string name="watched_movies_title">Watched</string>
+    <string name="watched_movies_empty_title">No watched movies yet</string>
+    <string name="watched_movies_empty_message">Mark movies as watched from the details screen to track your history.</string>
+    <string name="watched_movies_load_error_title">Could not load watched</string>
+
+    <string name="movie_details_title">Movie Details</string>
+    <string name="movie_details_load_error_title">Could not load details</string>
+    <string name="movie_details_overview_section">Overview</string>
+    <string name="movie_details_details_section">Details</string>
+    <string name="movie_details_genres_section">Genres</string>
+    <string name="movie_details_rating_label">Rating</string>
+    <string name="movie_details_rating_value">%1$.1f / 10</string>
+    <string name="movie_details_votes_label">Votes</string>
+    <string name="movie_details_release_label">Release</string>
+    <string name="movie_details_language_label">Language</string>
+    <string name="movie_details_remove_watched">Remove from watched</string>
+    <string name="movie_details_mark_watched">Mark as watched</string>
+    <string name="movie_details_remove_favorite">Remove from favorites</string>
+    <string name="movie_details_add_favorite">Add to favorites</string>
+    <string name="movie_details_vote_count_millions">%1$.1fM</string>
+    <string name="movie_details_vote_count_thousands">%1$.1fK</string>
+
+    <string name="error_network">Network error. Please check your connection.</string>
+    <string name="error_remote">Movie service error. Please try again later.</string>
+    <string name="error_not_found">Movie not found.</string>
+    <string name="error_storage">Local storage error. Please try again.</string>
+    <string name="error_unexpected">An unexpected error occurred.</string>
+
+    <string name="genre_action">Action</string>
+    <string name="genre_adventure">Adventure</string>
+    <string name="genre_animation">Animation</string>
+    <string name="genre_comedy">Comedy</string>
+    <string name="genre_crime">Crime</string>
+    <string name="genre_documentary">Documentary</string>
+    <string name="genre_drama">Drama</string>
+    <string name="genre_family">Family</string>
+    <string name="genre_fantasy">Fantasy</string>
+    <string name="genre_history">History</string>
+    <string name="genre_horror">Horror</string>
+    <string name="genre_music">Music</string>
+    <string name="genre_mystery">Mystery</string>
+    <string name="genre_romance">Romance</string>
+    <string name="genre_science_fiction">Sci-Fi</string>
+    <string name="genre_tv_movie">TV Movie</string>
+    <string name="genre_thriller">Thriller</string>
+    <string name="genre_war">War</string>
+    <string name="genre_western">Western</string>
 </resources>

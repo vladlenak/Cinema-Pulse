@@ -93,7 +93,7 @@ internal class MovieSearchViewModel @Inject constructor(
                         state.copy(
                             movies = emptyList(),
                             isLoading = false,
-                            error = e.toMovieErrorMessage(defaultMessage = "Unknown Error")
+                            error = e.toMovieErrorMessage()
                         )
                     } else {
                         state

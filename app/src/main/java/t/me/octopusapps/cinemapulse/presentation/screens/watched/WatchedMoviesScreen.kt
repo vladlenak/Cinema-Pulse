@@ -23,13 +23,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import t.me.octopusapps.cinemapulse.R
 import t.me.octopusapps.cinemapulse.presentation.components.MovieItemComponent
 import t.me.octopusapps.cinemapulse.presentation.components.StateMessageComponent
+import t.me.octopusapps.cinemapulse.presentation.text.asString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,13 +60,13 @@ internal fun WatchedMoviesScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Watched") },
+                title = { Text(stringResource(R.string.watched_movies_title)) },
                 navigationIcon = {
                     if (onBackClick != null) {
                         IconButton(onClick = onBackClick) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back"
+                                contentDescription = stringResource(R.string.common_back)
                             )
                         }
                     }
@@ -90,9 +93,9 @@ internal fun WatchedMoviesScreen(
                             .fillMaxSize()
                             .padding(innerPadding),
                         icon = Icons.Default.VisibilityOff,
-                        title = "No watched movies yet",
-                        message = "Mark movies as watched from the details screen to track your history.",
-                        actionLabel = "Browse movies",
+                        title = stringResource(R.string.watched_movies_empty_title),
+                        message = stringResource(R.string.watched_movies_empty_message),
+                        actionLabel = stringResource(R.string.common_browse_movies),
                         onActionClick = onBrowseMoviesClick
                     )
                 } else {
@@ -123,9 +126,9 @@ internal fun WatchedMoviesScreen(
                         .fillMaxSize()
                         .padding(innerPadding),
                     icon = Icons.Default.Warning,
-                    title = "Could not load watched",
-                    message = state.message,
-                    actionLabel = "Try again",
+                    title = stringResource(R.string.watched_movies_load_error_title),
+                    message = state.message.asString(),
+                    actionLabel = stringResource(R.string.common_try_again),
                     onActionClick = viewModel::loadWatched,
                     isError = true
                 )

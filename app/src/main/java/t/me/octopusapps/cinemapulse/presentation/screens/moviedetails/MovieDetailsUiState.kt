@@ -1,6 +1,7 @@
 package t.me.octopusapps.cinemapulse.presentation.screens.moviedetails
 
 import t.me.octopusapps.cinemapulse.presentation.models.MovieUiModel
+import t.me.octopusapps.cinemapulse.presentation.text.UiText
 
 internal sealed class MovieDetailsUiState {
     data object Loading : MovieDetailsUiState()
@@ -11,5 +12,5 @@ internal sealed class MovieDetailsUiState {
         val isWatched: Boolean = false,
         val isWatchedUpdating: Boolean = false
     ) : MovieDetailsUiState()
-    data class Error(val message: String) : MovieDetailsUiState()
+    data class Error(val message: UiText) : MovieDetailsUiState()
 }

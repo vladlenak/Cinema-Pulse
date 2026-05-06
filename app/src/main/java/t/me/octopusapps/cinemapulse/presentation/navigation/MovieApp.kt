@@ -1,5 +1,6 @@
 package t.me.octopusapps.cinemapulse.presentation.navigation
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -16,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -24,6 +26,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import t.me.octopusapps.cinemapulse.R
 import t.me.octopusapps.cinemapulse.presentation.screens.favorites.FavoriteMoviesScreen
 import t.me.octopusapps.cinemapulse.presentation.screens.moviedetails.MovieDetailsScreen
 import t.me.octopusapps.cinemapulse.presentation.screens.movielist.MovieListScreen
@@ -106,47 +109,48 @@ private fun CinemaPulseNavigationBar(
 ) {
     NavigationBar {
         TopLevelDestination.entries.forEach { destination ->
+            val label = stringResource(destination.labelRes)
             NavigationBarItem(
                 selected = currentDestination.isSelected(destination),
                 onClick = { onDestinationClick(destination) },
                 icon = {
                     Icon(
                         imageVector = destination.icon,
-                        contentDescription = destination.label
+                        contentDescription = label
                     )
                 },
-                label = { Text(destination.label) }
+                label = { Text(label) }
             )
         }
     }
 }
 
 private enum class TopLevelDestination(
-    val label: String,
+    @param:StringRes val labelRes: Int,
     val icon: ImageVector,
     val route: Any,
     val routeName: String
 ) {
     Movies(
-        label = "Movies",
+        labelRes = R.string.nav_movies,
         icon = Icons.Default.Home,
         route = MovieList,
         routeName = MovieList::class.qualifiedName.orEmpty()
     ),
     Search(
-        label = "Search",
+        labelRes = R.string.nav_search,
         icon = Icons.Default.Search,
         route = MovieSearch,
         routeName = MovieSearch::class.qualifiedName.orEmpty()
     ),
     Favorites(
-        label = "Favorites",
+        labelRes = R.string.nav_favorites,
         icon = Icons.Default.Favorite,
         route = FavoriteMovies,
         routeName = FavoriteMovies::class.qualifiedName.orEmpty()
     ),
     Watched(
-        label = "Watched",
+        labelRes = R.string.nav_watched,
         icon = Icons.Default.Visibility,
         route = WatchedMovies,
         routeName = WatchedMovies::class.qualifiedName.orEmpty()

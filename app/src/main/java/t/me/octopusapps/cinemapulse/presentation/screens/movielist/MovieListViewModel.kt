@@ -75,7 +75,7 @@ internal class MovieListViewModel @Inject constructor(
                         it.copy(
                             isInitialLoading = false,
                             isLoadingMore = false,
-                            error = e.toMovieErrorMessage(defaultMessage = "Unknown error")
+                            error = e.toMovieErrorMessage()
                         )
                     } else {
                         it

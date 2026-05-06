@@ -31,10 +31,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import t.me.octopusapps.cinemapulse.R
 import t.me.octopusapps.cinemapulse.presentation.components.MoviePosterCard
 import t.me.octopusapps.cinemapulse.presentation.components.StateMessageComponent
+import t.me.octopusapps.cinemapulse.presentation.config.labelRes
+import t.me.octopusapps.cinemapulse.presentation.text.asString
 import t.me.octopusapps.domain.models.MovieCategory
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,9 +75,9 @@ internal fun MovieListScreen(
             TopAppBar(
                 title = {
                     Column {
-                        Text("Cinema Pulse")
+                        Text(stringResource(R.string.app_name))
                         Text(
-                            text = uiState.selectedCategory.label,
+                            text = stringResource(uiState.selectedCategory.labelRes),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -96,7 +100,7 @@ internal fun MovieListScreen(
                     Tab(
                         selected = uiState.selectedCategory == category,
                         onClick = { viewModel.onCategorySelected(category) },
-                        text = { Text(category.label) }
+                        text = { Text(stringResource(category.labelRes)) }
                     )
                 }
             }
@@ -115,9 +119,9 @@ internal fun MovieListScreen(
                     StateMessageComponent(
                         modifier = Modifier.fillMaxSize(),
                         icon = Icons.Default.Warning,
-                        title = "Could not load movies",
-                        message = uiState.error!!,
-                        actionLabel = "Try again",
+                        title = stringResource(R.string.movie_list_load_error_title),
+                        message = uiState.error!!.asString(),
+                        actionLabel = stringResource(R.string.common_try_again),
                         onActionClick = viewModel::retry,
                         isError = true
                     )
@@ -127,8 +131,8 @@ internal fun MovieListScreen(
                     StateMessageComponent(
                         modifier = Modifier.fillMaxSize(),
                         icon = Icons.Default.Search,
-                        title = "No movies found",
-                        message = "Try another category or check back later."
+                        title = stringResource(R.string.movie_list_empty_title),
+                        message = stringResource(R.string.movie_list_empty_message)
                     )
                 }
 
@@ -179,9 +183,9 @@ internal fun MovieListScreen(
                                         .fillMaxWidth()
                                         .padding(16.dp),
                                     icon = Icons.Default.Warning,
-                                    title = "Could not load more",
-                                    message = uiState.error!!,
-                                    actionLabel = "Retry",
+                                    title = stringResource(R.string.movie_list_load_more_error_title),
+                                    message = uiState.error!!.asString(),
+                                    actionLabel = stringResource(R.string.common_retry),
                                     onActionClick = viewModel::retry,
                                     isError = true,
                                     compact = true

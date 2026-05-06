@@ -15,6 +15,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import t.me.octopusapps.cinemapulse.presentation.text.UiText
 import t.me.octopusapps.domain.models.Movie
 import t.me.octopusapps.domain.usecases.GetFavoriteMoviesUseCase
 
@@ -94,7 +95,10 @@ class FavoriteMoviesViewModelTest {
 
         val state = viewModel.uiState.value
         assertTrue(state is FavoriteMoviesUiState.Error)
-        assertEquals("Storage error", (state as FavoriteMoviesUiState.Error).message)
+        assertEquals(
+            UiText.DynamicString("Storage error"),
+            (state as FavoriteMoviesUiState.Error).message
+        )
     }
 
     @Test

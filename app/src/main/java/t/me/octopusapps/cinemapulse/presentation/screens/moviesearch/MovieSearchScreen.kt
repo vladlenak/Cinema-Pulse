@@ -28,10 +28,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import t.me.octopusapps.cinemapulse.R
 import t.me.octopusapps.cinemapulse.presentation.components.MovieItemComponent
 import t.me.octopusapps.cinemapulse.presentation.components.StateMessageComponent
+import t.me.octopusapps.cinemapulse.presentation.text.asString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,13 +49,13 @@ internal fun MovieSearchScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Search Movies") },
+                title = { Text(stringResource(R.string.movie_search_title)) },
                 navigationIcon = {
                     if (onBackClick != null) {
                         IconButton(onClick = onBackClick) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back"
+                                contentDescription = stringResource(R.string.common_back)
                             )
                         }
                     }
@@ -69,7 +72,7 @@ internal fun MovieSearchScreen(
             OutlinedTextField(
                 value = uiState.query,
                 onValueChange = viewModel::onQueryChanged,
-                label = { Text("Search") },
+                label = { Text(stringResource(R.string.movie_search_field_label)) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
@@ -83,7 +86,9 @@ internal fun MovieSearchScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Clear search"
+                                contentDescription = stringResource(
+                                    R.string.movie_search_clear_content_description
+                                )
                             )
                         }
                     }
@@ -109,9 +114,9 @@ internal fun MovieSearchScreen(
                         StateMessageComponent(
                             modifier = Modifier.fillMaxSize(),
                             icon = Icons.Default.Warning,
-                            title = "Search failed",
-                            message = uiState.error.orEmpty(),
-                            actionLabel = "Try again",
+                            title = stringResource(R.string.movie_search_failed_title),
+                            message = uiState.error?.asString().orEmpty(),
+                            actionLabel = stringResource(R.string.common_try_again),
                             onActionClick = viewModel::retry,
                             isError = true
                         )
@@ -121,8 +126,8 @@ internal fun MovieSearchScreen(
                         StateMessageComponent(
                             modifier = Modifier.fillMaxSize(),
                             icon = Icons.Default.Search,
-                            title = "Search the catalog",
-                            message = "Find movies by title and open details from the results."
+                            title = stringResource(R.string.movie_search_empty_title),
+                            message = stringResource(R.string.movie_search_empty_message)
                         )
                     }
 
@@ -130,9 +135,12 @@ internal fun MovieSearchScreen(
                         StateMessageComponent(
                             modifier = Modifier.fillMaxSize(),
                             icon = Icons.Default.Search,
-                            title = "No results",
-                            message = "No movies found for \"${uiState.query}\".",
-                            actionLabel = "Clear search",
+                            title = stringResource(R.string.movie_search_no_results_title),
+                            message = stringResource(
+                                R.string.movie_search_no_results_message,
+                                uiState.query
+                            ),
+                            actionLabel = stringResource(R.string.movie_search_clear_action),
                             onActionClick = viewModel::clearQuery
                         )
                     }

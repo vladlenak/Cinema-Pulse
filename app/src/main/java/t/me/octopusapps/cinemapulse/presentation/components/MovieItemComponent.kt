@@ -32,12 +32,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
+import t.me.octopusapps.cinemapulse.R
 import t.me.octopusapps.cinemapulse.presentation.config.ImageConstants
 import t.me.octopusapps.cinemapulse.presentation.models.MovieUiModel
 
@@ -202,7 +204,10 @@ private fun MoviePoster(
         if (movie.posterPath != null) {
             SubcomposeAsyncImage(
                 model = "${ImageConstants.IMAGE_BASE_URL}${movie.posterPath}",
-                contentDescription = "${movie.title} poster",
+                contentDescription = stringResource(
+                    R.string.content_description_movie_poster,
+                    movie.title
+                ),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
                 loading = {
@@ -266,11 +271,13 @@ private fun PosterFallback(
 
 @Composable
 private fun MovieMetaChips(movie: MovieUiModel) {
+    val unknownYear = stringResource(R.string.common_tba)
+
     Row(
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        MetaChip(text = movie.releaseYear())
+        MetaChip(text = movie.releaseYear(unknownYear))
 
         if (movie.originalLanguage.isNotBlank()) {
             MetaChip(text = movie.originalLanguage.uppercase())
@@ -336,7 +343,7 @@ private fun AdultBadge(modifier: Modifier = Modifier) {
         contentColor = MaterialTheme.colorScheme.onErrorContainer
     ) {
         Text(
-            text = "18+",
+            text = stringResource(R.string.common_adult_badge),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp)
@@ -344,6 +351,6 @@ private fun AdultBadge(modifier: Modifier = Modifier) {
     }
 }
 
-private fun MovieUiModel.releaseYear(): String {
-    return releaseDate.take(4).takeIf { it.length == 4 } ?: "TBA"
+private fun MovieUiModel.releaseYear(fallback: String): String {
+    return releaseDate.take(4).takeIf { it.length == 4 } ?: fallback
 }

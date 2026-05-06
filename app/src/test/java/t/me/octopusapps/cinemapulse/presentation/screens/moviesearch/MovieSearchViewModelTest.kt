@@ -19,6 +19,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import t.me.octopusapps.cinemapulse.presentation.text.UiText
 import t.me.octopusapps.domain.models.Movie
 import t.me.octopusapps.domain.models.MovieList
 import t.me.octopusapps.domain.usecases.SearchMoviesUseCase
@@ -193,7 +194,7 @@ class MovieSearchViewModelTest {
         assertEquals("Inception", state.query)
         assertTrue(state.movies.isEmpty())
         assertFalse(state.isLoading)
-        assertEquals("Network error", state.error)
+        assertEquals(UiText.DynamicString("Network error"), state.error)
     }
 
     @Test
