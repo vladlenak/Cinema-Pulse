@@ -1,5 +1,6 @@
 package t.me.octopusapps.cinemapulse.presentation.components
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,7 +33,7 @@ internal fun StateMessageComponent(
     compact: Boolean = false
 ) {
     Box(
-        modifier = modifier,
+        modifier = modifier.animateContentSize(),
         contentAlignment = Alignment.Center
     ) {
         Column(

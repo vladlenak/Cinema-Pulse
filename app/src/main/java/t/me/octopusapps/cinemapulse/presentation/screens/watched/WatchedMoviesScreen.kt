@@ -1,6 +1,7 @@
 package t.me.octopusapps.cinemapulse.presentation.screens.watched
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -98,10 +99,17 @@ internal fun WatchedMoviesScreen(
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(innerPadding)
+                            .padding(innerPadding),
+                        contentPadding = PaddingValues(top = 8.dp, bottom = 24.dp)
                     ) {
-                        items(state.movies) { movie ->
-                            MovieItemComponent(movie) {
+                        items(
+                            items = state.movies,
+                            key = { movie -> movie.id }
+                        ) { movie ->
+                            MovieItemComponent(
+                                movie = movie,
+                                modifier = Modifier.animateItem()
+                            ) {
                                 onMovieClick(movie.id)
                             }
                         }

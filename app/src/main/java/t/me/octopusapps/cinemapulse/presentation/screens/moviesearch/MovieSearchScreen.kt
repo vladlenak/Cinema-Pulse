@@ -2,6 +2,7 @@ package t.me.octopusapps.cinemapulse.presentation.screens.moviesearch
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,15 +12,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -68,13 +70,35 @@ internal fun MovieSearchScreen(
                 .padding(16.dp)
                 .fillMaxSize()
         ) {
-            TextField(
+            OutlinedTextField(
                 value = query,
                 onValueChange = { newQuery ->
                     query = newQuery
                     viewModel.onQueryChanged(newQuery)
                 },
                 label = { Text("Search") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = null
+                    )
+                },
+                trailingIcon = {
+                    if (query.isNotEmpty()) {
+                        IconButton(
+                            onClick = {
+                                query = ""
+                                viewModel.onQueryChanged("")
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Clear search"
+                            )
+                        }
+                    }
+                },
+                singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -117,12 +141,18 @@ internal fun MovieSearchScreen(
                             }
 
                             else -> {
-                                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                                LazyColumn(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentPadding = PaddingValues(bottom = 24.dp)
+                                ) {
                                     items(
                                         items = state.movies,
                                         key = { movie -> movie.id }
                                     ) { movie ->
-                                        MovieItemComponent(movie) {
+                                        MovieItemComponent(
+                                            movie = movie,
+                                            modifier = Modifier.animateItem()
+                                        ) {
                                             onMovieClick(movie.id)
                                         }
                                     }

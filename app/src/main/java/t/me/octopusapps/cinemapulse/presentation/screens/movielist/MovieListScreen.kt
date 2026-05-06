@@ -61,6 +61,10 @@ internal fun MovieListScreen(
         }
     }
 
+    LaunchedEffect(uiState.selectedCategory) {
+        gridState.scrollToItem(0)
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -146,7 +150,10 @@ internal fun MovieListScreen(
                             items = uiState.movies,
                             key = { movie -> movie.id }
                         ) { movie ->
-                            MoviePosterCard(movie) {
+                            MoviePosterCard(
+                                movie = movie,
+                                modifier = Modifier.animateItem()
+                            ) {
                                 onMovieClick(movie.id)
                             }
                         }
@@ -168,6 +175,7 @@ internal fun MovieListScreen(
                             item(span = { GridItemSpan(maxLineSpan) }) {
                                 StateMessageComponent(
                                     modifier = Modifier
+                                        .animateItem()
                                         .fillMaxWidth()
                                         .padding(16.dp),
                                     icon = Icons.Default.Warning,

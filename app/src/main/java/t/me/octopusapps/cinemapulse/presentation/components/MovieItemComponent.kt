@@ -42,9 +42,13 @@ import t.me.octopusapps.cinemapulse.presentation.config.ImageConstants
 import t.me.octopusapps.cinemapulse.presentation.models.MovieUiModel
 
 @Composable
-internal fun MovieItemComponent(movie: MovieUiModel, onClick: (MovieUiModel) -> Unit) {
+internal fun MovieItemComponent(
+    movie: MovieUiModel,
+    modifier: Modifier = Modifier,
+    onClick: (MovieUiModel) -> Unit
+) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 6.dp)
             .clickable { onClick(movie) },
@@ -120,9 +124,13 @@ internal fun MovieItemComponent(movie: MovieUiModel, onClick: (MovieUiModel) -> 
 }
 
 @Composable
-internal fun MoviePosterCard(movie: MovieUiModel, onClick: (MovieUiModel) -> Unit) {
+internal fun MoviePosterCard(
+    movie: MovieUiModel,
+    modifier: Modifier = Modifier,
+    onClick: (MovieUiModel) -> Unit
+) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clickable { onClick(movie) },
         verticalArrangement = Arrangement.spacedBy(8.dp)
