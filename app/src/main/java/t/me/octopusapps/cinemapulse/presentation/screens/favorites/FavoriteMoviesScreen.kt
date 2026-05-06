@@ -36,7 +36,7 @@ import t.me.octopusapps.cinemapulse.presentation.components.MovieItemComponent
 @Composable
 internal fun FavoriteMoviesScreen(
     onMovieClick: (Int) -> Unit,
-    onBackClick: () -> Unit,
+    onBackClick: (() -> Unit)? = null,
     viewModel: FavoriteMoviesViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -59,11 +59,13 @@ internal fun FavoriteMoviesScreen(
             TopAppBar(
                 title = { Text("Favorites") },
                 navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
+                    if (onBackClick != null) {
+                        IconButton(onClick = onBackClick) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back"
+                            )
+                        }
                     }
                 }
             )

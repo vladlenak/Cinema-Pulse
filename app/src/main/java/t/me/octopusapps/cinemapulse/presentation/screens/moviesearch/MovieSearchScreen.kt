@@ -36,7 +36,7 @@ import t.me.octopusapps.cinemapulse.presentation.components.MovieItemComponent
 @Composable
 internal fun MovieSearchScreen(
     onMovieClick: (Int) -> Unit,
-    onBackClick: () -> Unit,
+    onBackClick: (() -> Unit)? = null,
     viewModel: MovieSearchViewModel = hiltViewModel()
 ) {
 
@@ -48,11 +48,13 @@ internal fun MovieSearchScreen(
             TopAppBar(
                 title = { Text("Search Movies") },
                 navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
+                    if (onBackClick != null) {
+                        IconButton(onClick = onBackClick) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back"
+                            )
+                        }
                     }
                 }
             )
