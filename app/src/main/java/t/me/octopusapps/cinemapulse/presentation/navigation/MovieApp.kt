@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -42,13 +43,7 @@ internal fun MovieApp() {
                 CinemaPulseNavigationBar(
                     currentDestination = currentDestination,
                     onDestinationClick = { destination ->
-                        navController.navigate(destination.route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+                        navController.navigateToTopLevelDestination(destination)
                     }
                 )
             }
@@ -77,6 +72,9 @@ internal fun MovieApp() {
                 FavoriteMoviesScreen(
                     onMovieClick = { movieId ->
                         navController.navigate(MovieDetails(movieId = movieId))
+                    },
+                    onBrowseMoviesClick = {
+                        navController.navigateToTopLevelDestination(TopLevelDestination.Movies)
                     }
                 )
             }
@@ -84,6 +82,9 @@ internal fun MovieApp() {
                 WatchedMoviesScreen(
                     onMovieClick = { movieId ->
                         navController.navigate(MovieDetails(movieId = movieId))
+                    },
+                    onBrowseMoviesClick = {
+                        navController.navigateToTopLevelDestination(TopLevelDestination.Movies)
                     }
                 )
             }
@@ -158,4 +159,14 @@ private fun NavDestination?.isTopLevelDestination(): Boolean {
 
 private fun NavDestination?.isSelected(destination: TopLevelDestination): Boolean {
     return this?.route == destination.routeName
+}
+
+private fun NavHostController.navigateToTopLevelDestination(destination: TopLevelDestination) {
+    navigate(destination.route) {
+        popUpTo(graph.findStartDestination().id) {
+            saveState = true
+        }
+        launchSingleTop = true
+        restoreState = true
+    }
 }

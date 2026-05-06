@@ -12,7 +12,9 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import t.me.octopusapps.cinemapulse.presentation.components.MoviePosterCard
+import t.me.octopusapps.cinemapulse.presentation.components.StateMessageComponent
 import t.me.octopusapps.domain.models.MovieCategory
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -105,28 +108,24 @@ internal fun MovieListScreen(
                 }
 
                 uiState.error != null && uiState.movies.isEmpty() -> {
-                    Box(
+                    StateMessageComponent(
                         modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Text(
-                                text = "Something went wrong",
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Text(
-                                text = uiState.error!!,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Button(onClick = { viewModel.retry() }) {
-                                Text("Try again")
-                            }
-                        }
-                    }
+                        icon = Icons.Default.Warning,
+                        title = "Could not load movies",
+                        message = uiState.error!!,
+                        actionLabel = "Try again",
+                        onActionClick = viewModel::retry,
+                        isError = true
+                    )
+                }
+
+                uiState.movies.isEmpty() -> {
+                    StateMessageComponent(
+                        modifier = Modifier.fillMaxSize(),
+                        icon = Icons.Default.Search,
+                        title = "No movies found",
+                        message = "Try another category or check back later."
+                    )
                 }
 
                 else -> {
@@ -167,16 +166,18 @@ internal fun MovieListScreen(
 
                         if (uiState.error != null && uiState.movies.isNotEmpty()) {
                             item(span = { GridItemSpan(maxLineSpan) }) {
-                                Box(
+                                StateMessageComponent(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(16.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Button(onClick = { viewModel.retry() }) {
-                                        Text("Retry")
-                                    }
-                                }
+                                    icon = Icons.Default.Warning,
+                                    title = "Could not load more",
+                                    message = uiState.error!!,
+                                    actionLabel = "Retry",
+                                    onActionClick = viewModel::retry,
+                                    isError = true,
+                                    compact = true
+                                )
                             }
                         }
                     }

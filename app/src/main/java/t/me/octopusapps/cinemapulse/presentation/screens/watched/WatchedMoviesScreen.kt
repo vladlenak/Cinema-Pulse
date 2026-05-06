@@ -1,8 +1,6 @@
 package t.me.octopusapps.cinemapulse.presentation.screens.watched
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,12 +8,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -31,11 +28,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import t.me.octopusapps.cinemapulse.presentation.components.MovieItemComponent
+import t.me.octopusapps.cinemapulse.presentation.components.StateMessageComponent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun WatchedMoviesScreen(
     onMovieClick: (Int) -> Unit,
+    onBrowseMoviesClick: () -> Unit,
     onBackClick: (() -> Unit)? = null,
     viewModel: WatchedMoviesViewModel = hiltViewModel()
 ) {
@@ -85,10 +84,15 @@ internal fun WatchedMoviesScreen(
 
             is WatchedMoviesUiState.Success -> {
                 if (state.movies.isEmpty()) {
-                    EmptyWatchedContent(
+                    StateMessageComponent(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(innerPadding)
+                            .padding(innerPadding),
+                        icon = Icons.Default.VisibilityOff,
+                        title = "No watched movies yet",
+                        message = "Mark movies as watched from the details screen to track your history.",
+                        actionLabel = "Browse movies",
+                        onActionClick = onBrowseMoviesClick
                     )
                 } else {
                     LazyColumn(
@@ -106,59 +110,18 @@ internal fun WatchedMoviesScreen(
             }
 
             is WatchedMoviesUiState.Error -> {
-                Box(
+                StateMessageComponent(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Text(
-                            text = "Something went wrong",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Text(
-                            text = state.message,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Button(onClick = viewModel::loadWatched) {
-                            Text("Try again")
-                        }
-                    }
-                }
+                    icon = Icons.Default.Warning,
+                    title = "Could not load watched",
+                    message = state.message,
+                    actionLabel = "Try again",
+                    onActionClick = viewModel::loadWatched,
+                    isError = true
+                )
             }
-        }
-    }
-}
-
-@Composable
-private fun EmptyWatchedContent(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.VisibilityOff,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = "No watched movies yet",
-                style = MaterialTheme.typography.titleMedium
-            )
-            Text(
-                text = "Mark movies as watched from the details screen",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
     }
 }

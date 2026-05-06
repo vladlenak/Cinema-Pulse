@@ -1,8 +1,6 @@
 package t.me.octopusapps.cinemapulse.presentation.screens.favorites
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,12 +8,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -31,11 +28,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import t.me.octopusapps.cinemapulse.presentation.components.MovieItemComponent
+import t.me.octopusapps.cinemapulse.presentation.components.StateMessageComponent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun FavoriteMoviesScreen(
     onMovieClick: (Int) -> Unit,
+    onBrowseMoviesClick: () -> Unit,
     onBackClick: (() -> Unit)? = null,
     viewModel: FavoriteMoviesViewModel = hiltViewModel()
 ) {
@@ -85,10 +84,15 @@ internal fun FavoriteMoviesScreen(
 
             is FavoriteMoviesUiState.Success -> {
                 if (state.movies.isEmpty()) {
-                    EmptyFavoritesContent(
+                    StateMessageComponent(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(innerPadding)
+                            .padding(innerPadding),
+                        icon = Icons.Default.FavoriteBorder,
+                        title = "No favorites yet",
+                        message = "Open a movie and tap the heart to build your watchlist.",
+                        actionLabel = "Browse movies",
+                        onActionClick = onBrowseMoviesClick
                     )
                 } else {
                     LazyColumn(
@@ -106,59 +110,18 @@ internal fun FavoriteMoviesScreen(
             }
 
             is FavoriteMoviesUiState.Error -> {
-                Box(
+                StateMessageComponent(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Text(
-                            text = "Something went wrong",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Text(
-                            text = state.message,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Button(onClick = viewModel::loadFavorites) {
-                            Text("Try again")
-                        }
-                    }
-                }
+                    icon = Icons.Default.Warning,
+                    title = "Could not load favorites",
+                    message = state.message,
+                    actionLabel = "Try again",
+                    onActionClick = viewModel::loadFavorites,
+                    isError = true
+                )
             }
-        }
-    }
-}
-
-@Composable
-private fun EmptyFavoritesContent(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.FavoriteBorder,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = "No favorites yet",
-                style = MaterialTheme.typography.titleMedium
-            )
-            Text(
-                text = "Add movies from the details screen",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
     }
 }

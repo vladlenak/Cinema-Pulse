@@ -55,6 +55,14 @@ internal class MovieSearchViewModel @Inject constructor(
         _query.value = query
     }
 
+    fun retry() {
+        val query = _query.value
+        if (query.isNotBlank()) {
+            _query.value = ""
+            _query.value = query
+        }
+    }
+
     private companion object {
         const val SEARCH_DEBOUNCE_MS = 400L
     }

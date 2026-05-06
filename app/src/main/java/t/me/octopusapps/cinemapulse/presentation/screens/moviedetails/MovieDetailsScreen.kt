@@ -29,7 +29,7 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -55,6 +55,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
+import t.me.octopusapps.cinemapulse.presentation.components.StateMessageComponent
 import t.me.octopusapps.cinemapulse.presentation.config.ImageConstants
 import t.me.octopusapps.cinemapulse.presentation.config.genreMap
 import t.me.octopusapps.cinemapulse.presentation.models.MovieUiModel
@@ -87,23 +88,14 @@ internal fun MovieDetailsScreen(
                 title = "Movie Details",
                 onBackClick = onBackClick
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Text(
-                        text = "Something went wrong",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Text(
-                        text = state.message,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Button(onClick = { viewModel.fetchMovieDetails(movieId) }) {
-                        Text("Try again")
-                    }
-                }
+                StateMessageComponent(
+                    icon = Icons.Default.Warning,
+                    title = "Could not load details",
+                    message = state.message,
+                    actionLabel = "Try again",
+                    onActionClick = { viewModel.fetchMovieDetails(movieId) },
+                    isError = true
+                )
             }
         }
 
