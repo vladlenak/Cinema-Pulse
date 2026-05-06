@@ -72,7 +72,6 @@ dependencies {
     implementation(project(":data"))
 
     // --- Core Android ---
-    implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
     // --- Compose ---
@@ -98,10 +97,6 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     ksp(libs.hilt.compiler)
-
-    // --- Networking ---
-    implementation(libs.retrofit)
-    implementation(libs.converter.gson)
 
     // --- Unit tests ---
     testImplementation(libs.junit)

@@ -82,10 +82,6 @@ dependencies {
     // --- Modules ---
     implementation(project(":domain"))
 
-    // --- Core ---
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-
     // --- DI (Hilt) ---
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
