@@ -2,8 +2,12 @@ package t.me.octopusapps.cinemapulse.data.repositories
 
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import java.io.IOException
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -400,9 +404,9 @@ class MovieRepositoryImplTest {
 
     @Test
     fun `getFavoriteMovies returns mapped favorite movies`() = runTest {
-        coEvery { movieDao.getFavoriteMovies() } returns listOf(fakeFavoriteEntity)
+        every { movieDao.getFavoriteMovies() } returns flowOf(listOf(fakeFavoriteEntity))
 
-        val result = repository.getFavoriteMovies()
+        val result = repository.getFavoriteMovies().first()
 
         assertEquals(1, result.size)
         assertEquals("Inception", result[0].title)
@@ -411,9 +415,11 @@ class MovieRepositoryImplTest {
 
     @Test(expected = MovieError.Storage::class)
     fun `getFavoriteMovies maps dao exception to storage error`() = runTest {
-        coEvery { movieDao.getFavoriteMovies() } throws IllegalStateException("Storage error")
+        every { movieDao.getFavoriteMovies() } returns flow {
+            throw IllegalStateException("Storage error")
+        }
 
-        repository.getFavoriteMovies()
+        repository.getFavoriteMovies().first()
     }
 
     @Test
@@ -472,9 +478,9 @@ class MovieRepositoryImplTest {
 
     @Test
     fun `getWatchedMovies returns mapped watched movies`() = runTest {
-        coEvery { movieDao.getWatchedMovies() } returns listOf(fakeWatchedEntity)
+        every { movieDao.getWatchedMovies() } returns flowOf(listOf(fakeWatchedEntity))
 
-        val result = repository.getWatchedMovies()
+        val result = repository.getWatchedMovies().first()
 
         assertEquals(1, result.size)
         assertEquals("Inception", result[0].title)
@@ -483,9 +489,11 @@ class MovieRepositoryImplTest {
 
     @Test(expected = MovieError.Storage::class)
     fun `getWatchedMovies maps dao exception to storage error`() = runTest {
-        coEvery { movieDao.getWatchedMovies() } throws IllegalStateException("Storage error")
+        every { movieDao.getWatchedMovies() } returns flow {
+            throw IllegalStateException("Storage error")
+        }
 
-        repository.getWatchedMovies()
+        repository.getWatchedMovies().first()
     }
 
     @Test

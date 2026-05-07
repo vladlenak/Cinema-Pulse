@@ -1,10 +1,13 @@
 package t.me.octopusapps.cinemapulse.presentation.screens.watched
 
-import io.mockk.coEvery
-import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -54,7 +57,7 @@ class WatchedMoviesViewModelTest {
 
     @Test
     fun `initial state is loading`() {
-        coEvery { useCase() } returns emptyList()
+        every { useCase() } returns flowOf(emptyList())
 
         val viewModel = WatchedMoviesViewModel(useCase)
 
@@ -63,7 +66,7 @@ class WatchedMoviesViewModelTest {
 
     @Test
     fun `loads watched movies on init`() = runTest {
-        coEvery { useCase() } returns listOf(fakeMovie)
+        every { useCase() } returns flowOf(listOf(fakeMovie))
 
         val viewModel = WatchedMoviesViewModel(useCase)
         advanceUntilIdle()
@@ -76,7 +79,7 @@ class WatchedMoviesViewModelTest {
 
     @Test
     fun `shows empty success when there are no watched movies`() = runTest {
-        coEvery { useCase() } returns emptyList()
+        every { useCase() } returns flowOf(emptyList())
 
         val viewModel = WatchedMoviesViewModel(useCase)
         advanceUntilIdle()
@@ -88,7 +91,9 @@ class WatchedMoviesViewModelTest {
 
     @Test
     fun `shows error when use case throws`() = runTest {
-        coEvery { useCase() } throws Exception("Storage error")
+        every { useCase() } returns flow {
+            throw IllegalStateException("Storage error")
+        }
 
         val viewModel = WatchedMoviesViewModel(useCase)
         advanceUntilIdle()
@@ -102,18 +107,34 @@ class WatchedMoviesViewModelTest {
     }
 
     @Test
-    fun `loadWatched reloads watched movies`() = runTest {
-        coEvery { useCase() } returns emptyList()
+    fun `loadWatched resubscribes to watched movies`() = runTest {
+        every { useCase() } returns flowOf(emptyList())
         val viewModel = WatchedMoviesViewModel(useCase)
         advanceUntilIdle()
 
-        coEvery { useCase() } returns listOf(fakeMovie)
+        every { useCase() } returns flowOf(listOf(fakeMovie))
         viewModel.loadWatched()
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertTrue(state is WatchedMoviesUiState.Success)
         assertEquals(1, (state as WatchedMoviesUiState.Success).movies.size)
-        coVerify(exactly = 2) { useCase() }
+        verify(exactly = 2) { useCase() }
+    }
+
+    @Test
+    fun `updates watched movies when flow emits new list`() = runTest {
+        val watchedMovies = MutableStateFlow(emptyList<Movie>())
+        every { useCase() } returns watchedMovies
+        val viewModel = WatchedMoviesViewModel(useCase)
+        advanceUntilIdle()
+
+        watchedMovies.value = listOf(fakeMovie)
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue(state is WatchedMoviesUiState.Success)
+        assertEquals(1, (state as WatchedMoviesUiState.Success).movies.size)
+        assertEquals("Inception", state.movies[0].title)
     }
 }

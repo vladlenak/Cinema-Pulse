@@ -1,8 +1,11 @@
 package t.me.octopusapps.domain.usecases
 
-import io.mockk.coEvery
-import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -33,26 +36,28 @@ class GetFavoriteMoviesUseCaseTest {
 
     @Test
     fun `invoke returns favorite movies`() = runTest {
-        coEvery { repository.getFavoriteMovies() } returns listOf(fakeMovie)
+        every { repository.getFavoriteMovies() } returns flowOf(listOf(fakeMovie))
 
-        val result = useCase()
+        val result = useCase().first()
 
         assertEquals(listOf(fakeMovie), result)
     }
 
     @Test
     fun `invoke requests favorite movies from repository`() = runTest {
-        coEvery { repository.getFavoriteMovies() } returns emptyList()
+        every { repository.getFavoriteMovies() } returns flowOf(emptyList())
 
-        useCase()
+        useCase().first()
 
-        coVerify { repository.getFavoriteMovies() }
+        verify { repository.getFavoriteMovies() }
     }
 
     @Test(expected = Exception::class)
     fun `invoke propagates exception from repository`() = runTest {
-        coEvery { repository.getFavoriteMovies() } throws Exception("Storage error")
+        every { repository.getFavoriteMovies() } returns flow {
+            throw IllegalStateException("Storage error")
+        }
 
-        useCase()
+        useCase().first()
     }
 }

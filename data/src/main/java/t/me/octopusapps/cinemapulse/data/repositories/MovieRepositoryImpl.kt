@@ -3,6 +3,9 @@ package t.me.octopusapps.cinemapulse.data.repositories
 import android.database.SQLException
 import java.io.IOException
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
 import t.me.octopusapps.cinemapulse.data.local.dao.MovieDao
 import t.me.octopusapps.cinemapulse.data.local.entities.MovieDetailsEntity
@@ -86,9 +89,9 @@ internal class MovieRepositoryImpl(
         api.searchMovies(query).mapToMovieList()
     }
 
-    override suspend fun getFavoriteMovies(): List<Movie> = runStorageRequest {
-        movieDao.getFavoriteMovies().map { it.toDomain() }
-    }
+    override fun getFavoriteMovies(): Flow<List<Movie>> = movieDao.getFavoriteMovies()
+        .map { movies -> movies.map { it.toDomain() } }
+        .catchStorageErrors()
 
     override suspend fun isMovieFavorite(movieId: Int): Boolean = runStorageRequest {
         movieDao.isMovieFavorite(movieId)
@@ -106,9 +109,9 @@ internal class MovieRepositoryImpl(
         }
     }
 
-    override suspend fun getWatchedMovies(): List<Movie> = runStorageRequest {
-        movieDao.getWatchedMovies().map { it.toDomain() }
-    }
+    override fun getWatchedMovies(): Flow<List<Movie>> = movieDao.getWatchedMovies()
+        .map { movies -> movies.map { it.toDomain() } }
+        .catchStorageErrors()
 
     override suspend fun isMovieWatched(movieId: Int): Boolean = runStorageRequest {
         movieDao.isMovieWatched(movieId)
@@ -142,6 +145,14 @@ internal class MovieRepositoryImpl(
         throw e
     } catch (e: Exception) {
         throw MovieError.Storage(e)
+    }
+
+    private fun <T> Flow<T>.catchStorageErrors(): Flow<T> = catch { throwable ->
+        when (throwable) {
+            is CancellationException -> throw throwable
+            is MovieError -> throw throwable
+            else -> throw MovieError.Storage(throwable)
+        }
     }
 
     private fun Exception.toMovieError(movieId: Int? = null): MovieError = when (this) {

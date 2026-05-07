@@ -1,10 +1,13 @@
 package t.me.octopusapps.cinemapulse.presentation.screens.favorites
 
-import io.mockk.coEvery
-import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -54,7 +57,7 @@ class FavoriteMoviesViewModelTest {
 
     @Test
     fun `initial state is loading`() {
-        coEvery { useCase() } returns emptyList()
+        every { useCase() } returns flowOf(emptyList())
 
         val viewModel = FavoriteMoviesViewModel(useCase)
 
@@ -63,7 +66,7 @@ class FavoriteMoviesViewModelTest {
 
     @Test
     fun `loads favorites on init`() = runTest {
-        coEvery { useCase() } returns listOf(fakeMovie)
+        every { useCase() } returns flowOf(listOf(fakeMovie))
 
         val viewModel = FavoriteMoviesViewModel(useCase)
         advanceUntilIdle()
@@ -76,7 +79,7 @@ class FavoriteMoviesViewModelTest {
 
     @Test
     fun `shows empty success when there are no favorites`() = runTest {
-        coEvery { useCase() } returns emptyList()
+        every { useCase() } returns flowOf(emptyList())
 
         val viewModel = FavoriteMoviesViewModel(useCase)
         advanceUntilIdle()
@@ -88,7 +91,9 @@ class FavoriteMoviesViewModelTest {
 
     @Test
     fun `shows error when use case throws`() = runTest {
-        coEvery { useCase() } throws Exception("Storage error")
+        every { useCase() } returns flow {
+            throw IllegalStateException("Storage error")
+        }
 
         val viewModel = FavoriteMoviesViewModel(useCase)
         advanceUntilIdle()
@@ -102,18 +107,34 @@ class FavoriteMoviesViewModelTest {
     }
 
     @Test
-    fun `loadFavorites reloads favorites`() = runTest {
-        coEvery { useCase() } returns emptyList()
+    fun `loadFavorites resubscribes to favorites`() = runTest {
+        every { useCase() } returns flowOf(emptyList())
         val viewModel = FavoriteMoviesViewModel(useCase)
         advanceUntilIdle()
 
-        coEvery { useCase() } returns listOf(fakeMovie)
+        every { useCase() } returns flowOf(listOf(fakeMovie))
         viewModel.loadFavorites()
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertTrue(state is FavoriteMoviesUiState.Success)
         assertEquals(1, (state as FavoriteMoviesUiState.Success).movies.size)
-        coVerify(exactly = 2) { useCase() }
+        verify(exactly = 2) { useCase() }
+    }
+
+    @Test
+    fun `updates favorites when flow emits new list`() = runTest {
+        val favorites = MutableStateFlow(emptyList<Movie>())
+        every { useCase() } returns favorites
+        val viewModel = FavoriteMoviesViewModel(useCase)
+        advanceUntilIdle()
+
+        favorites.value = listOf(fakeMovie)
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue(state is FavoriteMoviesUiState.Success)
+        assertEquals(1, (state as FavoriteMoviesUiState.Success).movies.size)
+        assertEquals("Inception", state.movies[0].title)
     }
 }

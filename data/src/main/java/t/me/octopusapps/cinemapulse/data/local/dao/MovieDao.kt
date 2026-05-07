@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 import t.me.octopusapps.cinemapulse.data.local.entities.FavoriteMovieEntity
 import t.me.octopusapps.cinemapulse.data.local.entities.MovieDetailsEntity
 import t.me.octopusapps.cinemapulse.data.local.entities.MovieEntity
@@ -28,7 +29,7 @@ internal interface MovieDao {
     suspend fun insertFavoriteMovie(movie: FavoriteMovieEntity)
 
     @Query("SELECT * FROM favorite_movies ORDER BY addedAt DESC")
-    suspend fun getFavoriteMovies(): List<FavoriteMovieEntity>
+    fun getFavoriteMovies(): Flow<List<FavoriteMovieEntity>>
 
     @Query("SELECT EXISTS(SELECT 1 FROM favorite_movies WHERE id = :movieId)")
     suspend fun isMovieFavorite(movieId: Int): Boolean
@@ -40,7 +41,7 @@ internal interface MovieDao {
     suspend fun insertWatchedMovie(movie: WatchedMovieEntity)
 
     @Query("SELECT * FROM watched_movies ORDER BY watchedAt DESC")
-    suspend fun getWatchedMovies(): List<WatchedMovieEntity>
+    fun getWatchedMovies(): Flow<List<WatchedMovieEntity>>
 
     @Query("SELECT EXISTS(SELECT 1 FROM watched_movies WHERE id = :movieId)")
     suspend fun isMovieWatched(movieId: Int): Boolean
