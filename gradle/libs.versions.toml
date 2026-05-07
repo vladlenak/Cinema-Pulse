@@ -3,7 +3,7 @@
 # Build / Tooling
 agp = "9.2.1"
 kotlin = "2.3.21"
-ksp = "2.3.2"
+ksp = "2.3.6"
 detekt = "2.0.0-alpha.3"
 ktlint = "1.8.0"
 spotless = "8.4.0"
