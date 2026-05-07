@@ -75,7 +75,10 @@ internal class MovieDetailsViewModel @Inject constructor(
         val movie = state.movie
         val newFavoriteState = !state.isFavorite
         updateMovieState(movie.id) {
-            it.copy(isFavoriteUpdating = true)
+            it.copy(
+                isFavoriteUpdating = true,
+                actionError = null,
+            )
         }
 
         favoriteJob = viewModelScope.launch {
@@ -89,9 +92,12 @@ internal class MovieDetailsViewModel @Inject constructor(
                 }
             } catch (e: CancellationException) {
                 throw e
-            } catch (_: Exception) {
+            } catch (e: Exception) {
                 updateMovieState(movie.id) {
-                    it.copy(isFavoriteUpdating = false)
+                    it.copy(
+                        isFavoriteUpdating = false,
+                        actionError = e.toMovieErrorMessage(),
+                    )
                 }
             }
         }
@@ -104,7 +110,10 @@ internal class MovieDetailsViewModel @Inject constructor(
         val movie = state.movie
         val newWatchedState = !state.isWatched
         updateMovieState(movie.id) {
-            it.copy(isWatchedUpdating = true)
+            it.copy(
+                isWatchedUpdating = true,
+                actionError = null,
+            )
         }
 
         watchedJob = viewModelScope.launch {
@@ -118,10 +127,23 @@ internal class MovieDetailsViewModel @Inject constructor(
                 }
             } catch (e: CancellationException) {
                 throw e
-            } catch (_: Exception) {
+            } catch (e: Exception) {
                 updateMovieState(movie.id) {
-                    it.copy(isWatchedUpdating = false)
+                    it.copy(
+                        isWatchedUpdating = false,
+                        actionError = e.toMovieErrorMessage(),
+                    )
                 }
+            }
+        }
+    }
+
+    fun onActionErrorShown() {
+        _uiState.update { state ->
+            if (state is MovieDetailsUiState.Success) {
+                state.copy(actionError = null)
+            } else {
+                state
             }
         }
     }

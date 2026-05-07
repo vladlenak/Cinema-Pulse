@@ -11,6 +11,7 @@ internal sealed class MovieDetailsUiState {
         val isFavoriteUpdating: Boolean = false,
         val isWatched: Boolean = false,
         val isWatchedUpdating: Boolean = false,
+        val actionError: UiText? = null,
     ) : MovieDetailsUiState()
     data class Error(val message: UiText) : MovieDetailsUiState()
 }

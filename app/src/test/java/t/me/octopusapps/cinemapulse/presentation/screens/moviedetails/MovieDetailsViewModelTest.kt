@@ -15,6 +15,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -220,6 +221,7 @@ class MovieDetailsViewModelTest {
         val state = viewModel.uiState.value as MovieDetailsUiState.Success
         assertFalse(state.isFavorite)
         assertFalse(state.isFavoriteUpdating)
+        assertEquals(UiText.DynamicString("Storage error"), state.actionError)
     }
 
     @Test
@@ -334,6 +336,25 @@ class MovieDetailsViewModelTest {
         val state = viewModel.uiState.value as MovieDetailsUiState.Success
         assertFalse(state.isWatched)
         assertFalse(state.isWatchedUpdating)
+        assertEquals(UiText.DynamicString("Storage error"), state.actionError)
+    }
+
+    @Test
+    fun `onActionErrorShown clears action error`() = runTest {
+        coEvery { getMovieDetailsUseCase(1) } returns fakeMovie
+        coEvery { isMovieFavoriteUseCase(1) } returns false
+        coEvery { isMovieWatchedUseCase(1) } returns false
+        coEvery { setMovieFavoriteUseCase(any(), true) } throws Exception("Storage error")
+
+        viewModel.fetchMovieDetails(1)
+        advanceUntilIdle()
+        viewModel.onFavoriteClick()
+        advanceUntilIdle()
+
+        viewModel.onActionErrorShown()
+
+        val state = viewModel.uiState.value as MovieDetailsUiState.Success
+        assertNull(state.actionError)
     }
 
     @Test

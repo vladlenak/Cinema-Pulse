@@ -38,6 +38,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -45,6 +47,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -72,6 +75,7 @@ internal fun MovieDetailsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val detailsTitle = stringResource(R.string.movie_details_title)
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(movieId) {
         viewModel.fetchMovieDetails(movieId)
@@ -104,9 +108,18 @@ internal fun MovieDetailsScreen(
         }
 
         is MovieDetailsUiState.Success -> {
+            val actionErrorMessage = state.actionError?.asString()
+
+            LaunchedEffect(actionErrorMessage) {
+                val message = actionErrorMessage ?: return@LaunchedEffect
+                viewModel.onActionErrorShown()
+                snackbarHostState.showSnackbar(message)
+            }
+
             Scaffold(
                 containerColor = MaterialTheme.colorScheme.background,
                 contentWindowInsets = WindowInsets(0, 0, 0, 0),
+                snackbarHost = { SnackbarHost(snackbarHostState) },
             ) { innerPadding ->
                 MovieDetailsContent(
                     movie = state.movie,
