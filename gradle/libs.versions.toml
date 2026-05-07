@@ -8,9 +8,6 @@ detekt = "2.0.0-alpha.3"
 ktlint = "1.8.0"
 spotless = "8.4.0"
 
-# Core Android
-core-ktx = "1.18.0"
-appcompat = "1.7.1"
 lifecycle-runtime-ktx = "2.10.0"
 
 # UI (Compose)
@@ -47,11 +44,7 @@ coroutines-test = "1.10.2"
 
 [libraries]
 
-# Core
-androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
-
 # AndroidX
-androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle-runtime-ktx" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
 

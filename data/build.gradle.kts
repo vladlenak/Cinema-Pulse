@@ -18,16 +18,8 @@ val localProperties = Properties().apply {
 
 android {
     namespace = "t.me.octopusapps.cinemapulse.data"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
 
     defaultConfig {
-        minSdk = 25
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
 
         buildConfigField(
@@ -47,17 +39,7 @@ android {
         }
     }
 
-    // --- Java / Kotlin ---
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
-    }
-
     kotlin {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
-        }
-
         // --- API discipline ---
         explicitApi()
     }

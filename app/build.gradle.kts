@@ -15,21 +15,12 @@ plugins {
 
 android {
     namespace = "t.me.octopusapps.cinemapulse"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
 
     defaultConfig {
         applicationId = "t.me.octopusapps.cinemapulse"
-        minSdk = 25
-        targetSdk = 36
 
         versionCode = 1
         versionName = "1.0"
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         vectorDrawables {
             useSupportLibrary = true
@@ -45,12 +36,6 @@ android {
                 "proguard-rules.pro",
             )
         }
-    }
-
-    // --- Java / Kotlin ---
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
     }
 
     // --- Features ---
