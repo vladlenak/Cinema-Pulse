@@ -160,6 +160,24 @@ class MovieSearchViewModelTest {
     }
 
     @Test
+    fun `same query does not trigger duplicate search`() = runTest {
+        coEvery { useCase("Inception") } returns fakeMovieList()
+
+        viewModel.onQueryChanged("Inception")
+        advanceTimeBy(401L)
+        advanceUntilIdle()
+
+        viewModel.onQueryChanged("Inception")
+        advanceTimeBy(401L)
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals("Inception", state.query)
+        assertEquals(1, state.movies.size)
+        coVerify(exactly = 1) { useCase("Inception") }
+    }
+
+    @Test
     fun `new query cancels stale in-flight search`() = runTest {
         val staleResult = CompletableDeferred<MovieList>()
         coEvery { useCase("Inception") } coAnswers { staleResult.await() }
@@ -207,7 +225,6 @@ class MovieSearchViewModelTest {
 
         coEvery { useCase("Inception") } returns fakeMovieList()
         viewModel.retry()
-        advanceTimeBy(401L)
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
