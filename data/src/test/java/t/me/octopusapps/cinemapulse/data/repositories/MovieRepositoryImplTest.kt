@@ -220,6 +220,16 @@ class MovieRepositoryImplTest {
         repository.getMoviesByCategory(MovieCategory.TOP_RATED, 1)
     }
 
+    @Test(expected = MovieError.Storage::class)
+    fun `getMoviesByCategory maps cache read error when network fails`() = runTest {
+        coEvery { api.getTopRatedMovies(any()) } throws IOException("Network error")
+        coEvery {
+            movieDao.getMoviesByCategoryAndPage("TOP_RATED", 1)
+        } throws IllegalStateException("Storage error")
+
+        repository.getMoviesByCategory(MovieCategory.TOP_RATED, 1)
+    }
+
     // --- getMovieDetails ---
 
     @Test
@@ -267,6 +277,14 @@ class MovieRepositoryImplTest {
         coEvery { movieDao.getMovieDetailsById(any()) } returns null
 
         repository.getMovieDetails(999)
+    }
+
+    @Test(expected = MovieError.Storage::class)
+    fun `getMovieDetails maps cache read error when network fails`() = runTest {
+        coEvery { api.getMovieDetails(1) } throws IOException("Network error")
+        coEvery { movieDao.getMovieDetailsById(1) } throws IllegalStateException("Storage error")
+
+        repository.getMovieDetails(1)
     }
 
     // --- searchMovies ---
@@ -326,6 +344,13 @@ class MovieRepositoryImplTest {
         assertEquals(true, result)
     }
 
+    @Test(expected = MovieError.Storage::class)
+    fun `isMovieFavorite maps dao exception to storage error`() = runTest {
+        coEvery { movieDao.isMovieFavorite(1) } throws IllegalStateException("Storage error")
+
+        repository.isMovieFavorite(1)
+    }
+
     @Test
     fun `addFavoriteMovie saves favorite movie`() = runTest {
         repository.addFavoriteMovie(fakeMovie)
@@ -339,11 +364,27 @@ class MovieRepositoryImplTest {
         }
     }
 
+    @Test(expected = MovieError.Storage::class)
+    fun `addFavoriteMovie maps dao exception to storage error`() = runTest {
+        coEvery { movieDao.insertFavoriteMovie(any()) } throws IllegalStateException(
+            "Storage error",
+        )
+
+        repository.addFavoriteMovie(fakeMovie)
+    }
+
     @Test
     fun `removeFavoriteMovie deletes favorite movie`() = runTest {
         repository.removeFavoriteMovie(1)
 
         coVerify { movieDao.deleteFavoriteMovie(1) }
+    }
+
+    @Test(expected = MovieError.Storage::class)
+    fun `removeFavoriteMovie maps dao exception to storage error`() = runTest {
+        coEvery { movieDao.deleteFavoriteMovie(1) } throws IllegalStateException("Storage error")
+
+        repository.removeFavoriteMovie(1)
     }
 
     // --- watched ---
@@ -359,6 +400,13 @@ class MovieRepositoryImplTest {
         assertEquals(listOf(28), result[0].genreIds)
     }
 
+    @Test(expected = MovieError.Storage::class)
+    fun `getWatchedMovies maps dao exception to storage error`() = runTest {
+        coEvery { movieDao.getWatchedMovies() } throws IllegalStateException("Storage error")
+
+        repository.getWatchedMovies()
+    }
+
     @Test
     fun `isMovieWatched returns watched state from dao`() = runTest {
         coEvery { movieDao.isMovieWatched(1) } returns true
@@ -366,6 +414,13 @@ class MovieRepositoryImplTest {
         val result = repository.isMovieWatched(1)
 
         assertEquals(true, result)
+    }
+
+    @Test(expected = MovieError.Storage::class)
+    fun `isMovieWatched maps dao exception to storage error`() = runTest {
+        coEvery { movieDao.isMovieWatched(1) } throws IllegalStateException("Storage error")
+
+        repository.isMovieWatched(1)
     }
 
     @Test
@@ -381,10 +436,26 @@ class MovieRepositoryImplTest {
         }
     }
 
+    @Test(expected = MovieError.Storage::class)
+    fun `addWatchedMovie maps dao exception to storage error`() = runTest {
+        coEvery { movieDao.insertWatchedMovie(any()) } throws IllegalStateException(
+            "Storage error",
+        )
+
+        repository.addWatchedMovie(fakeMovie)
+    }
+
     @Test
     fun `removeWatchedMovie deletes watched movie`() = runTest {
         repository.removeWatchedMovie(1)
 
         coVerify { movieDao.deleteWatchedMovie(1) }
+    }
+
+    @Test(expected = MovieError.Storage::class)
+    fun `removeWatchedMovie maps dao exception to storage error`() = runTest {
+        coEvery { movieDao.deleteWatchedMovie(1) } throws IllegalStateException("Storage error")
+
+        repository.removeWatchedMovie(1)
     }
 }
