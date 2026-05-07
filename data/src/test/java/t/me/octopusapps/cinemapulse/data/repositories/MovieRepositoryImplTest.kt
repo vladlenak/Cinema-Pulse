@@ -25,6 +25,11 @@ class MovieRepositoryImplTest {
     private val api: MovieApi = mockk()
     private val movieDao: MovieDao = mockk(relaxed = true)
     private val repository = MovieRepositoryImpl(api, movieDao)
+    private val cachePolicyRepository = MovieRepositoryImpl(
+        api = api,
+        movieDao = movieDao,
+        currentTimeMillis = { NOW },
+    )
 
     private val fakeMovieDetails = MovieDetails(
         id = 1,
@@ -200,16 +205,61 @@ class MovieRepositoryImplTest {
     }
 
     @Test
+    fun `getMoviesByCategory returns fresh cache without network request`() = runTest {
+        coEvery {
+            movieDao.getMoviesByCategoryAndPage("TOP_RATED", 1)
+        } returns listOf(
+            fakeCachedEntity.copy(
+                category = "TOP_RATED",
+                title = "Cached Inception",
+                cachedAt = FRESH_CACHED_AT,
+            ),
+        )
+
+        val result = cachePolicyRepository.getMoviesByCategory(MovieCategory.TOP_RATED, 1)
+
+        assertEquals(1, result.results.size)
+        assertEquals("Cached Inception", result.results[0].title)
+        coVerify(exactly = 0) { api.getTopRatedMovies(any()) }
+    }
+
+    @Test
+    fun `getMoviesByCategory refreshes stale cache from network`() = runTest {
+        coEvery {
+            movieDao.getMoviesByCategoryAndPage("TOP_RATED", 1)
+        } returns listOf(
+            fakeCachedEntity.copy(
+                category = "TOP_RATED",
+                title = "Stale Inception",
+                cachedAt = STALE_CACHED_AT,
+            ),
+        )
+        coEvery { api.getTopRatedMovies(page = 1) } returns fakeResponse
+
+        val result = cachePolicyRepository.getMoviesByCategory(MovieCategory.TOP_RATED, 1)
+
+        assertEquals("Inception", result.results[0].title)
+        coVerify { api.getTopRatedMovies(page = 1) }
+        coVerify { movieDao.insertMovies(any()) }
+    }
+
+    @Test
     fun `getMoviesByCategory returns cached data when network fails`() = runTest {
         coEvery { api.getTopRatedMovies(any()) } throws Exception("Network error")
         coEvery {
             movieDao.getMoviesByCategoryAndPage("TOP_RATED", 1)
-        } returns listOf(fakeCachedEntity.copy(category = "TOP_RATED"))
+        } returns listOf(
+            fakeCachedEntity.copy(
+                category = "TOP_RATED",
+                cachedAt = STALE_CACHED_AT,
+            ),
+        )
 
-        val result = repository.getMoviesByCategory(MovieCategory.TOP_RATED, 1)
+        val result = cachePolicyRepository.getMoviesByCategory(MovieCategory.TOP_RATED, 1)
 
         assertEquals(1, result.results.size)
         assertEquals("Inception", result.results[0].title)
+        coVerify { api.getTopRatedMovies(any()) }
     }
 
     @Test(expected = MovieError.Network::class)
@@ -259,15 +309,46 @@ class MovieRepositoryImplTest {
     }
 
     @Test
+    fun `getMovieDetails returns fresh cache without network request`() = runTest {
+        coEvery { movieDao.getMovieDetailsById(1) } returns fakeCachedDetailsEntity.copy(
+            title = "Cached Inception",
+            cachedAt = FRESH_CACHED_AT,
+        )
+
+        val result = cachePolicyRepository.getMovieDetails(1)
+
+        assertEquals("Cached Inception", result.title)
+        coVerify(exactly = 0) { api.getMovieDetails(any()) }
+    }
+
+    @Test
+    fun `getMovieDetails refreshes stale cache from network`() = runTest {
+        coEvery { movieDao.getMovieDetailsById(1) } returns fakeCachedDetailsEntity.copy(
+            title = "Stale Inception",
+            cachedAt = STALE_CACHED_AT,
+        )
+        coEvery { api.getMovieDetails(1) } returns fakeMovieDetails
+
+        val result = cachePolicyRepository.getMovieDetails(1)
+
+        assertEquals("Inception", result.title)
+        coVerify { api.getMovieDetails(1) }
+        coVerify { movieDao.insertMovieDetails(any()) }
+    }
+
+    @Test
     fun `getMovieDetails returns cached movie when network fails`() = runTest {
         coEvery { api.getMovieDetails(1) } throws Exception("Not found")
-        coEvery { movieDao.getMovieDetailsById(1) } returns fakeCachedDetailsEntity
+        coEvery { movieDao.getMovieDetailsById(1) } returns fakeCachedDetailsEntity.copy(
+            cachedAt = STALE_CACHED_AT,
+        )
 
-        val result = repository.getMovieDetails(1)
+        val result = cachePolicyRepository.getMovieDetails(1)
 
         assertEquals(1, result.id)
         assertEquals("Inception", result.title)
         coVerify { movieDao.getMovieDetailsById(1) }
+        coVerify { api.getMovieDetails(1) }
         coVerify(exactly = 0) { movieDao.getMoviesByCategoryAndPage(any(), any()) }
     }
 
@@ -457,5 +538,11 @@ class MovieRepositoryImplTest {
         coEvery { movieDao.deleteWatchedMovie(1) } throws IllegalStateException("Storage error")
 
         repository.removeWatchedMovie(1)
+    }
+
+    private companion object {
+        const val NOW = 1_700_000_000_000L
+        const val FRESH_CACHED_AT = NOW - 60_000L
+        const val STALE_CACHED_AT = NOW - 25 * 60 * 60 * 1000L
     }
 }

@@ -5,6 +5,8 @@ import java.io.IOException
 import kotlinx.coroutines.CancellationException
 import retrofit2.HttpException
 import t.me.octopusapps.cinemapulse.data.local.dao.MovieDao
+import t.me.octopusapps.cinemapulse.data.local.entities.MovieDetailsEntity
+import t.me.octopusapps.cinemapulse.data.local.entities.MovieEntity
 import t.me.octopusapps.cinemapulse.data.local.mapper.toDetailsEntity
 import t.me.octopusapps.cinemapulse.data.local.mapper.toDomain
 import t.me.octopusapps.cinemapulse.data.local.mapper.toEntity
@@ -19,51 +21,65 @@ import t.me.octopusapps.domain.models.MovieCategory
 import t.me.octopusapps.domain.models.MovieList
 import t.me.octopusapps.domain.repositories.MovieRepository
 
-internal class MovieRepositoryImpl(private val api: MovieApi, private val movieDao: MovieDao) :
-    MovieRepository {
+internal class MovieRepositoryImpl(
+    private val api: MovieApi,
+    private val movieDao: MovieDao,
+    private val currentTimeMillis: () -> Long = System::currentTimeMillis,
+) : MovieRepository {
 
     override suspend fun getPopularMovies(page: Int): MovieList =
         getMoviesByCategory(MovieCategory.POPULAR, page)
 
-    override suspend fun getMoviesByCategory(category: MovieCategory, page: Int): MovieList = try {
-        val response = when (category) {
-            MovieCategory.POPULAR -> api.getPopularMovies(page = page)
-            MovieCategory.TOP_RATED -> api.getTopRatedMovies(page = page)
-            MovieCategory.UPCOMING -> api.getUpcomingMovies(page = page)
-            MovieCategory.NOW_PLAYING -> api.getNowPlayingMovies(page = page)
-        }
-        val movieList = response.mapToMovieList()
-        movieDao.insertMovies(
-            movieList.results.map { it.toEntity(category, page, movieList.totalPages) },
-        )
-        movieList
-    } catch (e: CancellationException) {
-        throw e
-    } catch (e: Exception) {
+    override suspend fun getMoviesByCategory(category: MovieCategory, page: Int): MovieList {
         val cached = runStorageRequest {
             movieDao.getMoviesByCategoryAndPage(category.name, page)
         }
-        if (cached.isNotEmpty()) {
-            MovieList(
-                page = page,
-                results = cached.map { it.toDomain() },
-                totalPages = cached.first().totalPages,
+
+        if (cached.isFreshCache()) {
+            return cached.toMovieList(page)
+        }
+
+        return try {
+            val response = when (category) {
+                MovieCategory.POPULAR -> api.getPopularMovies(page = page)
+                MovieCategory.TOP_RATED -> api.getTopRatedMovies(page = page)
+                MovieCategory.UPCOMING -> api.getUpcomingMovies(page = page)
+                MovieCategory.NOW_PLAYING -> api.getNowPlayingMovies(page = page)
+            }
+            val movieList = response.mapToMovieList()
+            movieDao.insertMovies(
+                movieList.results.map { it.toEntity(category, page, movieList.totalPages) },
             )
-        } else {
-            throw e.toMovieError()
+            movieList
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            if (cached.isNotEmpty()) {
+                cached.toMovieList(page)
+            } else {
+                throw e.toMovieError()
+            }
         }
     }
 
-    override suspend fun getMovieDetails(movieId: Int): Movie = try {
-        val movie = api.getMovieDetails(movieId).mapToMovie()
-        movieDao.insertMovieDetails(movie.toDetailsEntity())
-        movie
-    } catch (e: CancellationException) {
-        throw e
-    } catch (e: Exception) {
-        runStorageRequest {
+    override suspend fun getMovieDetails(movieId: Int): Movie {
+        val cached = runStorageRequest {
             movieDao.getMovieDetailsById(movieId)
-        }?.toDomain() ?: throw e.toMovieError(movieId = movieId)
+        }
+
+        if (cached != null && cached.isFreshCache()) {
+            return cached.toDomain()
+        }
+
+        return try {
+            val movie = api.getMovieDetails(movieId).mapToMovie()
+            movieDao.insertMovieDetails(movie.toDetailsEntity())
+            movie
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            cached?.toDomain() ?: throw e.toMovieError(movieId = movieId)
+        }
     }
 
     override suspend fun searchMovies(query: String): MovieList = runRemoteRequest {
@@ -146,7 +162,22 @@ internal class MovieRepositoryImpl(private val api: MovieApi, private val movieD
         else -> MovieError.Unknown(this)
     }
 
+    private fun List<MovieEntity>.toMovieList(page: Int): MovieList = MovieList(
+        page = page,
+        results = map { it.toDomain() },
+        totalPages = first().totalPages,
+    )
+
+    private fun List<MovieEntity>.isFreshCache(): Boolean =
+        isNotEmpty() && all { it.isFreshCache() }
+
+    private fun MovieEntity.isFreshCache(): Boolean = currentTimeMillis() - cachedAt <= CACHE_TTL_MS
+
+    private fun MovieDetailsEntity.isFreshCache(): Boolean =
+        currentTimeMillis() - cachedAt <= CACHE_TTL_MS
+
     private companion object {
         const val HTTP_NOT_FOUND = 404
+        const val CACHE_TTL_MS = 24 * 60 * 60 * 1000L
     }
 }
