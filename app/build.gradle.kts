@@ -73,6 +73,10 @@ dependencies {
     // --- Navigation ---
     implementation(libs.navigation.compose)
 
+    // --- Paging ---
+    implementation(libs.androidx.paging.runtime)
+    implementation(libs.androidx.paging.compose)
+
     // --- Serialization ---
     implementation(libs.kotlinx.serialization.json)
 

@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -25,19 +24,21 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import t.me.octopusapps.cinemapulse.R
 import t.me.octopusapps.cinemapulse.presentation.components.MoviePosterCard
 import t.me.octopusapps.cinemapulse.presentation.components.StateMessageComponent
 import t.me.octopusapps.cinemapulse.presentation.config.labelRes
+import t.me.octopusapps.cinemapulse.presentation.errors.toMovieErrorMessage
 import t.me.octopusapps.cinemapulse.presentation.text.asString
 import t.me.octopusapps.domain.models.MovieCategory
 
@@ -48,22 +49,9 @@ internal fun MovieListScreen(
     onMovieClick: (Int) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val movies = viewModel.movies.collectAsLazyPagingItems()
     val gridState = rememberLazyGridState()
     val categories = MovieCategory.entries
-
-    val shouldLoadMore by remember {
-        derivedStateOf {
-            val lastVisible = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-            val total = gridState.layoutInfo.totalItemsCount
-            total > 0 && lastVisible >= total - 6
-        }
-    }
-
-    LaunchedEffect(shouldLoadMore) {
-        if (shouldLoadMore && uiState.canLoadMore) {
-            viewModel.loadNextPage()
-        }
-    }
 
     LaunchedEffect(uiState.selectedCategory) {
         gridState.scrollToItem(0)
@@ -105,7 +93,7 @@ internal fun MovieListScreen(
             }
 
             when {
-                uiState.isInitialLoading -> {
+                movies.loadState.refresh is LoadState.Loading -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center,
@@ -114,19 +102,20 @@ internal fun MovieListScreen(
                     }
                 }
 
-                uiState.error != null && uiState.movies.isEmpty() -> {
+                movies.loadState.refresh is LoadState.Error && movies.itemCount == 0 -> {
+                    val error = movies.loadState.refresh as LoadState.Error
                     StateMessageComponent(
                         modifier = Modifier.fillMaxSize(),
                         icon = Icons.Default.Warning,
                         title = stringResource(R.string.movie_list_load_error_title),
-                        message = uiState.error!!.asString(),
+                        message = error.error.toMovieErrorMessage().asString(),
                         actionLabel = stringResource(R.string.common_try_again),
-                        onActionClick = viewModel::retry,
+                        onActionClick = movies::retry,
                         isError = true,
                     )
                 }
 
-                uiState.movies.isEmpty() -> {
+                movies.itemCount == 0 -> {
                     StateMessageComponent(
                         modifier = Modifier.fillMaxSize(),
                         icon = Icons.Default.Search,
@@ -150,18 +139,21 @@ internal fun MovieListScreen(
                         verticalArrangement = Arrangement.spacedBy(20.dp),
                     ) {
                         items(
-                            items = uiState.movies,
-                            key = { movie -> movie.id },
-                        ) { movie ->
-                            MoviePosterCard(
-                                movie = movie,
-                                modifier = Modifier.animateItem(),
-                            ) {
-                                onMovieClick(movie.id)
+                            count = movies.itemCount,
+                            key = movies.itemKey { movie -> movie.id },
+                        ) { index ->
+                            val movie = movies[index]
+                            if (movie != null) {
+                                MoviePosterCard(
+                                    movie = movie,
+                                    modifier = Modifier.animateItem(),
+                                ) {
+                                    onMovieClick(movie.id)
+                                }
                             }
                         }
 
-                        if (uiState.isLoadingMore) {
+                        if (movies.loadState.append is LoadState.Loading) {
                             item(span = { GridItemSpan(maxLineSpan) }) {
                                 Box(
                                     modifier = Modifier
@@ -174,7 +166,8 @@ internal fun MovieListScreen(
                             }
                         }
 
-                        if (uiState.error != null && uiState.movies.isNotEmpty()) {
+                        if (movies.loadState.append is LoadState.Error) {
+                            val error = movies.loadState.append as LoadState.Error
                             item(span = { GridItemSpan(maxLineSpan) }) {
                                 StateMessageComponent(
                                     modifier = Modifier
@@ -185,9 +178,9 @@ internal fun MovieListScreen(
                                     title = stringResource(
                                         R.string.movie_list_load_more_error_title,
                                     ),
-                                    message = uiState.error!!.asString(),
+                                    message = error.error.toMovieErrorMessage().asString(),
                                     actionLabel = stringResource(R.string.common_retry),
-                                    onActionClick = viewModel::retry,
+                                    onActionClick = movies::retry,
                                     isError = true,
                                     compact = true,
                                 )
